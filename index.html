@@ -6,46 +6,25 @@
   <title>Режим сна — Telegram WebApp</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root {
-      --bg: #0f1115;
-      --card: #161923;
-      --text: #e9eef6;
-      --muted: #9aa4b2;
-      --border: #232838;
-      --accent: #4f8cff;
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0; padding: 0; height: 100%;
-      background: var(--bg); color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial;
-    }
-    .wrap { min-height: 100%; display: grid; place-items: center; padding: 24px; }
-    .card {
-      width: 100%; max-width: 560px; background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.35);
-    }
-    h1 { margin: 0 0 12px; font-size: 20px; }
-    p { margin: 0 0 18px; color: var(--muted); }
-    .grid { display: grid; gap: 12px; }
-    .menu-btn {
-      display: flex; align-items: center; justify-content: space-between;
-      width: 100%; padding: 14px 16px; font-size: 16px; border-radius: 12px; border: 1px solid var(--border);
-      background: #10141e; color: var(--text); cursor: pointer;
-    }
-    .row { display: grid; gap: 14px; }
-    .row.two { grid-template-columns: 1fr 1fr; }
-    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    input[type="time"] {
-      display: block; width: 100%; background: #0e1118; color: var(--text);
-      border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 16px;
-      outline: none; transition: border-color .2s ease;
-    }
-    input[type="time"]:focus { border-color: var(--accent); }
-    .hint { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
-    .topbar { display: flex; align-items: center; gap: 8px; margin: -8px 0 12px; }
-    .back { padding: 6px 10px; border-radius: 10px; background: #10141e; border: 1px solid var(--border); color: var(--text); cursor: pointer; }
-    .hidden { display: none; }
+    :root { --bg:#0f1115; --card:#161923; --text:#e9eef6; --muted:#9aa4b2; --border:#232838; --accent:#4f8cff; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
+    .wrap{min-height:100%;display:grid;place-items:center;padding:24px}
+    .card{width:100%;max-width:560px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,.35)}
+    h1{margin:0 0 12px;font-size:20px}
+    p{margin:0 0 18px;color:var(--muted)}
+    .grid{display:grid;gap:12px}
+    .menu-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;font-size:16px;border-radius:12px;border:1px solid var(--border);background:#10141e;color:var(--text);cursor:pointer}
+    .row{display:grid;gap:14px}
+    .row.two{grid-template-columns:1fr 1fr}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="time"]{display:block;width:100%;background:#0e1118;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;transition:border-color .2s}
+    input[type="time"]:focus{border-color:var(--accent)}
+    textarea{width:100%;min-height:120px;resize:vertical;background:#0e1118;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none}
+    .hint{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+    .topbar{display:flex;align-items:center;gap:8px;margin:-8px 0 12px}
+    .back{padding:6px 10px;border-radius:10px;background:#10141e;border:1px solid var(--border);color:var(--text);cursor:pointer}
+    .hidden{display:none}
   </style>
 </head>
 <body>
@@ -54,39 +33,36 @@
       <!-- HOME -->
       <section id="screen-home" class="grid">
         <h1>🌙 Главный экран</h1>
-        <p>Выбери раздел. Это мини-приложение бота для режима сна.</p>
+        <p>Мини-приложение бота для режима сна.</p>
         <button class="menu-btn" id="btn-settings">⚙️ Настройки <span>›</span></button>
-        <button class="menu-btn" disabled onclick="alert('Скоро!')">📊 Статистика <span>•</span></button>
-        <button class="menu-btn" disabled onclick="alert('Скоро!')">⏱️ Таймер <span>•</span></button>
+        <button class="menu-btn" disabled>📊 Статистика <span>•</span></button>
+        <button class="menu-btn" disabled>⏱️ Таймер <span>•</span></button>
       </section>
 
       <!-- SETTINGS -->
       <section id="screen-settings" class="grid hidden">
-        <div class="topbar">
-          <button class="back" id="back-from-settings">← Назад</button>
-          <h1 style="margin:0">⚙️ Настройки</h1>
-        </div>
+        <div class="topbar"><button class="back" id="back-from-settings">← Назад</button><h1 style="margin:0">⚙️ Настройки</h1></div>
         <button class="menu-btn" id="btn-edit-schedule">✏️ Изменить расписание <span>›</span></button>
+        <button class="menu-btn" id="btn-edit-goal">🎯 Изменить цель <span>›</span></button>
       </section>
 
       <!-- SCHEDULE -->
       <section id="screen-schedule" class="grid hidden">
-        <div class="topbar">
-          <button class="back" id="back-from-schedule">← Назад</button>
-          <h1 style="margin:0">🛌 Настройка режима сна</h1>
-        </div>
+        <div class="topbar"><button class="back" id="back-from-schedule">← Назад</button><h1 style="margin:0">🛌 Настройка режима сна</h1></div>
         <p>Укажи время отхода ко сну и пробуждения. Формат 24-часовой, HH:MM.</p>
         <div class="row two">
-          <div>
-            <label for="sleep">Отход ко сну</label>
-            <input id="sleep" type="time" step="60" required />
-          </div>
-          <div>
-            <label for="wake">Пробуждение</label>
-            <input id="wake" type="time" step="60" required />
-          </div>
+          <div><label for="sleep">Отход ко сну</label><input id="sleep" type="time" step="60" required /></div>
+          <div><label for="wake">Пробуждение</label><input id="wake" type="time" step="60" required /></div>
         </div>
         <div class="hint">Нажми системную кнопку внизу, чтобы отправить данные.</div>
+      </section>
+
+      <!-- GOAL -->
+      <section id="screen-goal" class="grid hidden">
+        <div class="topbar"><button class="back" id="back-from-goal">← Назад</button><h1 style="margin:0">🎯 Цель</h1></div>
+        <p><b>Я сделаю всё ради…</b> Напиши свою личную формулировку цели.</p>
+        <textarea id="goal" placeholder="например: здорового сна и энергии на каждый день"></textarea>
+        <div class="hint">Нажми системную кнопку внизу, чтобы сохранить цель.</div>
       </section>
     </div>
   </div>
@@ -94,84 +70,103 @@
   <script>
     const tg = window.Telegram?.WebApp;
 
-    // theme
-    function applyThemeFromTelegram() {
+    function applyTheme() {
       if (!tg) return;
-      const theme = tg.themeParams || {};
-      const bg = theme.bg_color || '#0f1115';
-      const text = theme.text_color || '#e9eef6';
-      const hint = theme.hint_color || '#9aa4b2';
-      const card = theme.secondary_bg_color || '#161923';
-      const border = theme.section_separator_color || '#232838';
-      document.documentElement.style.setProperty('--bg', bg);
-      document.documentElement.style.setProperty('--text', text);
-      document.documentElement.style.setProperty('--muted', hint);
-      document.documentElement.style.setProperty('--card', card);
-      document.documentElement.style.setProperty('--border', border);
+      const t = tg.themeParams || {};
+      const m = (k, d) => t[k] || d;
+      document.documentElement.style.setProperty('--bg', m('bg_color', '#0f1115'));
+      document.documentElement.style.setProperty('--text', m('text_color', '#e9eef6'));
+      document.documentElement.style.setProperty('--muted', m('hint_color', '#9aa4b2'));
+      document.documentElement.style.setProperty('--card', m('secondary_bg_color', '#161923'));
+      document.documentElement.style.setProperty('--border', m('section_separator_color', '#232838'));
     }
 
-    // navigation
-    function showScreen(name) {
-      for (const id of ['home','settings','schedule']) {
-        document.getElementById(`screen-${id}`).classList.toggle('hidden', id !== name);
+    function isValidTime(v){return /^\d{2}:\d{2}$/.test(v)}
+    function showScreen(name){
+      for(const id of ['home','settings','schedule','goal']){
+        document.getElementById(`screen-${id}`).classList.toggle('hidden', id!==name);
       }
-      if (!tg) return;
-      if (name === 'schedule') {
-        //tg.MainButton.setText('Отправить');
-        updateMainButton(); // decides show/hide
-      } else {
+      if(!tg) return;
+      if(name==='schedule'){
+        tg.MainButton.setText('Отправить');
+        updateMainButtonSchedule();
+      }else if(name==='goal'){
+        tg.MainButton.setText('Сохранить');
+        updateMainButtonGoal();
+      }else{
         tg.MainButton.hide();
       }
     }
 
-    function isValidTime(v) { return /^\d{2}:\d{2}$/.test(v); }
-
-    function updateMainButton() {
-      if (!tg) return;
-      const sleep = document.getElementById('sleep').value;
-      const wake = document.getElementById('wake').value;
-      const ok = isValidTime(sleep) && isValidTime(wake);
-      if (ok) tg.MainButton.show(); else tg.MainButton.hide();
+    function updateMainButtonSchedule(){
+      if(!tg) return;
+      const ok = isValidTime(sleep.value) && isValidTime(wake.value);
+      if(ok) tg.MainButton.show(); else tg.MainButton.hide();
+    }
+    function updateMainButtonGoal(){
+      if(!tg) return;
+      const ok = (goal.value || '').trim().length > 0;
+      if(ok) tg.MainButton.show(); else tg.MainButton.hide();
     }
 
-    function sendPayload() {
-      const sleep = document.getElementById('sleep').value;
-      const wake = document.getElementById('wake').value;
-      if (!isValidTime(sleep) || !isValidTime(wake)) return;
-      const payload = JSON.stringify({ sleep_time: sleep, wake_time: wake });
+    function sendPayload(){
+      const visibleSchedule = !document.getElementById('screen-schedule').classList.contains('hidden');
+      const visibleGoal = !document.getElementById('screen-goal').classList.contains('hidden');
 
-      try { tg?.sendData(payload); } catch (e) { console.error('sendData error', e); }
-      // опционально: визуальный фидбэк
-      try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
-      setTimeout(() => tg?.close(), 150);
+      let payload = {};
+      if(visibleSchedule){
+        const st = sleep.value, wt = wake.value;
+        if(!isValidTime(st) || !isValidTime(wt)) return;
+        payload.sleep_time = st; payload.wake_time = wt;
+      }
+      if(visibleGoal){
+        const g = (goal.value || '').trim();
+        if(!g) return;
+        payload.goal = g;
+      }
+
+      try{ tg?.sendData(JSON.stringify(payload)); }catch(e){ console.error(e); }
+      try{ tg?.HapticFeedback?.notificationOccurred('success'); }catch{}
+      setTimeout(()=>tg?.close(), 150);
     }
 
-    function init() {
-      if (tg) {
-        tg.ready();
-        tg.expand();
-        applyThemeFromTelegram();
-        tg.onEvent('themeChanged', applyThemeFromTelegram);
-
-        // слушаем нижнюю системную кнопку Telegram
+    function init(){
+      if(tg){
+        tg.ready(); tg.expand(); applyTheme();
+        tg.onEvent('themeChanged', applyTheme);
         tg.onEvent('mainButtonClicked', sendPayload);
       }
 
-      // wire nav
-      document.getElementById('btn-settings').addEventListener('click', () => showScreen('settings'));
-      document.getElementById('btn-edit-schedule').addEventListener('click', () => showScreen('schedule'));
-      document.getElementById('back-from-settings').addEventListener('click', () => showScreen('home'));
-      document.getElementById('back-from-schedule').addEventListener('click', () => showScreen('settings'));
+      // nav
+      btn-settings.onclick = ()=>showScreen('settings');
+      btn-edit-schedule.onclick = ()=>showScreen('schedule');
+      btn-edit-goal.onclick = ()=>showScreen('goal');
+      back-from-settings.onclick = ()=>showScreen('home');
+      back-from-schedule.onclick = ()=>showScreen('settings');
+      back-from-goal.onclick = ()=>showScreen('settings');
 
       // inputs
-      document.getElementById('sleep').addEventListener('input', updateMainButton);
-      document.getElementById('wake').addEventListener('input', updateMainButton);
+      sleep.addEventListener('input', updateMainButtonSchedule);
+      wake.addEventListener('input', updateMainButtonSchedule);
+      goal.addEventListener('input', updateMainButtonGoal);
 
-      // deep-link: ?screen=schedule
-      const params = new URLSearchParams(location.search);
-      const screen = (params.get('screen') || 'home').toLowerCase();
-      if (screen === 'schedule') showScreen('schedule'); else showScreen('home');
+      // deep link
+      const s = (new URLSearchParams(location.search).get('screen')||'home').toLowerCase();
+      if(s==='schedule') showScreen('schedule');
+      else if(s==='goal') showScreen('goal');
+      else showScreen('home');
     }
+
+    // element refs
+    const sleep = document.getElementById('sleep');
+    const wake = document.getElementById('wake');
+    const goal = document.getElementById('goal');
+    const btn_settings = document.getElementById('btn-settings');
+    const btn_edit_schedule = document.getElementById('btn-edit-schedule');
+    const btn_edit_goal = document.getElementById('btn-edit-goal');
+    const back_from_settings = document.getElementById('back-from-settings');
+    const back_from_schedule = document.getElementById('back-from-schedule');
+    const back_from_goal = document.getElementById('back-from-goal');
 
     init();
   </script>
