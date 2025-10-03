@@ -46,6 +46,10 @@
     }
     .seg-btn small { display:block; font-size:11px; color:var(--muted); margin-top:2px; }
     .seg-btn.active { background:var(--card); border-color:var(--border); box-shadow:0 1px 0 rgba(0,0,0,.05) inset; }
+    /* Task layout tweaks */
+    #screen-task .form { display: grid; gap: 14px; }
+    #screen-task .goal-line { margin: -6px 0 8px; color: var(--muted); }
+    #screen-task .segmented { width: 100%; }         /* чтобы шло ровно по ширине, как инпут */
   </style>
 </head>
 <body>
@@ -87,23 +91,28 @@
 
       <!-- TASK -->
       <section id="screen-task" class="grid hidden">
-        <div class="topbar"><button class="back" id="back-from-task">← Назад</button><h1 style="margin:0">✍️ Новая задача</h1></div>
+        <div class="topbar">
+          <button class="back" id="back-from-task">← Назад</button>
+          <h1 style="margin:0">✍️ Новая задача</h1>
+        </div>
         <p>Формат: <b>Я</b> [сделаю действие] <b>ради</b> [моей цели].</p>
-        <label for="action">Я</label>
-        <input id="action" type="text" placeholder="изучу материалы/сделаю 10 отжиманий" />
-
-        <p>ради <b id="goal-view">достижения мечты</b></p>
-
-        <div>
+      
+        <div class="form">
+          <label for="action">Я</label>
+          <input id="action" type="text" placeholder="изучу материалы/сделаю 10 отжиманий" />
+      
+          <!-- перенесено ВЫШЕ звёзд -->
+          <p class="goal-line">ради <b id="goal-view">достижения мечты</b></p>
+      
           <label>Влияние задачи на достижение цели</label>
           <div class="segmented" id="importance">
             <button type="button" class="seg-btn" data-val="1">★☆☆<small>Слабое</small></button>
             <button type="button" class="seg-btn" data-val="2">★★☆<small>Среднее</small></button>
             <button type="button" class="seg-btn" data-val="3">★★★<small>Прямое</small></button>
           </div>
+      
+          <div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
         </div>
-        
-        <div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
       </section>
     </div>
   </div>
