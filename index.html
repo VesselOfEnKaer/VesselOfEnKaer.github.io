@@ -88,20 +88,20 @@
       <!-- TASK -->
       <section id="screen-task" class="grid hidden">
         <div class="topbar"><button class="back" id="back-from-task">← Назад</button><h1 style="margin:0">✍️ Новая задача</h1></div>
-        <p>Формат: <b>Я</b> [действие] <b>ради</b> [твоей цели].</p>
-        <label for="action">Я …</label>
-        <input id="action" type="text" placeholder="выйду на пробежку / сделаю 10 отжиманий" />
+        <p>Формат: <b>Я</b> [сделаю действие] <b>ради</b> [моей цели].</p>
+        <label for="action">Я</label>
+        <input id="action" type="text" placeholder="изучу материалы/сделаю 10 отжиманий" />
 
         <div>
-          <label>Важность задачи</label>
+          <label>Влияние задачи на достижение цели</label>
           <div class="segmented" id="importance">
-            <button type="button" class="seg-btn" data-val="1">★☆☆<small>легко</small></button>
-            <button type="button" class="seg-btn" data-val="2">★★☆<small>средне</small></button>
-            <button type="button" class="seg-btn" data-val="3">★★★<small>важно</small></button>
+            <button type="button" class="seg-btn" data-val="1">★☆☆<small>Слабое</small></button>
+            <button type="button" class="seg-btn" data-val="2">★★☆<small>Среднее</small></button>
+            <button type="button" class="seg-btn" data-val="3">★★★<small>Прямое</small></button>
           </div>
         </div>
 
-        <p>ради: <b id="goal-view">(цель)</b></p>
+        <p>ради <b id="goal-view">достижения мечты</b></p>
         <div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
       </section>
     </div>
