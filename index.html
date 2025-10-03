@@ -1,6 +1,7 @@
 <!DOCTYPE html> 
 <html lang="ru">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -86,6 +87,53 @@
   @media (max-width: 360px) {
     .grid, .row { gap: 10px; }
   }
+
+  /* Карточка не даёт ничему «выпасть» наружу + адаптивная ширина/паддинги */
+.card{
+  width: min(560px, 92vw);
+  padding: clamp(14px, 4vw, 20px);
+  overflow: hidden;         /* ключевая строка */
+  box-sizing: border-box;
+}
+
+/* Гриды всегда в ширину карточки */
+.grid, .row{ width: 100%; }
+
+/* Внутренние колонки не растягивают родителя */
+.row > div{ min-width: 0; }
+
+/* На мобильных — одна колонка */
+@media (max-width: 520px){
+  .row.two{ grid-template-columns: 1fr; }
+  .grid, .row{ gap: 12px; }
+}
+
+/* Инпуты времени: не вылазят, стабильная высота, отключаем нативный вид iOS */
+input[type="time"]{
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: block;
+  box-sizing: border-box;
+  height: 48px;             /* стабильная высота */
+  line-height: 48px;
+  padding: 0 14px;
+  appearance: none;
+  -webkit-appearance: none;  /* iOS Safari */
+  background-clip: padding-box;
+  border-radius: 12px;
+}
+
+/* (опционально) чуть приглушить иконку календаря на светлой теме */
+input[type="time"]::-webkit-calendar-picker-indicator{
+  opacity: .8;
+}
+
+/* На очень узких экранах – ещё компактнее */
+@media (max-width: 360px){
+  .grid, .row{ gap: 10px; }
+  .card{ padding: 12px; }
+}
 </style>
 </head>
 <body>
@@ -114,7 +162,7 @@
       <section id="screen-schedule" class="grid hidden">
         <div class="topbar">
           <button class="back" onclick="showScreen('settings')">← Назад</button>
-          <h1 style="margin:0">🛌 Настройка режима сна v３</h1>
+          <h1 style="margin:0">🛌 Настройка режима сна v5</h1>
         </div>
         <p>Укажи время отхода ко сну и пробуждения. Формат 24-часовой, HH:MM.</p>
         <div class="row two">
