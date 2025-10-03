@@ -1,313 +1,158 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Режим сна — Telegram WebApp</title>
+  <title>ForHer — мини‑приложение</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-  :root {
-    /* тёмная палитра по умолчанию (на случай, если WebApp API недоступен) */ 
-    --bg: #0f1115;
-    --card: #161923;
-    --text: #e9eef6;
-    --muted: #9aa4b2;
-    --border: #232838;
-    --surface: #10141e;      /* фон элементов (кнопки/inputs) */
-    --accent: #4f8cff;
-    --btn-bg: var(--surface);
-    --btn-fg: var(--text);
-    --input-bg: #0e1118;
-    --input-fg: var(--text);
-  }
-  * { box-sizing: border-box }
-  html, body {
-    margin: 0; padding: 0; height: 100%;
-    background: var(--bg); color: var(--text);
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial;
-  }
-  .wrap { min-height: 100%; display: grid; place-items: center; padding: 24px }
-  .card {
-    width: 100%; max-width: 560px; background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.35);
-  }
-  h1 { margin: 0 0 12px; font-size: 20px }
-  p  { margin: 0 0 18px; color: var(--muted) }
-  .grid { display: grid; gap: 12px }
-
-  /* Кнопки меню теперь всегда читаемые в любой теме */
-  .menu-btn{
-    display:flex; align-items:center; justify-content:space-between;
-    width:100%; padding:14px 16px; font-size:16px; border-radius:12px;
-    background: var(--btn-bg); color: var(--btn-fg);
-    border: 1px solid var(--border); cursor:pointer;
-  }
-  .menu-btn:disabled { opacity: .6; cursor: not-allowed }
-
-  .row { display:grid; gap:14px }
-  .row.two { grid-template-columns:1fr 1fr }
-
-  label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px }
-
-  input[type="time"], textarea {
-    display:block; width:100%; background: var(--input-bg); color: var(--input-fg);
-    border:1px solid var(--border); border-radius:12px; padding:12px 14px; font-size:16px;
-    outline:none; transition:border-color .2s
-  }
-  input[type="time"]:focus, textarea:focus { border-color: var(--accent) }
-  textarea { min-height:120px; resize:vertical }
-
-  .hint { font-size:12px; color:var(--muted); margin-top:8px; text-align:center }
-  .topbar { display:flex; align-items:center; gap:8px; margin:-8px 0 12px }
-  .back { padding:6px 10px; border-radius:10px; background: var(--surface); border:1px solid var(--border); color: var(--text); cursor:pointer }
-  .hidden { display:none }
-
-  /* инпуты не растягиваются за пределы колонки */
-  .row.two > div { min-width: 0; }
-  
-  /* инпуты всегда вписываются в ширину */
-  input[type="time"] {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-  }
-  
-  /* мобильный брейкпоинт — одна колонка вместо двух */
-  @media (max-width: 480px) {
-    .row.two { grid-template-columns: 1fr; }
-    .card { padding: 16px; }             /* чуть компактнее отступы */
-  }
-  
-  /* на очень узких экранах можно ещё уменьшить зазор */
-  @media (max-width: 360px) {
-    .grid, .row { gap: 10px; }
-  }
-
-  /* Карточка не даёт ничему «выпасть» наружу + адаптивная ширина/паддинги */
-.card{
-  width: min(560px, 92vw);
-  padding: clamp(14px, 4vw, 20px);
-  overflow: hidden;         /* ключевая строка */
-  box-sizing: border-box;
-}
-
-/* Гриды всегда в ширину карточки */
-.grid, .row{ width: 100%; }
-
-/* Внутренние колонки не растягивают родителя */
-.row > div{ min-width: 0; }
-
-/* На мобильных — одна колонка */
-@media (max-width: 520px){
-  .row.two{ grid-template-columns: 1fr; }
-  .grid, .row{ gap: 12px; }
-}
-
-/* Инпуты времени: не вылазят, стабильная высота, отключаем нативный вид iOS */
-input[type="time"]{
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  display: block;
-  box-sizing: border-box;
-  height: 48px;             /* стабильная высота */
-  line-height: 48px;
-  padding: 0 14px;
-  appearance: none;
-  -webkit-appearance: none;  /* iOS Safari */
-  background-clip: padding-box;
-  border-radius: 12px;
-}
-
-/* (опционально) чуть приглушить иконку календаря на светлой теме */
-input[type="time"]::-webkit-calendar-picker-indicator{
-  opacity: .8;
-}
-
-/* На очень узких экранах – ещё компактнее */
-@media (max-width: 360px){
-  .grid, .row{ gap: 10px; }
-  .card{ padding: 12px; }
-}
-</style>
+    :root { --bg:#f6f8fc; --card:#ffffff; --text:#0b1220; --muted:#5b6676; --border:#e6e9f2; --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text); --input-bg:#fbfcff; --input-fg:var(--text); }
+    @media (prefers-color-scheme: dark){ :root { --bg:#0f1115; --card:#161923; --text:#e9eef6; --muted:#9aa4b2; --border:#232838; --surface:#10141e; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text); --input-bg:#0e1118; --input-fg:var(--text); } }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
+    .wrap{min-height:100%;display:grid;place-items:center;padding:24px}
+    .card{width:min(560px,92vw);padding:clamp(14px,4vw,20px);background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden}
+    h1{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 18px;color:var(--muted)}
+    .grid{display:grid;gap:12px;width:100%}
+    .menu-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;font-size:16px;border-radius:12px;background:var(--btn-bg);color:var(--btn-fg);border:1px solid var(--border);cursor:pointer}
+    .row{display:grid;gap:14px;width:100%}
+    .row.two{grid-template-columns:1fr 1fr}
+    .row>div{min-width:0}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="time"], input[type="text"], textarea{display:block;width:100%;max-width:100%;min-width:0;background:var(--input-bg);color:var(--input-fg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;transition:border-color .2s}
+    input[type="time"]{height:48px;line-height:48px;appearance:none;-webkit-appearance:none;background-clip:padding-box}
+    input[type="time"]:focus, input[type="text"]:focus, textarea:focus{border-color:var(--accent)}
+    textarea{min-height:120px;resize:vertical}
+    .hint{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+    .topbar{display:flex;align-items:center;gap:8px;margin:-8px 0 12px}
+    .back{padding:6px 10px;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer}
+    .hidden{display:none}
+    @media (max-width:520px){ .row.two{grid-template-columns:1fr} .grid,.row{gap:12px} }
+    @media (max-width:360px){ .grid,.row{gap:10px} .card{padding:12px} }
+  </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <!-- HOME -->
       <section id="screen-home" class="grid">
-        <h1>🌙 Главный экран</h1>
-        <p>Мини-приложение бота для режима сна.</p>
-        <button class="menu-btn" onclick="showScreen('settings')">⚙️ Настройки <span>›</span></button>
-        <button class="menu-btn" disabled>📊 Статистика <span>•</span></button>
-        <button class="menu-btn" disabled>⏱️ Таймер <span>•</span></button>
+        <h1>🏠 Главный экран</h1>
+        <p>Мини‑приложение ForHer.</p>
+        <button class="menu-btn" id="btn-settings">⚙️ Настройки <span>›</span></button>
+        <button class="menu-btn" id="btn-task">✍️ Создать задачу <span>›</span></button>
       </section>
 
       <!-- SETTINGS -->
       <section id="screen-settings" class="grid hidden">
-        <div class="topbar">
-          <button class="back" onclick="showScreen('home')">← Назад</button>
-          <h1 style="margin:0">⚙️ Настройки</h1>
-        </div>
-        <button class="menu-btn" onclick="showScreen('schedule')">✏️ Изменить расписание <span>›</span></button>
-        <button class="menu-btn" onclick="showScreen('goal')">🎯 Изменить цель <span>›</span></button>
+        <div class="topbar"><button class="back" id="back-from-settings">← Назад</button><h1 style="margin:0">⚙️ Настройки</h1></div>
+        <button class="menu-btn" id="btn-edit-schedule">🛌 Изменить расписание <span>›</span></button>
+        <button class="menu-btn" id="btn-edit-goal">🎯 Изменить цель <span>›</span></button>
       </section>
 
       <!-- SCHEDULE -->
       <section id="screen-schedule" class="grid hidden">
-        <div class="topbar">
-          <button class="back" onclick="showScreen('settings')">← Назад</button>
-          <h1 style="margin:0">🛌 Настройка режима сна v5</h1>
-        </div>
-        <p>Укажи время отхода ко сну и пробуждения. Формат 24-часовой, HH:MM.</p>
+        <div class="topbar"><button class="back" id="back-from-schedule">← Назад</button><h1 style="margin:0">🛌 Настройка режима сна</h1></div>
+        <p>Укажи время отхода ко сну и пробуждения. Формат 24‑часовой, HH:MM.</p>
         <div class="row two">
-          <div><label for="sleep">Отход ко сну</label><input id="sleep" type="time" step="60" required oninput="updateMainButtonSchedule()" /></div>
-          <div><label for="wake">Пробуждение</label><input id="wake" type="time" step="60" required oninput="updateMainButtonSchedule()" /></div>
+          <div><label for="sleep">Отход ко сну</label><input id="sleep" type="time" step="60" required /></div>
+          <div><label for="wake">Пробуждение</label><input id="wake" type="time" step="60" required /></div>
         </div>
         <div class="hint">Нажми системную кнопку внизу, чтобы отправить данные.</div>
       </section>
 
       <!-- GOAL -->
       <section id="screen-goal" class="grid hidden">
-        <div class="topbar">
-          <button class="back" onclick="showScreen('settings')">← Назад</button>
-          <h1 style="margin:0">🎯 Цель</h1>
-        </div>
-        <p><b>Я сделаю всё ради…</b> Напиши свою личную формулировку цели.</p>
-        <textarea id="goal" placeholder="например: здорового сна и энергии на каждый день" oninput="updateMainButtonGoal()"></textarea>
+        <div class="topbar"><button class="back" id="back-from-goal">← Назад</button><h1 style="margin:0">🎯 Цель</h1></div>
+        <p><b>Я сделаю всё ради…</b> Напиши свою формулировку цели.</p>
+        <textarea id="goal" placeholder="например: здорового сна и энергии на каждый день"></textarea>
         <div class="hint">Нажми системную кнопку внизу, чтобы сохранить цель.</div>
+      </section>
+
+      <!-- TASK -->
+      <section id="screen-task" class="grid hidden">
+        <div class="topbar"><button class="back" id="back-from-task">← Назад</button><h1 style="margin:0">✍️ Новая задача</h1></div>
+        <p>Формат: <b>Я</b> [действие] <b>ради</b> [твоей цели].</p>
+        <label for="action">Я …</label>
+        <input id="action" type="text" placeholder="выйду на пробежку / сделаю 10 отжиманий" />
+        <p>ради: <b id="goal-view">(цель)</b></p>
+        <div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
       </section>
     </div>
   </div>
 
   <script>
-  // ===== Telegram WebApp =====
-  const tg = window.Telegram?.WebApp;
+    const tg = window.Telegram?.WebApp;
+    const $ = (id) => document.getElementById(id);
+    const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
 
-  // ------- helpers -------
-  const $ = (id) => document.getElementById(id);
-  const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
-
-  function applyTheme() {
-    const scheme = tg?.colorScheme ?? 'light';
-    const set = (k, v) => document.documentElement.style.setProperty(k, v);
-
-    if (scheme === 'dark') {
-      set('--bg','#0f1115'); set('--card','#161923'); set('--text','#e9eef6');
-      set('--muted','#9aa4b2'); set('--border','#232838'); set('--surface','#10141e');
-      set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)');
-      set('--input-bg','#0e1118'); set('--input-fg','var(--text)');
-    } else {
-      set('--bg','#f6f8fc'); set('--card','#ffffff'); set('--text','#0b1220');
-      set('--muted','#5b6676'); set('--border','#e6e9f2'); set('--surface','#f1f4fa');
-      set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)');
-      set('--input-bg','#fbfcff'); set('--input-fg','var(--text)');
-    }
-    if (tg?.themeParams?.button_color) {
-      set('--accent', tg.themeParams.button_color);
-    }
-  }
-
-  // ------- navigation -------
-  function showScreen(name) {
-    ['home','settings','schedule','goal'].forEach(id => {
-      $(`screen-${id}`).classList.toggle('hidden', id !== name);
-    });
-
-    if (!tg) return;
-    if (name === 'schedule') {
-      tg.MainButton.setText('Отправить');
-      updateMainButtonSchedule();
-    } else if (name === 'goal') {
-      tg.MainButton.setText('Сохранить');
-      updateMainButtonGoal();
-    } else {
-      tg.MainButton.hide();
-    }
-  }
-
-  // ------- validators for MainButton -------
-  function updateMainButtonSchedule() {
-    if (!tg) return;
-    const st = $('sleep')?.value || '';
-    const wt = $('wake')?.value  || '';
-    tg.MainButton[ (isValidTime(st) && isValidTime(wt)) ? 'show' : 'hide' ]();
-  }
-  function updateMainButtonGoal() {
-    if (!tg) return;
-    const g = ($('goal')?.value || '').trim();
-    tg.MainButton[ g ? 'show' : 'hide' ]();
-  }
-
-  // ------- send to bot -------
-  function sendPayload() {
-    const onSchedule = !$('screen-schedule').classList.contains('hidden');
-    const onGoal     = !$('screen-goal').classList.contains('hidden');
-
-    const payload = {};
-    if (onSchedule) {
-      const st = $('sleep').value, wt = $('wake').value;
-      if (!isValidTime(st) || !isValidTime(wt)) return;
-      payload.sleep_time = st; payload.wake_time = wt;
-    }
-    if (onGoal) {
-      const g = ($('goal').value || '').trim();
-      if (!g) return;
-      payload.goal = g;
+    function applyTheme(){
+      const scheme = tg?.colorScheme ?? 'light';
+      const set = (k,v)=>document.documentElement.style.setProperty(k,v);
+      if(scheme==='dark'){
+        set('--bg','#0f1115'); set('--card','#161923'); set('--text','#e9eef6'); set('--muted','#9aa4b2'); set('--border','#232838'); set('--surface','#10141e'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#0e1118'); set('--input-fg','var(--text)');
+      } else {
+        set('--bg','#f6f8fc'); set('--card','#ffffff'); set('--text','#0b1220'); set('--muted','#5b6676'); set('--border','#e6e9f2'); set('--surface','#f1f4fa'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#fbfcff'); set('--input-fg','var(--text)');
+      }
+      if(tg?.themeParams?.button_color){ set('--accent', tg.themeParams.button_color); }
     }
 
-    try { tg?.sendData(JSON.stringify(payload)); } catch(e) { console.error('sendData error', e); }
-    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
-    setTimeout(() => tg?.close(), 120);
-  }
+    function showScreen(name){
+      ['home','settings','schedule','goal','task'].forEach(id=>{
+        $(`screen-${id}`).classList.toggle('hidden', id!==name);
+      });
+      if(!tg) return;
+      if(name==='schedule'){ tg.MainButton.setText('Отправить'); updateMainButtonSchedule(); }
+      else if(name==='goal'){ tg.MainButton.setText('Сохранить'); updateMainButtonGoal(); }
+      else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); }
+      else { tg.MainButton.hide(); }
+    }
 
-  // ------- init -------
-  function bindEvents() {
-    // заменить inline-обработчики: вешаем слушатели тут
-    $('btn-settings')?.addEventListener('click', () => showScreen('settings'));
-    $('btn-edit-schedule')?.addEventListener('click', () => showScreen('schedule'));
-    $('btn-edit-goal')?.addEventListener('click', () => showScreen('goal'));
-    $('back-from-settings')?.addEventListener('click', () => showScreen('home'));
-    $('back-from-schedule')?.addEventListener('click', () => showScreen('settings'));
-    $('back-from-goal')?.addEventListener('click', () => showScreen('settings'));
+    function updateMainButtonSchedule(){ if(!tg) return; const ok = isValidTime($('sleep').value||'') && isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
+    function updateMainButtonGoal(){ if(!tg) return; const ok = ( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
+    function updateMainButtonTask(){ if(!tg) return; const ok = ( $('action').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
 
-    $('sleep')?.addEventListener('input', updateMainButtonSchedule);
-    $('wake')?.addEventListener('input', updateMainButtonSchedule);
-    $('goal')?.addEventListener('input', updateMainButtonGoal);
-  }
+    function sendPayload(){
+      const payload = {};
+      if(!$('screen-schedule').classList.contains('hidden')){ const st=$('sleep').value, wt=$('wake').value; if(!isValidTime(st)||!isValidTime(wt)) return; payload.sleep_time=st; payload.wake_time=wt; }
+      if(!$('screen-goal').classList.contains('hidden')){ const g=($('goal').value||'').trim(); if(!g) return; payload.goal=g; }
+      if(!$('screen-task').classList.contains('hidden')){ const a=($('action').value||'').trim(); if(!a) return; const goal=($('goal-view').textContent||'').trim(); payload.task = `Я ${a} ради ${goal}`; }
+      try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
+      try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
+      setTimeout(()=>tg?.close(), 120);
+    }
 
-  function init() {
-    try {
-      tg?.ready();
-      tg?.expand();
-      applyTheme();
-      tg?.onEvent('themeChanged', applyTheme);
-      tg?.onEvent('mainButtonClicked', sendPayload);
-    } catch(e) { /* ignore */ }
+    function bind(){
+      $('btn-settings')?.addEventListener('click', ()=>showScreen('settings'));
+      $('btn-task')?.addEventListener('click', ()=>showScreen('task'));
+      $('btn-edit-schedule')?.addEventListener('click', ()=>showScreen('schedule'));
+      $('btn-edit-goal')?.addEventListener('click', ()=>showScreen('goal'));
+      $('back-from-settings')?.addEventListener('click', ()=>showScreen('home'));
+      $('back-from-schedule')?.addEventListener('click', ()=>showScreen('settings'));
+      $('back-from-goal')?.addEventListener('click', ()=>showScreen('settings'));
+      $('back-from-task')?.addEventListener('click', ()=>showScreen('home'));
+      $('sleep')?.addEventListener('input', updateMainButtonSchedule);
+      $('wake')?.addEventListener('input', updateMainButtonSchedule);
+      $('goal')?.addEventListener('input', updateMainButtonGoal);
+      $('action')?.addEventListener('input', updateMainButtonTask);
+    }
 
-    bindEvents();
+    function init(){
+      tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme); tg?.onEvent('mainButtonClicked', sendPayload);
+      bind();
+      const params = new URLSearchParams(location.search);
+      const screen = (params.get('screen')||'home').toLowerCase();
+      const goal = params.get('goal'); if(goal){ $('goal-view').textContent = goal; }
+      if(screen==='schedule') showScreen('schedule');
+      else if(screen==='goal') showScreen('goal');
+      else if(screen==='task') showScreen('task');
+      else showScreen('home');
+    }
 
-    // robust deep-link: учитываем и v=..., и любой порядок параметров
-    const params = new URLSearchParams(location.search);
-    const screen = (params.get('screen') || '').toLowerCase();
-
-    // иногда WebView проглатывает первый show — повторим после рендера
-    const target = (screen === 'schedule' || screen === 'goal') ? screen : 'home';
-    showScreen(target);
-    setTimeout(() => showScreen(target), 0); // страховка
-  }
-
-  document.addEventListener('DOMContentLoaded', init);
-
-  // На случай скрытой ошибки, чтобы было понятно что случилось
-  window.addEventListener('error', (e) => {
-    console.log('JS error:', e.message);
-  });
-</script>
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>
