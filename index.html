@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Выбор времени</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f3f3f3;
+        color: #333;
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 10px;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+      }
+      input[type="time"] {
+        width: 100%;
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        margin-top: 15px;
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        color: white;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:disabled {
+        background-color: #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="title"></h1>
+      <label for="timeInput">Выберите время:</label>
+      <input type="time" id="timeInput" />
+      <button id="submitBtn" disabled>Отправить</button>
+    </div>
+
+    <script>
+      // Parse query parameters to get the field name (sleep_time or wake_time)
+      const params = new URLSearchParams(window.location.search);
+      const field = params.get("field") || "";
+      // Set title based on field
+      const title = document.getElementById("title");
+      if (field === "sleep_time") {
+        title.textContent = "Новое время сна";
+      } else if (field === "wake_time") {
+        title.textContent = "Новое время подъёма";
+      } else {
+        title.textContent = "Выбор времени";
+      }
+      const timeInput = document.getElementById("timeInput");
+      const submitBtn = document.getElementById("submitBtn");
+      timeInput.addEventListener("input", () => {
+        submitBtn.disabled = !timeInput.value;
+      });
+      submitBtn.addEventListener("click", () => {
+        const value = timeInput.value;
+        // Compose data to send back to the bot
+        const data = { field: field, value: value };
+        // Send data back to the bot
+        if (window.Telegram && window.Telegram.WebApp) {
+          window.Telegram.WebApp.sendData(JSON.stringify(data));
+          window.Telegram.WebApp.close();
+        } else {
+          alert("Не удалось отправить данные: Telegram WebApp API недоступен.");
+        }
+      });
+    </script>
+  </body>
+</html>
