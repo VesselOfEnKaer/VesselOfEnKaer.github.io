@@ -149,6 +149,8 @@
       if (!isValidTime(sleep) || !isValidTime(wake)) return;
       const payload = JSON.stringify({ sleep_time: sleep, wake_time: wake });
       try { tg?.sendData(payload); } catch (e) { console.error('sendData error', e); }
+      console.log("Отправляю:", payload);
+      alert("Отправка: " + payload);
       setTimeout(() => tg?.close(), 150);
     }
 
