@@ -64,6 +64,28 @@
   .topbar { display:flex; align-items:center; gap:8px; margin:-8px 0 12px }
   .back { padding:6px 10px; border-radius:10px; background: var(--surface); border:1px solid var(--border); color: var(--text); cursor:pointer }
   .hidden { display:none }
+
+  /* инпуты не растягиваются за пределы колонки */
+  .row.two > div { min-width: 0; }
+  
+  /* инпуты всегда вписываются в ширину */
+  input[type="time"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  
+  /* мобильный брейкпоинт — одна колонка вместо двух */
+  @media (max-width: 480px) {
+    .row.two { grid-template-columns: 1fr; }
+    .card { padding: 16px; }             /* чуть компактнее отступы */
+  }
+  
+  /* на очень узких экранах можно ещё уменьшить зазор */
+  @media (max-width: 360px) {
+    .grid, .row { gap: 10px; }
+  }
 </style>
 </head>
 <body>
