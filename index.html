@@ -134,33 +134,40 @@
 
     function isValidTime(v) { return /^\d{2}:\d{2}$/.test(v); }
 
-    function updateMainButton() {
-      if (!tg) return;
-      const sleep = document.getElementById('sleep').value;
-      const wake = document.getElementById('wake').value;
-      const ok = isValidTime(sleep) && isValidTime(wake);
-      document.getElementById('send').disabled = !ok;
-      if (ok) tg.MainButton.show(); else tg.MainButton.hide();
-    }
-
-    function sendPayload() {
-      const sleep = document.getElementById('sleep').value;
-      const wake = document.getElementById('wake').value;
-      if (!isValidTime(sleep) || !isValidTime(wake)) return;
-      const payload = JSON.stringify({ sleep_time: sleep, wake_time: wake });
-      try { tg?.sendData(payload); } catch (e) { console.error('sendData error', e); }
-      console.log("Отправляю:", payload);
-      alert("Отправка: " + payload);
-      setTimeout(() => tg?.close(), 150);
-    }
-
     function init() {
-      applyThemeFromTelegram();
       if (tg) {
         tg.ready();
         tg.expand();
-        tg.MainButton.onClick(sendPayload);
+    
+        // слушаем системную кнопку
+        tg.onEvent("mainButtonClicked", sendPayload);
       }
+    
+      document.getElementById("sleep").addEventListener("input", updateMainButton);
+      document.getElementById("wake").addEventListener("input", updateMainButton);
+    }
+    
+    function updateMainButton() {
+      if (!tg) return;
+      const sleep = document.getElementById("sleep").value;
+      const wake = document.getElementById("wake").value;
+      if (isValidTime(sleep) && isValidTime(wake)) {
+        tg.MainButton.setText("Отправить");
+        tg.MainButton.show();
+      } else {
+        tg.MainButton.hide();
+      }
+    }
+    
+    function sendPayload() {
+      const sleep = document.getElementById("sleep").value;
+      const wake = document.getElementById("wake").value;
+      if (!isValidTime(sleep) || !isValidTime(wake)) return;
+    
+      const payload = JSON.stringify({ sleep_time: sleep, wake_time: wake });
+      tg.sendData(payload);
+      tg.close();
+    }
 
       // Wire buttons
       document.getElementById('btn-settings').addEventListener('click', () => showScreen('settings'));
