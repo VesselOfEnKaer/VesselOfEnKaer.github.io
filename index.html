@@ -6,26 +6,62 @@
   <title>Режим сна — Telegram WebApp</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root { --bg:#0f1115; --card:#161923; --text:#e9eef6; --muted:#9aa4b2; --border:#232838; --accent:#4f8cff; }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
-    .wrap{min-height:100%;display:grid;place-items:center;padding:24px}
-    .card{width:100%;max-width:560px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,.35)}
-    h1{margin:0 0 12px;font-size:20px}
-    p{margin:0 0 18px;color:var(--muted)}
-    .grid{display:grid;gap:12px}
-    .menu-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;font-size:16px;border-radius:12px;border:1px solid var(--border);background:#10141e;color:var(--text);cursor:pointer}
-    .row{display:grid;gap:14px}
-    .row.two{grid-template-columns:1fr 1fr}
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    input[type="time"]{display:block;width:100%;background:#0e1118;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;transition:border-color .2s}
-    input[type="time"]:focus{border-color:var(--accent)}
-    textarea{width:100%;min-height:120px;resize:vertical;background:#0e1118;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none}
-    .hint{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
-    .topbar{display:flex;align-items:center;gap:8px;margin:-8px 0 12px}
-    .back{padding:6px 10px;border-radius:10px;background:#10141e;border:1px solid var(--border);color:var(--text);cursor:pointer}
-    .hidden{display:none}
-  </style>
+  :root {
+    /* тёмная палитра по умолчанию (на случай, если WebApp API недоступен) */
+    --bg: #0f1115;
+    --card: #161923;
+    --text: #e9eef6;
+    --muted: #9aa4b2;
+    --border: #232838;
+    --surface: #10141e;      /* фон элементов (кнопки/inputs) */
+    --accent: #4f8cff;
+    --btn-bg: var(--surface);
+    --btn-fg: var(--text);
+    --input-bg: #0e1118;
+    --input-fg: var(--text);
+  }
+  * { box-sizing: border-box }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial;
+  }
+  .wrap { min-height: 100%; display: grid; place-items: center; padding: 24px }
+  .card {
+    width: 100%; max-width: 560px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.35);
+  }
+  h1 { margin: 0 0 12px; font-size: 20px }
+  p  { margin: 0 0 18px; color: var(--muted) }
+  .grid { display: grid; gap: 12px }
+
+  /* Кнопки меню теперь всегда читаемые в любой теме */
+  .menu-btn{
+    display:flex; align-items:center; justify-content:space-between;
+    width:100%; padding:14px 16px; font-size:16px; border-radius:12px;
+    background: var(--btn-bg); color: var(--btn-fg);
+    border: 1px solid var(--border); cursor:pointer;
+  }
+  .menu-btn:disabled { opacity: .6; cursor: not-allowed }
+
+  .row { display:grid; gap:14px }
+  .row.two { grid-template-columns:1fr 1fr }
+
+  label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px }
+
+  input[type="time"], textarea {
+    display:block; width:100%; background: var(--input-bg); color: var(--input-fg);
+    border:1px solid var(--border); border-radius:12px; padding:12px 14px; font-size:16px;
+    outline:none; transition:border-color .2s
+  }
+  input[type="time"]:focus, textarea:focus { border-color: var(--accent) }
+  textarea { min-height:120px; resize:vertical }
+
+  .hint { font-size:12px; color:var(--muted); margin-top:8px; text-align:center }
+  .topbar { display:flex; align-items:center; gap:8px; margin:-8px 0 12px }
+  .back { padding:6px 10px; border-radius:10px; background: var(--surface); border:1px solid var(--border); color: var(--text); cursor:pointer }
+  .hidden { display:none }
+</style>
 </head>
 <body>
   <div class="wrap">
