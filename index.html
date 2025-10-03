@@ -68,107 +68,121 @@
   </div>
 
   <script>
-    const tg = window.Telegram?.WebApp;
+  const tg = window.Telegram?.WebApp;
 
-    function applyTheme() {
-      if (!tg) return;
-      const t = tg.themeParams || {};
-      const m = (k, d) => t[k] || d;
-      document.documentElement.style.setProperty('--bg', m('bg_color', '#0f1115'));
-      document.documentElement.style.setProperty('--text', m('text_color', '#e9eef6'));
-      document.documentElement.style.setProperty('--muted', m('hint_color', '#9aa4b2'));
-      document.documentElement.style.setProperty('--card', m('secondary_bg_color', '#161923'));
-      document.documentElement.style.setProperty('--border', m('section_separator_color', '#232838'));
+  // helpers
+  function byId(id){ return document.getElementById(id); }
+  function isValidTime(v){ return /^\d{2}:\d{2}$/.test(v); }
+
+  // element refs (инициализируем в init)
+  let sleepEl, wakeEl, goalEl;
+  let btnSettings, btnEditSchedule, btnEditGoal;
+  let backFromSettings, backFromSchedule, backFromGoal;
+
+  function applyTheme() {
+    if (!tg) return;
+    const t = tg.themeParams || {};
+    const m = (k, d) => t[k] || d;
+    document.documentElement.style.setProperty('--bg',    m('bg_color', '#0f1115'));
+    document.documentElement.style.setProperty('--text',  m('text_color', '#e9eef6'));
+    document.documentElement.style.setProperty('--muted', m('hint_color', '#9aa4b2'));
+    document.documentElement.style.setProperty('--card',  m('secondary_bg_color', '#161923'));
+    document.documentElement.style.setProperty('--border',m('section_separator_color', '#232838'));
+  }
+
+  function showScreen(name){
+    for (const id of ['home','settings','schedule','goal']) {
+      byId(`screen-${id}`).classList.toggle('hidden', id !== name);
+    }
+    if (!tg) return;
+    if (name === 'schedule') {
+      tg.MainButton.setText('Отправить');
+      updateMainButtonSchedule();
+    } else if (name === 'goal') {
+      tg.MainButton.setText('Сохранить');
+      updateMainButtonGoal();
+    } else {
+      tg.MainButton.hide();
+    }
+  }
+
+  function updateMainButtonSchedule(){
+    if (!tg) return;
+    const ok = isValidTime(sleepEl.value) && isValidTime(wakeEl.value);
+    if (ok) tg.MainButton.show(); else tg.MainButton.hide();
+  }
+
+  function updateMainButtonGoal(){
+    if (!tg) return;
+    const ok = (goalEl.value || '').trim().length > 0;
+    if (ok) tg.MainButton.show(); else tg.MainButton.hide();
+  }
+
+  function sendPayload(){
+    // определяем, какой экран виден сейчас
+    const visibleSchedule = !byId('screen-schedule').classList.contains('hidden');
+    const visibleGoal     = !byId('screen-goal').classList.contains('hidden');
+
+    const payload = {};
+    if (visibleSchedule) {
+      const st = sleepEl.value, wt = wakeEl.value;
+      if (!isValidTime(st) || !isValidTime(wt)) return;
+      payload.sleep_time = st; payload.wake_time = wt;
+    }
+    if (visibleGoal) {
+      const g = (goalEl.value || '').trim();
+      if (!g) return;
+      payload.goal = g;
     }
 
-    function isValidTime(v){return /^\d{2}:\d{2}$/.test(v)}
-    function showScreen(name){
-      for(const id of ['home','settings','schedule','goal']){
-        document.getElementById(`screen-${id}`).classList.toggle('hidden', id!==name);
-      }
-      if(!tg) return;
-      if(name==='schedule'){
-        tg.MainButton.setText('Отправить');
-        updateMainButtonSchedule();
-      }else if(name==='goal'){
-        tg.MainButton.setText('Сохранить');
-        updateMainButtonGoal();
-      }else{
-        tg.MainButton.hide();
-      }
+    try { tg?.sendData(JSON.stringify(payload)); } catch(e) { console.error('sendData error', e); }
+    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
+    setTimeout(() => tg?.close(), 150);
+  }
+
+  function init(){
+    // refs
+    sleepEl = byId('sleep');
+    wakeEl  = byId('wake');
+    goalEl  = byId('goal');
+
+    btnSettings      = byId('btn-settings');
+    btnEditSchedule  = byId('btn-edit-schedule');
+    btnEditGoal      = byId('btn-edit-goal');
+    backFromSettings = byId('back-from-settings');
+    backFromSchedule = byId('back-from-schedule');
+    backFromGoal     = byId('back-from-goal');
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      applyTheme();
+      tg.onEvent('themeChanged', applyTheme);
+      // слушаем нажатие нижней системной кнопки Telegram
+      tg.onEvent('mainButtonClicked', sendPayload);
     }
 
-    function updateMainButtonSchedule(){
-      if(!tg) return;
-      const ok = isValidTime(sleep.value) && isValidTime(wake.value);
-      if(ok) tg.MainButton.show(); else tg.MainButton.hide();
-    }
-    function updateMainButtonGoal(){
-      if(!tg) return;
-      const ok = (goal.value || '').trim().length > 0;
-      if(ok) tg.MainButton.show(); else tg.MainButton.hide();
-    }
+    // навигация
+    if (btnSettings)     btnSettings.addEventListener('click',      () => showScreen('settings'));
+    if (btnEditSchedule) btnEditSchedule.addEventListener('click',  () => showScreen('schedule'));
+    if (btnEditGoal)     btnEditGoal.addEventListener('click',      () => showScreen('goal'));
+    if (backFromSettings)backFromSettings.addEventListener('click', () => showScreen('home'));
+    if (backFromSchedule)backFromSchedule.addEventListener('click', () => showScreen('settings'));
+    if (backFromGoal)    backFromGoal.addEventListener('click',     () => showScreen('settings'));
 
-    function sendPayload(){
-      const visibleSchedule = !document.getElementById('screen-schedule').classList.contains('hidden');
-      const visibleGoal = !document.getElementById('screen-goal').classList.contains('hidden');
+    // поля
+    if (sleepEl) sleepEl.addEventListener('input', updateMainButtonSchedule);
+    if (wakeEl)  wakeEl.addEventListener('input', updateMainButtonSchedule);
+    if (goalEl)  goalEl.addEventListener('input', updateMainButtonGoal);
 
-      let payload = {};
-      if(visibleSchedule){
-        const st = sleep.value, wt = wake.value;
-        if(!isValidTime(st) || !isValidTime(wt)) return;
-        payload.sleep_time = st; payload.wake_time = wt;
-      }
-      if(visibleGoal){
-        const g = (goal.value || '').trim();
-        if(!g) return;
-        payload.goal = g;
-      }
+    // deep-link: ?screen=schedule | goal | home
+    const s = (new URLSearchParams(location.search).get('screen') || 'home').toLowerCase();
+    if (s === 'schedule') showScreen('schedule');
+    else if (s === 'goal') showScreen('goal');
+    else showScreen('home');
+  }
 
-      try{ tg?.sendData(JSON.stringify(payload)); }catch(e){ console.error(e); }
-      try{ tg?.HapticFeedback?.notificationOccurred('success'); }catch{}
-      setTimeout(()=>tg?.close(), 150);
-    }
-
-    function init(){
-      if(tg){
-        tg.ready(); tg.expand(); applyTheme();
-        tg.onEvent('themeChanged', applyTheme);
-        tg.onEvent('mainButtonClicked', sendPayload);
-      }
-
-      // nav
-      btn-settings.onclick = ()=>showScreen('settings');
-      btn-edit-schedule.onclick = ()=>showScreen('schedule');
-      btn-edit-goal.onclick = ()=>showScreen('goal');
-      back-from-settings.onclick = ()=>showScreen('home');
-      back-from-schedule.onclick = ()=>showScreen('settings');
-      back-from-goal.onclick = ()=>showScreen('settings');
-
-      // inputs
-      sleep.addEventListener('input', updateMainButtonSchedule);
-      wake.addEventListener('input', updateMainButtonSchedule);
-      goal.addEventListener('input', updateMainButtonGoal);
-
-      // deep link
-      const s = (new URLSearchParams(location.search).get('screen')||'home').toLowerCase();
-      if(s==='schedule') showScreen('schedule');
-      else if(s==='goal') showScreen('goal');
-      else showScreen('home');
-    }
-
-    // element refs
-    const sleep = document.getElementById('sleep');
-    const wake = document.getElementById('wake');
-    const goal = document.getElementById('goal');
-    const btn_settings = document.getElementById('btn-settings');
-    const btn_edit_schedule = document.getElementById('btn-edit-schedule');
-    const btn_edit_goal = document.getElementById('btn-edit-goal');
-    const back_from_settings = document.getElementById('back-from-settings');
-    const back_from_schedule = document.getElementById('back-from-schedule');
-    const back_from_goal = document.getElementById('back-from-goal');
-
-    init();
-  </script>
+  document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
