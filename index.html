@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>ForHer — мини‑приложение</title>
+  <title>ForHer — мини-приложение</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root { --bg:#f6f8fc; --card:#ffffff; --text:#0b1220; --muted:#5b6676; --border:#e6e9f2; --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text); --input-bg:#fbfcff; --input-fg:var(--text); }
@@ -33,6 +33,19 @@
     .hidden{display:none}
     @media (max-width:520px){ .row.two{grid-template-columns:1fr} .grid,.row{gap:12px} }
     @media (max-width:360px){ .grid,.row{gap:10px} .card{padding:12px} }
+
+    /* ===== Task importance segmented control ===== */
+    .segmented {
+      display:flex; gap:8px; background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:6px; align-items:center; justify-content:space-between;
+    }
+    .seg-btn {
+      flex:1; padding:10px 12px; text-align:center; border-radius:10px; border:1px solid transparent;
+      background:transparent; color:var(--text); cursor:pointer; font-size:14px;
+      user-select:none;
+    }
+    .seg-btn small { display:block; font-size:11px; color:var(--muted); margin-top:2px; }
+    .seg-btn.active { background:var(--card); border-color:var(--border); box-shadow:0 1px 0 rgba(0,0,0,.05) inset; }
   </style>
 </head>
 <body>
@@ -41,7 +54,7 @@
       <!-- HOME -->
       <section id="screen-home" class="grid">
         <h1>🏠 Главный экран</h1>
-        <p>Мини‑приложение ForHer.</p>
+        <p>Мини-приложение ForHer.</p>
         <button class="menu-btn" id="btn-settings">⚙️ Настройки <span>›</span></button>
         <button class="menu-btn" id="btn-task">✍️ Создать задачу <span>›</span></button>
       </section>
@@ -56,7 +69,7 @@
       <!-- SCHEDULE -->
       <section id="screen-schedule" class="grid hidden">
         <div class="topbar"><button class="back" id="back-from-schedule">← Назад</button><h1 style="margin:0">🛌 Настройка режима сна</h1></div>
-        <p>Укажи время отхода ко сну и пробуждения. Формат 24‑часовой, HH:MM.</p>
+        <p>Укажи время отхода ко сну и пробуждения. Формат 24-часовой, HH:MM.</p>
         <div class="row two">
           <div><label for="sleep">Отход ко сну</label><input id="sleep" type="time" step="60" required /></div>
           <div><label for="wake">Пробуждение</label><input id="wake" type="time" step="60" required /></div>
@@ -78,6 +91,16 @@
         <p>Формат: <b>Я</b> [действие] <b>ради</b> [твоей цели].</p>
         <label for="action">Я …</label>
         <input id="action" type="text" placeholder="выйду на пробежку / сделаю 10 отжиманий" />
+
+        <div>
+          <label>Важность задачи</label>
+          <div class="segmented" id="importance">
+            <button type="button" class="seg-btn" data-val="1">★☆☆<small>легко</small></button>
+            <button type="button" class="seg-btn" data-val="2">★★☆<small>средне</small></button>
+            <button type="button" class="seg-btn" data-val="3">★★★<small>важно</small></button>
+          </div>
+        </div>
+
         <p>ради: <b id="goal-view">(цель)</b></p>
         <div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
       </section>
@@ -88,6 +111,8 @@
     const tg = window.Telegram?.WebApp;
     const $ = (id) => document.getElementById(id);
     const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
+
+    let selectedImportance = null;
 
     function applyTheme(){
       const scheme = tg?.colorScheme ?? 'light';
@@ -113,13 +138,46 @@
 
     function updateMainButtonSchedule(){ if(!tg) return; const ok = isValidTime($('sleep').value||'') && isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
     function updateMainButtonGoal(){ if(!tg) return; const ok = ( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
-    function updateMainButtonTask(){ if(!tg) return; const ok = ( $('action').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
+    function updateMainButtonTask(){
+      if(!tg) return;
+      const ok = ( $('action').value||'' ).trim().length>0 && (selectedImportance===1 || selectedImportance===2 || selectedImportance===3);
+      tg.MainButton[ ok ? 'show' : 'hide' ]();
+    }
+
+    function bindImportance(){
+      const cont = $('importance');
+      if(!cont) return;
+      cont.querySelectorAll('.seg-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          cont.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedImportance = parseInt(btn.dataset.val, 10);
+          updateMainButtonTask();
+        });
+      });
+    }
 
     function sendPayload(){
       const payload = {};
-      if(!$('screen-schedule').classList.contains('hidden')){ const st=$('sleep').value, wt=$('wake').value; if(!isValidTime(st)||!isValidTime(wt)) return; payload.sleep_time=st; payload.wake_time=wt; }
-      if(!$('screen-goal').classList.contains('hidden')){ const g=($('goal').value||'').trim(); if(!g) return; payload.goal=g; }
-      if(!$('screen-task').classList.contains('hidden')){ const a=($('action').value||'').trim(); if(!a) return; const goal=($('goal-view').textContent||'').trim(); payload.task = `Я ${a} ради ${goal}`; }
+      // общие: часовой пояс
+      payload.tz_offset_min = new Date().getTimezoneOffset();
+
+      if(!$('screen-schedule').classList.contains('hidden')){
+        const st=$('sleep').value, wt=$('wake').value;
+        if(!isValidTime(st)||!isValidTime(wt)) return;
+        payload.sleep_time=st; payload.wake_time=wt;
+      }
+      if(!$('screen-goal').classList.contains('hidden')){
+        const g=($('goal').value||'').trim(); if(!g) return; payload.goal=g;
+      }
+      if(!$('screen-task').classList.contains('hidden')){
+        const a=($('action').value||'').trim(); if(!a) return;
+        const goal=($('goal-view').textContent||'').trim();
+        if(!(selectedImportance===1 || selectedImportance===2 || selectedImportance===3)) return;
+        payload.task = `Я ${a} ради ${goal}`;
+        payload.importance = selectedImportance;
+      }
+
       try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
       try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
       setTimeout(()=>tg?.close(), 120);
@@ -138,18 +196,30 @@
       $('wake')?.addEventListener('input', updateMainButtonSchedule);
       $('goal')?.addEventListener('input', updateMainButtonGoal);
       $('action')?.addEventListener('input', updateMainButtonTask);
+      bindImportance();
     }
 
     function init(){
       tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme); tg?.onEvent('mainButtonClicked', sendPayload);
       bind();
       const params = new URLSearchParams(location.search);
-      const screen = (params.get('screen')||'home').toLowerCase();
-      const goal = params.get('goal'); if(goal){ $('goal-view').textContent = goal; }
-      if(screen==='schedule') showScreen('schedule');
-      else if(screen==='goal') showScreen('goal');
-      else if(screen==='task') showScreen('task');
-      else showScreen('home');
+      let screen = (params.get('screen')||'home').toLowerCase();
+      let goalFromQuery = params.get('goal');
+
+      // поддержка startapp (если используешь deep-linkи — останется совместимость)
+      const sp = tg?.initDataUnsafe?.start_param;
+      if (sp && typeof sp === 'string') {
+        const usp = new URLSearchParams(sp);
+        screen = (usp.get('screen') || screen || 'home').toLowerCase();
+        goalFromQuery = usp.get('goal') || goalFromQuery;
+      }
+
+      if (goalFromQuery) { $('goal-view').textContent = goalFromQuery; }
+
+      if      (screen==='schedule') showScreen('schedule');
+      else if (screen==='goal')     showScreen('goal');
+      else if (screen==='task')     showScreen('task');
+      else                          showScreen('home');
     }
 
     document.addEventListener('DOMContentLoaded', init);
