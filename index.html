@@ -116,50 +116,128 @@
   </div>
 
   <script>
+  // ===== Telegram WebApp =====
   const tg = window.Telegram?.WebApp;
 
+  // ------- helpers -------
+  const $ = (id) => document.getElementById(id);
+  const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
+
   function applyTheme() {
-    // Надёжно ориентируемся на системную схему Telegram
-    const scheme = (tg && tg.colorScheme) ? tg.colorScheme : 'light'; // 'light' | 'dark'
+    const scheme = tg?.colorScheme ?? 'light';
+    const set = (k, v) => document.documentElement.style.setProperty(k, v);
+
     if (scheme === 'dark') {
-      // ТЁМНАЯ
-      document.documentElement.style.setProperty('--bg',      '#0f1115');
-      document.documentElement.style.setProperty('--card',    '#161923');
-      document.documentElement.style.setProperty('--text',    '#e9eef6');
-      document.documentElement.style.setProperty('--muted',   '#9aa4b2');
-      document.documentElement.style.setProperty('--border',  '#232838');
-      document.documentElement.style.setProperty('--surface', '#10141e');
-      document.documentElement.style.setProperty('--accent',  '#4f8cff');
-      document.documentElement.style.setProperty('--btn-bg',  'var(--surface)');
-      document.documentElement.style.setProperty('--btn-fg',  'var(--text)');
-      document.documentElement.style.setProperty('--input-bg','#0e1118');
-      document.documentElement.style.setProperty('--input-fg','var(--text)');
+      set('--bg','#0f1115'); set('--card','#161923'); set('--text','#e9eef6');
+      set('--muted','#9aa4b2'); set('--border','#232838'); set('--surface','#10141e');
+      set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)');
+      set('--input-bg','#0e1118'); set('--input-fg','var(--text)');
     } else {
-      // СВЕТЛАЯ — подбираем читаемые контрасты
-      document.documentElement.style.setProperty('--bg',      '#f6f8fc');
-      document.documentElement.style.setProperty('--card',    '#ffffff');
-      document.documentElement.style.setProperty('--text',    '#0b1220');
-      document.documentElement.style.setProperty('--muted',   '#5b6676');
-      document.documentElement.style.setProperty('--border',  '#e6e9f2');
-      document.documentElement.style.setProperty('--surface', '#f1f4fa');   // светлая «плитка» для кнопок/инпутов
-      document.documentElement.style.setProperty('--accent',  '#4f8cff');
-      document.documentElement.style.setProperty('--btn-bg',  'var(--surface)');
-      document.documentElement.style.setProperty('--btn-fg',  'var(--text)');
-      document.documentElement.style.setProperty('--input-bg','#fbfcff');
-      document.documentElement.style.setProperty('--input-fg','var(--text)');
+      set('--bg','#f6f8fc'); set('--card','#ffffff'); set('--text','#0b1220');
+      set('--muted','#5b6676'); set('--border','#e6e9f2'); set('--surface','#f1f4fa');
+      set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)');
+      set('--input-bg','#fbfcff'); set('--input-fg','var(--text)');
     }
-
-    // Если Telegram дал свои цвета — мягко переиспользуем акцент (не ломая контраст)
-    if (tg && tg.themeParams) {
-      const p = tg.themeParams;
-      if (p.button_color) document.documentElement.style.setProperty('--accent', p.button_color);
+    if (tg?.themeParams?.button_color) {
+      set('--accent', tg.themeParams.button_color);
     }
   }
 
-  // не забудь переинициализировать при смене темы
-  if (tg) {
-    tg.onEvent('themeChanged', applyTheme);
+  // ------- navigation -------
+  function showScreen(name) {
+    ['home','settings','schedule','goal'].forEach(id => {
+      $(`screen-${id}`).classList.toggle('hidden', id !== name);
+    });
+
+    if (!tg) return;
+    if (name === 'schedule') {
+      tg.MainButton.setText('Отправить');
+      updateMainButtonSchedule();
+    } else if (name === 'goal') {
+      tg.MainButton.setText('Сохранить');
+      updateMainButtonGoal();
+    } else {
+      tg.MainButton.hide();
+    }
   }
+
+  // ------- validators for MainButton -------
+  function updateMainButtonSchedule() {
+    if (!tg) return;
+    const st = $('sleep')?.value || '';
+    const wt = $('wake')?.value  || '';
+    tg.MainButton[ (isValidTime(st) && isValidTime(wt)) ? 'show' : 'hide' ]();
+  }
+  function updateMainButtonGoal() {
+    if (!tg) return;
+    const g = ($('goal')?.value || '').trim();
+    tg.MainButton[ g ? 'show' : 'hide' ]();
+  }
+
+  // ------- send to bot -------
+  function sendPayload() {
+    const onSchedule = !$('screen-schedule').classList.contains('hidden');
+    const onGoal     = !$('screen-goal').classList.contains('hidden');
+
+    const payload = {};
+    if (onSchedule) {
+      const st = $('sleep').value, wt = $('wake').value;
+      if (!isValidTime(st) || !isValidTime(wt)) return;
+      payload.sleep_time = st; payload.wake_time = wt;
+    }
+    if (onGoal) {
+      const g = ($('goal').value || '').trim();
+      if (!g) return;
+      payload.goal = g;
+    }
+
+    try { tg?.sendData(JSON.stringify(payload)); } catch(e) { console.error('sendData error', e); }
+    try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
+    setTimeout(() => tg?.close(), 120);
+  }
+
+  // ------- init -------
+  function bindEvents() {
+    // заменить inline-обработчики: вешаем слушатели тут
+    $('btn-settings')?.addEventListener('click', () => showScreen('settings'));
+    $('btn-edit-schedule')?.addEventListener('click', () => showScreen('schedule'));
+    $('btn-edit-goal')?.addEventListener('click', () => showScreen('goal'));
+    $('back-from-settings')?.addEventListener('click', () => showScreen('home'));
+    $('back-from-schedule')?.addEventListener('click', () => showScreen('settings'));
+    $('back-from-goal')?.addEventListener('click', () => showScreen('settings'));
+
+    $('sleep')?.addEventListener('input', updateMainButtonSchedule);
+    $('wake')?.addEventListener('input', updateMainButtonSchedule);
+    $('goal')?.addEventListener('input', updateMainButtonGoal);
+  }
+
+  function init() {
+    try {
+      tg?.ready();
+      tg?.expand();
+      applyTheme();
+      tg?.onEvent('themeChanged', applyTheme);
+      tg?.onEvent('mainButtonClicked', sendPayload);
+    } catch(e) { /* ignore */ }
+
+    bindEvents();
+
+    // robust deep-link: учитываем и v=..., и любой порядок параметров
+    const params = new URLSearchParams(location.search);
+    const screen = (params.get('screen') || '').toLowerCase();
+
+    // иногда WebView проглатывает первый show — повторим после рендера
+    const target = (screen === 'schedule' || screen === 'goal') ? screen : 'home';
+    showScreen(target);
+    setTimeout(() => showScreen(target), 0); // страховка
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+
+  // На случай скрытой ошибки, чтобы было понятно что случилось
+  window.addEventListener('error', (e) => {
+    console.log('JS error:', e.message);
+  });
 </script>
 </body>
 </html>
