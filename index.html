@@ -13,9 +13,8 @@
       --bg:#f6f8fc; --card:#ffffff; --text:#0b1220; --muted:#5b6676; --border:#e6e9f2;
       --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
       --input-bg:#fbfcff; --input-fg:var(--text);
-      --mood:#8aa0b4;         /* оттенок экрана настроения */
-      --meter:#4f8cff;        /* текущий цвет индикатора важности (бежит по шкале) */
-      --radius:16px;
+      --mood:#8aa0b4; --meter:#4f8cff; --radius:16px;
+      --good:#20c997; --bad:#ff4d4f;
     }
     @media (prefers-color-scheme: dark){
       :root{
@@ -27,19 +26,23 @@
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
     .wrap{min-height:100%;display:grid;place-items:center;padding:24px;position:relative;overflow:hidden}
-    .card{width:min(560px,92vw);padding:clamp(14px,4vw,20px);background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden;position:relative}
+    .card{width:min(560px,92vw);padding:clamp(14px,4vw,20px);background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden;position:relative;transition:transform .18s ease, opacity .18s ease}
     h1{margin:0 0 12px;font-size:22px}
     p{margin:0 0 18px;color:var(--muted)}
     .grid{display:grid;gap:12px;width:100%}
+
     .menu-btn{
       display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;
       font-size:16px;border-radius:12px;background:var(--btn-bg);color:var(--btn-fg);
       border:1px solid var(--border);cursor:pointer;transition:transform .08s ease, background .2s ease, box-shadow .2s ease;
-      box-shadow:0 1px 0 rgba(0,0,0,.04) inset;
+      box-shadow:0 1px 0 rgba(0,0,0,.04) inset; -webkit-tap-highlight-color: transparent;
       will-change:transform;
     }
     .menu-btn:hover{ box-shadow:0 4px 14px rgba(0,0,0,.08) }
     .menu-btn:active{ transform:scale(.98) }
+    /* кликается ВЕСЬ блок, дети не перехватывают событие */
+    .menu-btn > * { pointer-events:none }
+
     .row{display:grid;gap:14px;width:100%}
     .row.two{grid-template-columns:1fr 1fr}
     .row>div{min-width:0}
@@ -69,7 +72,7 @@
     .wrap::after { bottom:-30vmax; right:-25vmax; animation-duration:28s }
     @keyframes float{ 0%{transform:translateY(-10px)} 100%{transform:translateY(10px)} }
 
-    /* ===== Мягкий градиент по настроению на отдельном экране ===== */
+    /* ===== Мягкий градиент по настроению ===== */
     .mood-overlay{
       position:fixed; inset:0; pointer-events:none; opacity:0; transition:opacity .35s ease;
       background:
@@ -85,12 +88,16 @@
       padding:8px 12px; border-radius:12px;
       background:rgba(0,0,0,.06); backdrop-filter:blur(6px);
       color:var(--text); border:1px solid var(--border);
-      font-weight:700; font-size:14px;
+      font-weight:800; font-size:14px; line-height:1;
       transition:transform .12s ease, opacity .2s ease;
-      user-select:none;
+      user-select:none; display:flex; align-items:baseline; gap:6px;
     }
     .balance-badge:active{ transform:scale(.98) }
     @media (prefers-color-scheme: dark){ .balance-badge{ background:rgba(255,255,255,.06) } }
+    .balance-badge .delta{ font-size:11px; font-weight:800 }
+    .balance-badge .delta.pos{ color:var(--good) }
+    .balance-badge .delta.neg{ color:var(--bad) }
+    .balance-badge .delta.zero{ color:var(--muted) }
 
     /* ===== Карточка настроения ===== */
     .mood-card{
@@ -108,12 +115,14 @@
     .mood-title{ font-size:20px; font-weight:800; margin-top:4px }
     .mood-desc{ font-size:14px; color:var(--muted) }
 
-    /* ===== Чипы-режимы (воля/зависимость) ===== */
-    .chips{display:flex; gap:8px; flex-wrap:wrap}
+    /* ===== Чипы режимов — в ОДНУ линию ===== */
+    .chips{ display:flex; gap:8px; flex-wrap:nowrap; overflow:auto; -webkit-overflow-scrolling:touch }
     .chip{
+      flex:1; text-align:center;
       padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:var(--surface);
       color:var(--text); cursor:pointer; user-select:none; font-size:14px;
       transition:background .2s, transform .06s ease, border-color .2s, box-shadow .2s;
+      white-space:nowrap;
     }
     .chip:active{ transform:scale(.98) }
     .chip.active{ background:var(--card); border-color:var(--accent); box-shadow:0 0 0 4px rgb(79 140 255 / 12%) }
@@ -124,23 +133,22 @@
     .slider-wrap{ padding:10px 2px 0 }
     input[type="range"]{
       -webkit-appearance:none; width:100%; height:38px; background:transparent; outline:none;
-      --val:0%; /* заполнение трека в процентах, обновляем из JS */
+      --val:0%;
+      touch-action: manipulation; /* помогает на мобилках */
     }
-    /* трек */
     input[type="range"]::-webkit-slider-runnable-track{
       height:10px; border-radius:999px; background:
         linear-gradient(to right, var(--meter) 0% , var(--meter) var(--val), var(--border) var(--val), var(--border) 100%);
       border:1px solid color-mix(in srgb, var(--meter) 30%, var(--border));
       transition:background .06s linear, border-color .15s ease;
     }
-    /* бегунок */
     input[type="range"]::-webkit-slider-thumb{
       -webkit-appearance:none; margin-top:-6px; width:22px; height:22px; border-radius:50%;
       background:radial-gradient(circle at 30% 30%, #fff, #fff0 65%), var(--meter);
       border:2px solid #fff; box-shadow:0 2px 10px rgba(0,0,0,.18);
-      transition:transform .06s ease, box-shadow .12s ease, background .15s ease;
+      transition:transform .08s ease, box-shadow .12s ease, background .15s ease;
     }
-    input[type="range"].dragging::-webkit-slider-thumb{ transform:scale(1.1); box-shadow:0 4px 16px rgba(0,0,0,.25) }
+    input[type="range"]:active::-webkit-slider-thumb{ transform:scale(1.08); box-shadow:0 4px 16px rgba(0,0,0,.25) }
     /* Firefox */
     input[type="range"]::-moz-range-track{
       height:10px; border-radius:999px; background:
@@ -152,7 +160,7 @@
     }
 
     .readout{
-      display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:4px; color:var(--muted); font-weight:600;
+      display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:4px; color:var(--muted); font-weight:700;
     }
     .pill{
       padding:6px 10px; border-radius:999px; background:color-mix(in srgb, var(--meter) 16%, var(--card)); border:1px solid color-mix(in srgb, var(--meter) 40%, var(--border));
@@ -161,16 +169,17 @@
     }
 
     /* ===== Анимация смены экрана (лёгкая) ===== */
-    .card{ transition: transform .18s ease, opacity .18s ease }
     .swap{ transform:translateY(4px); opacity:.98 }
   </style>
 </head>
 <body>
-  <!-- градиент поверх фона для экрана настроения -->
   <div class="mood-overlay" id="mood-overlay"></div>
 
-  <!-- Бейдж баланса -->
-  <div id="balance-badge" class="balance-badge">0 🎴</div>
+  <!-- Бейдж баланса: общий + дельта дня -->
+  <div id="balance-badge" class="balance-badge">
+    <span id="balance-total">0 🎴</span>
+    <span id="balance-delta" class="delta zero">0</span>
+  </div>
 
   <div class="wrap">
     <div class="card" id="card">
@@ -268,20 +277,19 @@
     const $  = (id) => document.getElementById(id);
     const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
 
-    // CloudStorage Promise-обёртки
+    // CloudStorage обёртки
     const cs = {
       get: (k) => new Promise(res => tg?.CloudStorage?.getItem?.(k, v => res(v))),
       set: (k, v) => new Promise(res => tg?.CloudStorage?.setItem?.(k, String(v), () => res(true)))
     };
 
-    // Глобальное состояние
+    // Состояние
     let balanceTotal = 0;
-    let moodLevel    = 0;          // -2..+2
+    let balanceToday = 0;   // дельта дня
+    let moodLevel    = 0;   // -2..+2
     let userGoal     = '';
     let userName     = '';
-
-    let mode = 'normal';           // normal | willpower | addiction
-    let dragging = false;
+    let mode = 'normal';    // normal | willpower | addiction
 
     const MOOD = {
       2:  { emoji:'😇', title:'Добрячок (+2)', color:'#20c997', desc:'Я мягкий и поддерживающий. Лайтовые нуджи, много похвалы.' },
@@ -290,32 +298,35 @@
       [-1]:{emoji:'😾', title:'Колючий (−1)', color:'#ff9966', desc:'Становлюсь прямее. Меньше нежностей — больше дела.' },
       [-2]:{emoji:'😈', title:'Злой (−2)',    color:'#ff4d4f', desc:'Максимальная строгость. Цель важнее отговорок.' },
     };
-
-    function clampMood(m){ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
+    const clampMood = (m)=>{ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
     const fmtRu = (n) => new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n);
 
     async function hydrateFromParamsOrCS(){
       const p = new URLSearchParams(location.search);
-      const b = p.get('b'), m = p.get('m'), g = p.get('g') || p.get('goal'), n = p.get('name');
+      const b = p.get('b'), m = p.get('m'), g = p.get('g') || p.get('goal'), n = p.get('name'), bt = p.get('bt');
       let changed = false;
 
-      if (b !== null) { balanceTotal = parseInt(b,10) || 0; changed = true; }
-      if (m !== null) { moodLevel    = clampMood(m);        changed = true; }
-      if (g)          { userGoal     = g.trim();             changed = true; }
-      if (n)          { userName     = n.trim();             changed = true; }
+      if (b !== null)  { balanceTotal = parseInt(b,10) || 0; changed = true; }
+      if (bt !== null) { balanceToday = parseInt(bt,10) || 0; changed = true; }
+      if (m !== null)  { moodLevel    = clampMood(m);        changed = true; }
+      if (g)           { userGoal     = g.trim();             changed = true; }
+      if (n)           { userName     = n.trim();             changed = true; }
 
       if (!changed && tg?.CloudStorage){
-        const [cb, cm, cg, cn] = await Promise.all([ cs.get('b'), cs.get('m'), cs.get('g'), cs.get('name') ]);
-        if (cb !== undefined && cb !== null) balanceTotal = parseInt(cb,10) || 0;
-        if (cm !== undefined && cm !== null) moodLevel    = clampMood(cm);
+        const [cb, cbt, cm, cg, cn] = await Promise.all([
+          cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name')
+        ]);
+        if (cb  !== undefined && cb  !== null) balanceTotal = parseInt(cb,10)  || 0;
+        if (cbt !== undefined && cbt !== null) balanceToday = parseInt(cbt,10) || 0;
+        if (cm  !== undefined && cm  !== null) moodLevel    = clampMood(cm);
         if (cg) userGoal = cg;
         if (cn) userName = cn;
       }
 
       if (changed && tg?.CloudStorage){
         await Promise.allSettled([
-          cs.set('b', balanceTotal), cs.set('m', moodLevel),
-          cs.set('g', userGoal || ''), cs.set('name', userName || '')
+          cs.set('b', balanceTotal), cs.set('bt', balanceToday),
+          cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || '')
         ]);
       }
     }
@@ -332,8 +343,11 @@
     }
 
     function renderBalanceBadge(){
-      const el = $('balance-badge');
-      if (el) el.textContent = `${balanceTotal} 🎴`;
+      $('balance-total').textContent = `${balanceTotal} 🎴`;
+      const d = $('balance-delta');
+      if (balanceToday > 0){ d.textContent = `+${balanceToday}`; d.className = 'delta pos'; }
+      else if (balanceToday < 0){ d.textContent = `${balanceToday}`; d.className = 'delta neg'; }
+      else { d.textContent = '0'; d.className = 'delta zero'; }
     }
 
     function setMoodColor(){
@@ -345,11 +359,8 @@
       ['home','settings','schedule','goal','task','stats','stats-mood'].forEach(id=>{
         $(`screen-${id}`).classList.toggle('hidden', id!==name);
       });
-      // лёгкая анимация карточки
       const card = $('card');
       card.classList.add('swap'); setTimeout(()=>card.classList.remove('swap'), 180);
-
-      // фон под настроение включаем только на экране mood
       document.body.classList.toggle('mood-on', name==='stats-mood');
 
       if(!tg) return;
@@ -375,9 +386,9 @@
       tg.MainButton[ ok ? 'show' : 'hide' ]();
     }
 
-    // ====== Режимы (воля/зависимость) и шкала
+    // ===== Режимы и шкала
     function setMode(newMode){
-      if (newMode === mode) { // клик по активному — снимаем, возвращаем normal
+      if (newMode === mode) { // повторный клик — снять режим
         mode = 'normal';
         $('chip-will').classList.remove('active');
         $('chip-add').classList.remove('active');
@@ -387,7 +398,7 @@
         $('chip-add').classList.toggle('active', mode==='addiction');
       }
       updateScaleLabels();
-      updateSliderUI(); // перецвет
+      updateSliderUI();
     }
 
     function updateScaleLabels(){
@@ -405,25 +416,20 @@
     }
 
     function colorForValue(val){
-      // 0.1..3 → прогресс 0..1
       const t = Math.min(1, Math.max(0, (val - 0.1) / (3 - 0.1)));
-      // разные палитры по режимам
       if (mode === 'willpower'){
-        // от мягкого синего к «жгучему» фиолетово-розовому
         const start = [79,140,255], end = [192,72,255];
         const r = Math.round(start[0] + (end[0]-start[0])*t);
         const g = Math.round(start[1] + (end[1]-start[1])*t);
         const b = Math.round(start[2] + (end[2]-start[2])*t);
         return `rgb(${r} ${g} ${b})`;
       } else if (mode === 'addiction'){
-        // от янтарного к ярко-красному
         const start = [255,170,54], end = [255,77,79];
         const r = Math.round(start[0] + (end[0]-start[0])*t);
         const g = Math.round(start[1] + (end[1]-start[1])*t);
         const b = Math.round(start[2] + (end[2]-start[2])*t);
         return `rgb(${r} ${g} ${b})`;
       } else {
-        // normal: от нежно-зелёного к акценту
         const start = [64,199,129], end = [79,140,255];
         const r = Math.round(start[0] + (end[0]-start[0])*t);
         const g = Math.round(start[1] + (end[1]-start[1])*t);
@@ -439,7 +445,7 @@
       const color = colorForValue(v);
       r.style.setProperty('--val', `${p}%`);
       document.documentElement.style.setProperty('--meter', color);
-      $('imp-pill').textContent = fmtRu(v);
+      $('imp-pill').textContent = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(v);
     }
 
     function bind(){
@@ -464,18 +470,12 @@
       $('goal')?.addEventListener('input', updateMainButtonGoal);
       $('action')?.addEventListener('input', updateMainButtonTask);
 
-      // режимы
       $('chip-will')?.addEventListener('click', ()=>setMode('willpower'));
       $('chip-add')?.addEventListener('click', ()=>setMode('addiction'));
 
-      // слайдер
       const r = $('importanceRange');
       if (r){
-        const startDrag = ()=>{ dragging = true; r.classList.add('dragging'); };
-        const endDrag   = ()=>{ dragging = false; r.classList.remove('dragging'); };
-        ['pointerdown','touchstart','mousedown'].forEach(ev=> r.addEventListener(ev, startDrag));
-        ['pointerup','touchend','mouseup','mouseleave'].forEach(ev=> r.addEventListener(ev, endDrag));
-        r.addEventListener('input', updateSliderUI);
+        r.addEventListener('input', updateSliderUI); // нативное перетягивание, без touch-хаков
       }
     }
 
@@ -497,13 +497,12 @@
 
         const range = $('importanceRange');
         const val = parseFloat(range.value||'1') || 1;
-        // Совместимость: int 1..3
         const valInt = Math.min(3, Math.max(1, Math.round(val)));
         payload.task = `Я ${a} ради ${goalText}`;
-        payload.importance      = valInt;               // для текущего бэка
-        payload.importance_f    = val;                  // float (точка)
-        payload.importance_ru   = fmtRu(val);           // строка (запятая)
-        payload.mode            = mode;                 // normal/willpower/addiction
+        payload.importance      = valInt;
+        payload.importance_f    = val;
+        payload.importance_ru   = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(val);
+        payload.mode            = mode;
         payload.willpower       = (mode==='willpower');
         payload.addiction       = (mode==='addiction');
       }
@@ -528,7 +527,6 @@
       bind();
       updateScaleLabels(); updateSliderUI();
 
-      // стартовый экран
       const params = new URLSearchParams(location.search);
       let screen = (params.get('screen') || 'home').toLowerCase();
 
@@ -549,7 +547,6 @@
       else if (screen==='stats_mood' || screen==='mood') showScreen('stats-mood');
       else                            showScreen('home');
 
-      // главная кнопка
       tg?.onEvent('mainButtonClicked', sendPayload);
     }
 
