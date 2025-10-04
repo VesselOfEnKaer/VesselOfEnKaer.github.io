@@ -180,6 +180,65 @@
   <script>
     const tg = window.Telegram?.WebApp;
     const $ = (id) => document.getElementById(id);
+
+    // --- простые обёртки CloudStorage (callback API -> Promise)
+    const cs = {
+      get: (k) => new Promise(res => tg?.CloudStorage?.getItem?.(k, v => res(v))),
+      set: (k, v) => new Promise(res => tg?.CloudStorage?.setItem?.(k, String(v), () => res(true)))
+    };
+  
+    // глобальные состояния, которые будем показывать в UI
+    let balanceTotal = 0;
+    let moodLevel    = 0;     // -2..+2
+    let userGoal     = '';
+    let userName     = '';
+  
+    function clampMood(m){ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
+
+      async function hydrateFromParamsOrCS(){
+        const p = new URLSearchParams(location.search);
+        // 1) сначала пытаемся взять из URL
+        const b = p.get('b'), m = p.get('m'), g = p.get('g') || p.get('goal'), n = p.get('name');
+        let changed = false;
+    
+        if (b !== null) { balanceTotal = parseInt(b,10) || 0; changed = true; }
+        if (m !== null) { moodLevel    = clampMood(m);        changed = true; }
+        if (g)          { userGoal     = g.trim();             changed = true; }
+        if (n)          { userName     = n.trim();             changed = true; }
+    
+        // 2) если из URL ничего не пришло — читаем из CloudStorage (когда открыли боковой App)
+        if (!changed && tg?.CloudStorage){
+          const [cb, cm, cg, cn] = await Promise.all([
+            cs.get('b'), cs.get('m'), cs.get('g'), cs.get('name')
+          ]);
+          if (cb !== undefined && cb !== null) balanceTotal = parseInt(cb,10) || 0;
+          if (cm !== undefined && cm !== null) moodLevel    = clampMood(cm);
+          if (cg) userGoal = cg;
+          if (cn) userName = cn;
+        }
+    
+        // 3) если из URL пришли свежие значения — кэшируем их в CloudStorage
+        if (changed && tg?.CloudStorage){
+          await Promise.allSettled([
+            cs.set('b', balanceTotal),
+            cs.set('m', moodLevel),
+            cs.set('g', userGoal || ''),
+            cs.set('name', userName || '')
+          ]);
+        }
+      }
+    
+      function renderBalanceBadge(){
+        const el = $('balance-badge');
+        if (el) el.textContent = `${balanceTotal} 🎴`;
+      }
+    
+      function setMoodColor(){
+        const map = { 2:'#20c997', 1:'#2ea8ff', 0:'#8aa0b4', [-1]:'#ff9966', [-2]:'#ff4d4f' };
+        const c = map[moodLevel] || map[0];
+        document.documentElement.style.setProperty('--mood', c);
+      }
+    
     const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
 
     // ===== Маппинг настроения
@@ -315,43 +374,52 @@
       bindImportance();
     }
 
-    function init(){
-      tg?.ready(); tg?.expand(); applyTheme();
-      tg?.onEvent('themeChanged', applyTheme);
-      tg?.onEvent('mainButtonClicked', sendPayload);
+      async function init(){
+    tg?.ready(); 
+    tg?.expand(); 
+    applyTheme();
+    tg?.onEvent('themeChanged', applyTheme);
 
-      // читаем параметры, которые передал бот
-      const params = new URLSearchParams(location.search);
-      balanceTotal = parseInt(params.get('b') || '0', 10);
-      moodLevel    = clampMood(params.get('m'));
-      userGoal     = (params.get('g') || params.get('goal') || '').trim();
-      userName     = (params.get('name') || '').trim();
+    // 1) получаем данные из URL или CloudStorage
+    await hydrateFromParamsOrCS();
 
-      if (userGoal) $('goal-view').textContent = userGoal;
-      renderBalanceBadge();
-      setMoodColor();
-
-      bind();
-
-      // поддержка start_param (deep-link совместимость)
-      let screen = (params.get('screen')||'home').toLowerCase();
-      const sp = tg?.initDataUnsafe?.start_param;
-      if (sp && typeof sp === 'string') {
-        const usp = new URLSearchParams(sp);
-        screen = (usp.get('screen') || screen || 'home').toLowerCase();
-        if (!userGoal) {
-          const g2 = usp.get('g') || usp.get('goal');
-          if (g2) { userGoal = g2; $('goal-view').textContent = userGoal; }
-        }
-      }
-
-      if      (screen==='schedule')   showScreen('schedule');
-      else if (screen==='goal')       showScreen('goal');
-      else if (screen==='task')       showScreen('task');
-      else if (screen==='stats')      showScreen('stats');
-      else if (screen==='stats_mood' || screen==='mood') showScreen('stats-mood');
-      else                            showScreen('home');
+    // 2) подставляем цель (если есть) в форму задачи
+    if (userGoal && $('goal-view')) {
+      $('goal-view').textContent = userGoal;
     }
+
+    // 3) рендерим бейдж баланса и оттенок настроения
+    renderBalanceBadge();
+    setMoodColor();
+
+    // 4) биндим все кнопки/инпуты (оставь свою реализацию bind(), просто вызываем её)
+    bind();
+
+    // 5) определяем стартовый экран
+    const params = new URLSearchParams(location.search);
+    let screen = (params.get('screen') || 'home').toLowerCase();
+
+    // совместимость со start_param (deep link)
+    const sp = tg?.initDataUnsafe?.start_param;
+    if (sp && typeof sp === 'string') {
+      const usp = new URLSearchParams(sp);
+      screen = (usp.get('screen') || screen || 'home').toLowerCase();
+      if (!userGoal) {
+        const g2 = usp.get('g') || usp.get('goal');
+        if (g2 && $('goal-view')) { $('goal-view').textContent = g2; }
+      }
+    }
+
+    if      (screen==='schedule')   showScreen('schedule');
+    else if (screen==='goal')       showScreen('goal');
+    else if (screen==='task')       showScreen('task');
+    else if (screen==='stats')      showScreen('stats');
+    else if (screen==='stats_mood' || screen==='mood') showScreen('stats-mood');
+    else                            showScreen('home');
+
+    // клики по главной кнопке Telegram
+    tg?.onEvent('mainButtonClicked', sendPayload);
+  }
 
     document.addEventListener('DOMContentLoaded', init);
   </script>
