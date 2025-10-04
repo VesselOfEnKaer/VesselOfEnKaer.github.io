@@ -25,29 +25,11 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
-.wrap{
-  min-height:100%;
-  display:grid;
-  place-items:center;
-  /* симметричные отступы с учётом safe-area (iOS жестовая зона/вырез) */
-  padding:
-    max(16px, env(safe-area-inset-top))
-    max(16px, env(safe-area-inset-right))
-    max(16px, env(safe-area-inset-bottom))
-    max(16px, env(safe-area-inset-left));
-  position:relative;
-  overflow:hidden;
-}
+.wrap{min-height:100%;display:grid;place-items:center;padding:24px;position:relative;overflow:hidden}
 .card{
-  width:min(560px,92vw);
-  margin:0 auto;                 /* ← жёстко центрируем */
-  padding:clamp(14px,4vw,20px);
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:16px;
-  box-shadow:0 8px 32px rgba(0,0,0,.12);
-  overflow:hidden;
-  position:relative;
+  width:min(560px,92vw);padding:clamp(14px,4vw,20px);
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden;position:relative;
   transition:transform .18s ease, opacity .18s ease;
   z-index:2;
 }
@@ -220,28 +202,6 @@ input[type="range"]::-moz-range-thumb{
 }
 
 .swap{ transform:translateY(4px); opacity:.98 }
-
-/* плитки-пазлы для статистики дня */
-.tiles{
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px,1fr));
-  gap:10px;
-  width:100%;
-}
-.tile{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:12px;
-  display:grid;
-  gap:6px;
-  box-shadow:0 6px 20px rgba(0,0,0,.06);
-}
-.tile .k{ font-size:18px; font-weight:900 }
-.tile .l{ font-size:12px; color:var(--muted) }
-.tile.good .k{ color:var(--good) }
-.tile.bad  .k{ color:var(--bad)  }
-  
 </style>
 </head>
 <body>
@@ -301,17 +261,6 @@ input[type="range"]::-moz-range-thumb{
         </div>
 
         <div class="divider"></div>
-
-        <div class="tiles" id="day-tiles">
-          <div class="tile"><div class="k" id="t-total">0</div><div class="l">задач всего</div></div>
-          <div class="tile good"><div class="k" id="t-done">0</div><div class="l">выполнено</div></div>
-          <div class="tile"><div class="k" id="t-partial">0</div><div class="l">частично</div></div>
-          <div class="tile bad"><div class="k" id="t-fail">0</div><div class="l">провалено</div></div>
-          <div class="tile"><div class="k" id="t-heavy">0</div><div class="l">значимых (≥2.0)</div></div>
-          <div class="tile"><div class="k" id="t-ignored">0</div><div class="l">игнор нуджей</div></div>
-          <div class="tile"><div class="k" id="t-mult">×1.00</div><div class="l">мультипликатор дня</div></div>
-        </div>
-        
         <div class="hint">Слева — текущий баланс, справа — баланс после учёта суммы за день.</div>
       </div>
     </section>
@@ -400,8 +349,6 @@ let moodLevel    = 0;
 let userGoal     = '';
 let userName     = '';
 let mode = 'normal';
-let tasksTotal=0, tasksDone=0, tasksPartial=0, tasksFail=0, tasksHeavy=0, nudgesIgnored=0;
-let dayMultiplier=1.0;
 
 // настроение пресеты (для экрана «настроение»)
 const MOOD = {
@@ -427,41 +374,20 @@ async function hydrateFromParamsOrCS(){
   if (g)           { userGoal     = g.trim();             changed = true; }
   if (n)           { userName     = n.trim();             changed = true; }
 
-  const tt=p.get('tt'), td=p.get('td'), tp=p.get('tp'), tf=p.get('tf'), th=p.get('th'), ni=p.get('ni'), md=p.get('md');
-
-  if(tt!==null){ tasksTotal     = parseInt(tt,10)||0; changed=true; }
-  if(td!==null){ tasksDone      = parseInt(td,10)||0; changed=true; }
-  if(tp!==null){ tasksPartial   = parseInt(tp,10)||0; changed=true; }
-  if(tf!==null){ tasksFail      = parseInt(tf,10)||0; changed=true; }
-  if(th!==null){ tasksHeavy     = parseInt(th,10)||0; changed=true; }
-  if(ni!==null){ nudgesIgnored  = parseInt(ni,10)||0; changed=true; }
-  if(md!==null){ dayMultiplier  = parseFloat(md)||1;  changed=true; }
-
   if (!changed && tg?.CloudStorage){
-    const [cb, cbt, cm, cg, cn, ctt, ctd, ctp, ctf, cth, cni, cmd] = await Promise.all([
-      cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name'),
-      cs.get('tt'), cs.get('td'), cs.get('tp'), cs.get('tf'), cs.get('th'), cs.get('ni'), cs.get('md')
+    const [cb, cbt, cm, cg, cn] = await Promise.all([
+      cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name')
     ]);
     if (cb  != null) balanceTotal = parseInt(cb,10)  || 0;
     if (cbt != null) balanceToday = parseInt(cbt,10) || 0;
     if (cm  != null) moodLevel    = clampMood(cm);
     if (cg) userGoal = cg;
     if (cn) userName = cn;
-    if (ctt!=null) tasksTotal    = parseInt(ctt,10)||0;
-    if (ctd!=null) tasksDone     = parseInt(ctd,10)||0;
-    if (ctp!=null) tasksPartial  = parseInt(ctp,10)||0;
-    if (ctf!=null) tasksFail     = parseInt(ctf,10)||0;
-    if (cth!=null) tasksHeavy    = parseInt(cth,10)||0;
-    if (cni!=null) nudgesIgnored = parseInt(cni,10)||0;
-    if (cmd!=null) dayMultiplier = parseFloat(cmd)||1;
   }
   if (changed && tg?.CloudStorage){
     await Promise.allSettled([
       cs.set('b', balanceTotal), cs.set('bt', balanceToday),
-      cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || ''),
-      cs.set('tt', tasksTotal), cs.set('td', tasksDone), cs.set('tp', tasksPartial),
-      cs.set('tf', tasksFail),  cs.set('th', tasksHeavy), cs.set('ni', nudgesIgnored),
-      cs.set('md', dayMultiplier)
+      cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || '')
     ]);
   }
 }
@@ -530,15 +456,6 @@ function renderDaySummary(){
   if (delta > 0) { db.textContent = `+${fmtInt(delta)}`; db.className = 'delta-badge pos'; }
   else if (delta < 0){ db.textContent = `${fmtInt(delta)}`; db.className = 'delta-badge neg'; }
   else { db.textContent = '0'; db.className = 'delta-badge zero'; }
-
-  // Плитки-пазлы
-  $('t-total').textContent   = fmtInt(tasksTotal);
-  $('t-done').textContent    = fmtInt(tasksDone);
-  $('t-partial').textContent = fmtInt(tasksPartial);
-  $('t-fail').textContent    = fmtInt(tasksFail);
-  $('t-heavy').textContent   = fmtInt(tasksHeavy);
-  $('t-ignored').textContent = fmtInt(nudgesIgnored);
-  $('t-mult').textContent    = '×' + (Math.round(dayMultiplier*100)/100).toFixed(2);
 }
 
 /* ====== Важность/режимы/слайдер (как было) ====== */
