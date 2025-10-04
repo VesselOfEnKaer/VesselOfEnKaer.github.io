@@ -9,155 +9,103 @@
   <title>ForHer — мини-приложение</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root{
-      --bg:#f6f8fc; --card:#fff; --text:#0b1220; --muted:#5b6676; --border:#e6e9f2;
-      --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
-      --input-bg:#fbfcff; --input-fg:var(--text);
-      --ease:cubic-bezier(.2,.7,.2,1);
-      --t-fast:.15s; --t-med:.25s;
-    }
+    :root { --bg:#f6f8fc; --card:#ffffff; --text:#0b1220; --muted:#5b6676; --border:#e6e9f2; --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text); --input-bg:#fbfcff; --input-fg:var(--text); --mood:#8aa0b4; }
     @media (prefers-color-scheme: dark){
-      :root{
-        --bg:#0f1115; --card:#161923; --text:#e9eef6; --muted:#9aa4b2; --border:#232838;
-        --surface:#10141e; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
-        --input-bg:#0e1118; --input-fg:var(--text);
-      }
+      :root { --bg:#0f1115; --card:#161923; --text:#e9eef6; --muted:#9aa4b2; --border:#232838; --surface:#10141e; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text); --input-bg:#0e1118; --input-fg:var(--text); }
     }
-
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
-      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
-
-    /* мягкий фон */
+    html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
     .wrap{min-height:100%;display:grid;place-items:center;padding:24px;position:relative;overflow:hidden}
-    .wrap::before{
-      content:""; position:fixed; inset:-30%;
-      background:
-        radial-gradient(40% 35% at 20% 25%, rgba(79,140,255,.16), transparent 60%),
-        radial-gradient(35% 30% at 80% 20%, rgba(255,150,190,.14), transparent 62%),
-        radial-gradient(45% 40% at 50% 85%, rgba(120,220,180,.14), transparent 60%);
-      filter: blur(40px); animation: floatBg 18s ease-in-out infinite alternate; pointer-events:none; z-index:0;
-    }
-    @keyframes floatBg{ 0%{transform:translate3d(0,0,0)} 50%{transform:translate3d(0,-10px,0)} 100%{transform:translate3d(0,0,0)} }
-
-    .card{ position:relative; z-index:1; width:min(560px,94vw); padding:clamp(14px,4vw,20px);
-      background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.12); overflow:hidden }
-
+    .card{width:min(560px,92vw);padding:clamp(14px,4vw,20px);background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden;position:relative}
     h1{margin:0 0 12px;font-size:22px}
     p{margin:0 0 18px;color:var(--muted)}
     .grid{display:grid;gap:12px;width:100%}
-
-    /* кнопки + ripple */
-    .menu-btn,.back{
-      position:relative; overflow:hidden; transition:transform var(--t-fast) var(--ease), box-shadow var(--t-med) var(--ease);
-      touch-action:manipulation;
-    }
-    .menu-btn{
-      display:flex; align-items:center; justify-content:space-between; width:100%;
-      padding:14px 16px; font-size:16px; border-radius:12px;
-      background:var(--btn-bg); color:var(--btn-fg); border:1px solid var(--border); cursor:pointer;
-    }
-    .menu-btn.pressed,.back.pressed{ transform:translateY(1px) scale(.985); box-shadow:inset 0 2px 10px rgba(0,0,0,.08) }
-    .back{padding:6px 10px;border-radius:10px;background:var(--surface);border:1px solid var(--border);cursor:pointer}
-    .ripple{ position:absolute; border-radius:50%; transform:scale(0); pointer-events:none; background:currentColor; opacity:.15; animation:ripple .6s var(--ease) forwards }
-    @keyframes ripple{ to{ transform:scale(12); opacity:0 } }
-
-    label{display:block;font-size:20px;color:var(--muted);margin-bottom:0}
-    input[type="time"],input[type="text"],textarea{
-      display:block;width:100%;background:var(--input-bg);color:var(--input-fg);
-      border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;
-      transition:border-color var(--t-med) var(--ease), box-shadow var(--t-med) var(--ease);
-    }
+    .menu-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;font-size:16px;border-radius:12px;background:var(--btn-bg);color:var(--btn-fg);border:1px solid var(--border);cursor:pointer;transition:transform .08s ease, background .2s ease}
+    .menu-btn:active{transform:scale(.98)}
+    .row{display:grid;gap:14px;width:100%}
+    .row.two{grid-template-columns:1fr 1fr}
+    .row>div{min-width:0}
+    label{display:block;font-size:20px;color:var(--muted);margin-bottom:0px}
+    input[type="time"], input[type="text"], textarea{display:block;width:100%;max-width:100%;min-width:0;background:var(--input-bg);color:var(--input-fg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;transition:border-color .2s}
     input[type="time"]{height:48px;line-height:48px;appearance:none;-webkit-appearance:none;background-clip:padding-box}
-    input[type="time"]:focus,input[type="text"]:focus,textarea:focus{border-color:var(--accent); box-shadow:0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent)}
+    input[type="time"]:focus, input[type="text"]:focus, textarea:focus{border-color:var(--accent)}
     textarea{min-height:120px;resize:vertical}
     .hint{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
     .topbar{display:flex;align-items:center;gap:8px;margin:-8px 0 12px}
+    .back{padding:6px 10px;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;transition:transform .08s ease}
+    .back:active{transform:translateY(1px)}
     .hidden{display:none}
+    @media (max-width:520px){ .row.two{grid-template-columns:1fr} .grid,.row{gap:12px} }
+    @media (max-width:360px){ .grid,.row{gap:10px} .card{padding:12px} }
 
-    /* переходы экранов */
-    section{opacity:0; transform:translateY(8px); pointer-events:none}
-    section.active{opacity:1; transform:none; pointer-events:auto; transition:opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease)}
-    section.leaving{opacity:0; transform:translateY(8px) scale(.98); transition:opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease)}
+    /* ====== Градиент под настроение (появляется на экране mood) ====== */
+    .mood-overlay{
+      position:fixed; inset:0; pointer-events:none; opacity:0; transition:opacity .35s ease;
+      background:
+        radial-gradient(900px 600px at 80% -10%, color-mix(in srgb, var(--mood) 40%, transparent), transparent 60%),
+        radial-gradient(600px 400px at -10% 100%, color-mix(in srgb, var(--mood) 30%, transparent), transparent 60%);
+    }
+    .mood-on .mood-overlay{ opacity:.65 }
 
-    /* ===== Тумблеры (адаптивно) ===== */
-    .toggles{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-    @media (max-width:480px){
-      .toggles{ grid-template-columns:1fr; }
+    /* ===== Бейдж баланса ===== */
+    .balance-badge{
+      position:fixed; top:10px; right:12px; z-index:20;
+      padding:8px 12px; border-radius:12px;
+      background:rgba(0,0,0,.06); backdrop-filter:blur(6px);
+      color:var(--text); border:1px solid var(--border);
+      font-weight:700; font-size:14px;
+      transition:transform .12s ease, opacity .2s ease;
+      user-select:none;
     }
-    .toggle{
-      display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--border);
-      background:var(--surface); border-radius:999px; cursor:pointer; user-select:none;
-      transition:transform .15s var(--ease), border-color .2s var(--ease), background .2s var(--ease);
-      min-width:0; /* чтобы текст переносился */
-    }
-    .toggle input{ display:none }
-    .pill{ flex:0 0 44px; width:44px; height:26px; border-radius:999px; position:relative; background:#cbd5e1; transition:background .2s var(--ease) }
-    .dot{ position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.2); transition:left .18s var(--ease) }
-    .toggle input:checked + .pill{ background:var(--accent) }
-    .toggle input:checked + .pill .dot{ left:21px }
-    .toggle span{ font-size:14px; line-height:1.2; color:var(--text); white-space:normal; overflow-wrap:anywhere }
+    .balance-badge:active{ transform:scale(.98) }
+    @media (prefers-color-scheme: dark){ .balance-badge{ background:rgba(255,255,255,.06) } }
 
-    /* ===== Слайдер важности ===== */
-    .imp-wrap{ position:relative; }
-    .imp-title{ font-size:14px; color:var(--muted); margin-top:6px }
-    .imp-labels{ display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin:-2px 0 4px }
-    .imp-row{ position:relative; padding:12px 10px 2px }
-    .imp-value{
-      position:absolute; top:-14px; transform:translateX(-50%);
-      padding:4px 8px; font-size:12px; border-radius:10px; color:#fff; background:hsl(var(--h,120),80%,50%);
-      box-shadow:0 2px 10px rgba(0,0,0,.15); user-select:none; min-width:36px; text-align:center;
+    /* ===== Прежняя разметка важности (если используешь сегменты) ===== */
+    .segmented {
+      display:flex; gap:8px; background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:6px; align-items:center; justify-content:space-between;
     }
-    input.range{ --fill:50%; --h:120; --scale:1; width:100%; height:44px; appearance:none; -webkit-appearance:none; background:transparent; outline:none }
-    input.range::-webkit-slider-runnable-track{
-      height:6px; border-radius:6px;
-      background:linear-gradient(to right,
-                 hsl(var(--h),80%,55%) 0 var(--fill),
-                 color-mix(in oklab, var(--border) 80%, transparent) var(--fill) 100%);
+    .seg-btn {
+      flex:1; padding:10px 12px; text-align:center; border-radius:10px; border:1px solid transparent;
+      background:transparent; color:var(--text); cursor:pointer; font-size:14px;
+      user-select:none; transition:transform .06s ease, background .2s ease;
     }
-    input.range::-moz-range-track{
-      height:6px; border-radius:6px;
-      background:linear-gradient(to right,
-                 hsl(var(--h),80%,55%) 0 var(--fill),
-                 color-mix(in oklab, var(--border) 80%, transparent) var(--fill) 100%);
-    }
-    input.range::-webkit-slider-thumb{
-      -webkit-appearance:none; width:22px; height:22px; margin-top:-8px; border-radius:50%;
-      background:#fff; border:3px solid hsl(var(--h),80%,55%);
-      box-shadow:0 2px 10px rgba(0,0,0,.2); transition:transform .12s var(--ease), border-color .12s var(--ease); transform:scale(var(--scale));
-    }
-    input.range:active::-webkit-slider-thumb{ transform:scale(calc(var(--scale) * 1.08)) }
-    input.range::-moz-range-thumb{
-      width:22px; height:22px; border-radius:50%; background:#fff; border:3px solid hsl(var(--h),80%,55%);
-      box-shadow:0 2px 10px rgba(0,0,0,.2); transition:transform .12s var(--ease), border-color .12s var(--ease); transform:scale(var(--scale));
-    }
+    .seg-btn:active{ transform:scale(.98) }
+    .seg-btn small { display:block; font-size:15px; color:var(--muted); margin-top:10px; }
+    .seg-btn.active { background:var(--card); border-color:var(--border); box-shadow:0 1px 0 rgba(0,0,0,.05) inset; }
 
-    /* Task layout */
-    #screen-task .form{ display:grid; gap:14px }
-    #screen-task .goal-line{ margin:0 0 10px; color:var(--muted) }
-
-    /* мобильные мелочи */
-    @media (max-width:520px){
-      .wrap{ padding:16px }
-      .menu-btn{ padding:12px 14px; font-size:15px }
-      h1{ font-size:20px }
-      .imp-labels{ font-size:12px }
-      .imp-title{ font-size:13px }
+    /* Task layout tweaks */
+    #screen-task .form { display: grid; gap: 14px; }
+    #screen-task .goal-line { margin: 0px 0 15px; color: var(--muted); }
+    #screen-task .segmented { width: 100%; }
+    
+    /* ===== Mood big card ===== */
+    .mood-card{
+      display:grid; gap:10px; place-items:center; text-align:center;
+      padding:24px; border-radius:16px; border:1px solid var(--border);
+      background:color-mix(in srgb, var(--mood) 6%, var(--card));
     }
-    @media (max-width:360px){
-      .card{ padding:12px }
-    }
+    .mood-emoji{ font-size:48px; line-height:1 }
+    .mood-title{ font-size:20px; font-weight:800; margin-top:4px }
+    .mood-desc{ font-size:14px; color:var(--muted) }
   </style>
 </head>
 <body>
+  <!-- полупрозрачный фон под настроение -->
+  <div class="mood-overlay" id="mood-overlay"></div>
+
+  <!-- Бейдж баланса всегда в правом верхнем углу -->
+  <div id="balance-badge" class="balance-badge">0 🎴</div>
+
   <div class="wrap">
     <div class="card">
       <!-- HOME -->
-      <section id="screen-home" class="grid active">
+      <section id="screen-home" class="grid">
         <h1>🏠 Главный экран</h1>
         <p>Мини-приложение ForHer.</p>
         <button class="menu-btn" id="btn-settings">⚙️ Настройки <span>›</span></button>
         <button class="menu-btn" id="btn-task">✍️ Создать задачу <span>›</span></button>
+        <button class="menu-btn" id="btn-stats">📊 Статистика <span>›</span></button>
       </section>
 
       <!-- SETTINGS -->
@@ -165,6 +113,26 @@
         <div class="topbar"><button class="back" id="back-from-settings">← Назад</button><h1 style="margin:0">⚙️ Настройки</h1></div>
         <button class="menu-btn" id="btn-edit-schedule">🛌 Изменить расписание <span>›</span></button>
         <button class="menu-btn" id="btn-edit-goal">🎯 Изменить цель <span>›</span></button>
+      </section>
+
+      <!-- STATS (вход) -->
+      <section id="screen-stats" class="grid hidden">
+        <div class="topbar"><button class="back" id="back-from-stats">← Назад</button><h1 style="margin:0">📊 Статистика</h1></div>
+        <button class="menu-btn" id="btn-stats-mood">🧠 Настроение бота <span>›</span></button>
+        <!-- здесь позже появятся другие пункты статистики (день/неделя/месяц) -->
+      </section>
+
+      <!-- MOOD -->
+      <section id="screen-stats-mood" class="grid hidden">
+        <div class="topbar"><button class="back" id="back-from-stats-mood">← Назад</button><h1 style="margin:0">🧠 Настроение бота</h1></div>
+
+        <div class="mood-card">
+          <div class="mood-emoji" id="mood-emoji">😌</div>
+          <div class="mood-title" id="mood-title">Ровный (0)</div>
+          <div class="mood-desc" id="mood-desc">Нейтральный баланс. Поровну мягких и жёстких фраз — по делу.</div>
+        </div>
+
+        <p class="hint">Настроение зависит от общего баланса 🎴 и меняет стиль сообщений.</p>
       </section>
 
       <!-- SCHEDULE -->
@@ -186,42 +154,23 @@
         <div class="hint">Нажми системную кнопку внизу, чтобы сохранить цель.</div>
       </section>
 
-      <!-- TASK -->
+      <!-- TASK (оставляю твою текущую форму; если у тебя уже слайдер/чекбоксы — не конфликтует) -->
       <section id="screen-task" class="grid hidden">
         <div class="topbar">
           <button class="back" id="back-from-task">← Назад</button>
           <h1 style="margin:0">✍️ Новая задача</h1>
         </div>
         <p>Формат: <b>Я</b> [сделаю действие] <b>ради</b> [моей цели].</p>
-
         <div class="form">
           <label for="action">Я</label>
           <input id="action" type="text" placeholder="изучу материалы/сделаю 10 отжиманий" />
           <p class="goal-line">ради <b id="goal-view">достижения мечты</b></p>
-
-          <!-- эксклюзивные тумблеры -->
-          <div class="toggles">
-            <label class="toggle" id="tg-will">
-              <input type="checkbox" id="chk-willpower">
-              <span class="pill"><span class="dot"></span></span>
-              <span>⚡ Волевое действие</span>
-            </label>
-            <label class="toggle" id="tg-add">
-              <input type="checkbox" id="chk-addiction">
-              <span class="pill"><span class="dot"></span></span>
-              <span>🚫 Борьба с зависимостью</span>
-            </label>
+          <label>Влияние задачи на достижение цели</label>
+          <div class="segmented" id="importance">
+            <button type="button" class="seg-btn" data-val="1">★☆☆<small>Слабое</small></button>
+            <button type="button" class="seg-btn" data-val="2">★★☆<small>Среднее</small></button>
+            <button type="button" class="seg-btn" data-val="3">★★★<small>Прямое</small></button>
           </div>
-
-          <div class="imp-wrap">
-            <div class="imp-labels"><span id="imp-left">Косвенное</span><span id="imp-right">Прямое</span></div>
-            <div class="imp-row">
-              <input class="range" id="imp" type="range" min="0.1" max="3" step="0.1" value="1.0" />
-              <div class="imp-value" id="imp-badge">1,0</div>
-            </div>
-            <div class="imp-title" id="imp-title">Влияние задачи на достижение цели</div>
-          </div>
-
           <div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
         </div>
       </section>
@@ -233,124 +182,91 @@
     const $ = (id) => document.getElementById(id);
     const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
 
+    // ===== Маппинг настроения
+    const MOOD = {
+      2:  { emoji:'😇', title:'Добрячок (+2)', color:'#20c997', desc:'Я мягкий и поддерживающий. Подкидываю лайтовые нуджи, больше похвалы.' },
+      1:  { emoji:'🙂', title:'Тёплый (+1)',   color:'#2ea8ff', desc:'Чуть строже, но всё ещё дружелюбен. Напоминаю мягко, мотивирую.' },
+      0:  { emoji:'😌', title:'Ровный (0)',    color:'#8aa0b4', desc:'Нейтральный баланс. Поровну мягких и жёстких фраз — по делу.' },
+      [-1]:{ emoji:'😾', title:'Колючий (−1)', color:'#ff9966', desc:'Начинаю поддавливать. Больше прямоты, меньше нежностей.' },
+      [-2]:{ emoji:'😈', title:'Злой (−2)',    color:'#ff4d4f', desc:'Максимальная строгость. Жёсткие нуджи — потому что цель важнее отговорок.' },
+    };
+
+    let selectedImportance = null;
+    let balanceTotal = 0;
+    let moodLevel = 0;
+    let userGoal = '';
+    let userName = '';
+
     function applyTheme(){
       const scheme = tg?.colorScheme ?? 'light';
-      const set=(k,v)=>document.documentElement.style.setProperty(k,v);
+      const set = (k,v)=>document.documentElement.style.setProperty(k,v);
       if(scheme==='dark'){
-        set('--bg','#0f1115'); set('--card','#161923'); set('--text','#e9eef6'); set('--muted','#9aa4b2');
-        set('--border','#232838'); set('--surface','#10141e'); set('--accent','#4f8cff');
-        set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)');
-        set('--input-bg','#0e1118'); set('--input-fg','var(--text)');
-      }else{
-        set('--bg','#f6f8fc'); set('--card','#ffffff'); set('--text','#0b1220'); set('--muted','#5b6676');
-        set('--border','#e6e9f2'); set('--surface','#f1f4fa'); set('--accent','#4f8cff');
-        set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)');
-        set('--input-bg','#fbfcff'); set('--input-fg','var(--text)');
+        set('--bg','#0f1115'); set('--card','#161923'); set('--text','#e9eef6'); set('--muted','#9aa4b2'); set('--border','#232838'); set('--surface','#10141e'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#0e1118'); set('--input-fg','var(--text)');
+      } else {
+        set('--bg','#f6f8fc'); set('--card','#ffffff'); set('--text','#0b1220'); set('--muted','#5b6676'); set('--border','#e6e9f2'); set('--surface','#f1f4fa'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#fbfcff'); set('--input-fg','var(--text)');
       }
       if(tg?.themeParams?.button_color){ set('--accent', tg.themeParams.button_color); }
     }
 
-    /* переходы экранов */
-    function showScreen(name){
-      const ids=['home','settings','schedule','goal','task'];
-      const next=$(`screen-${name}`);
-      const current=document.querySelector('section.active');
-      if(current===next) return;
+    function clampMood(m){ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
 
-      next.classList.remove('hidden');
-      requestAnimationFrame(()=>{
-        current?.classList.add('leaving');
-        next.classList.add('active'); next.classList.remove('leaving');
-        setTimeout(()=>{
-          current?.classList.remove('active','leaving');
-          if(current && !ids.some(k=>current.id===`screen-${k}` && current.classList.contains('active'))){
-            current.classList.add('hidden');
-          }
-        }, 260);
+    function renderBalanceBadge(){
+      const el = $('balance-badge');
+      if(!el) return;
+      el.textContent = `${balanceTotal} 🎴`;
+    }
+
+    function setMoodColor(){
+      const m = MOOD[moodLevel] || MOOD[0];
+      document.documentElement.style.setProperty('--mood', m.color);
+    }
+
+    function showScreen(name){
+      ['home','settings','schedule','goal','task','stats','stats-mood'].forEach(id=>{
+        $(`screen-${id}`).classList.toggle('hidden', id!==name);
       });
+      // фон под настроение включаем только на экране mood
+      document.body.classList.toggle('mood-on', name==='stats-mood');
 
       if(!tg) return;
       if(name==='schedule'){ tg.MainButton.setText('Отправить'); updateMainButtonSchedule(); }
       else if(name==='goal'){ tg.MainButton.setText('Сохранить'); updateMainButtonGoal(); }
       else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); }
       else { tg.MainButton.hide(); }
-    }
 
-    function updateMainButtonSchedule(){ if(!tg) return; const ok=isValidTime($('sleep').value||'')&&isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
-    function updateMainButtonGoal(){ if(!tg) return; const ok=( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
-    function updateMainButtonTask(){
-      if(!tg) return;
-      const actionOk=( $('action').value||'' ).trim().length>0;
-      const imp=parseFloat(($('imp').value||'').replace(',','.'));
-      const impOk=!Number.isNaN(imp) && imp>=0.1 && imp<=3;
-      tg.MainButton[ actionOk && impOk ? 'show' : 'hide' ]();
-    }
-
-    /* ripple + press fx */
-    function addRipple(e){
-      const el=e.currentTarget, rect=el.getBoundingClientRect(), size=Math.max(rect.width,rect.height);
-      const r=document.createElement('span'); r.className='ripple'; r.style.width=r.style.height=size+'px';
-      r.style.left=(e.clientX-rect.left-size/2)+'px'; r.style.top=(e.clientY-rect.top-size/2)+'px';
-      el.appendChild(r); setTimeout(()=>r.remove(),650);
-    }
-    function pressOn(e){ e.currentTarget.classList.add('pressed'); try{tg?.HapticFeedback?.impactOccurred('light')}catch{} }
-    function pressOff(e){ e.currentTarget.classList.remove('pressed'); }
-
-    /* ===== importance slider live UI ===== */
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-    function mapHue(v){
-      const t = (v-0.1)/(3-0.1);
-      if ($('chk-willpower').checked) return Math.round(50 - 50*t);      // 50→0
-      if ($('chk-addiction').checked) return Math.round(260 + 80*t);     // 260→340
-      return Math.round(0 + 120*t);                                      // 0→120
-    }
-    function updateImpLabels(){
-      const left=$('imp-left'), right=$('imp-right'), title=$('imp-title');
-      if ($('chk-willpower').checked){
-        left.textContent='Простое'; right.textContent='Мучительное'; title.textContent='Уровень усилия';
-      } else if ($('chk-addiction').checked){
-        left.textContent='Балуюсь'; right.textContent='Серьёзно зависим'; title.textContent='Степень вовлечённости';
-      } else {
-        left.textContent='Косвенное'; right.textContent='Прямое'; title.textContent='Влияние задачи на достижение цели';
+      // рендер mood-карточки
+      if(name==='stats-mood'){
+        const m = MOOD[moodLevel] || MOOD[0];
+        $('mood-emoji').textContent = m.emoji;
+        $('mood-title').textContent = m.title;
+        $('mood-desc').textContent  = m.desc;
+        setMoodColor();
       }
     }
-    function updateImpUI(){
-      const el=$('imp'); const badge=$('imp-badge');
-      const v = clamp(parseFloat(el.value||'1'), 0.1, 3.0);
-      const pct = ((v-0.1)/(3-0.1))*100;
-      const hue = mapHue(v);
-      const scale = 0.98 + (v-0.1)/(3-0.1)*0.12;
 
-      el.style.setProperty('--fill', pct+'%');
-      el.style.setProperty('--h', hue);
-      el.style.setProperty('--scale', scale);
-
-      badge.textContent = v.toFixed(1).replace('.', ',');
-      const trackRect = el.getBoundingClientRect();
-      const parentRect = el.parentElement.getBoundingClientRect();
-      const rawX = trackRect.left + trackRect.width * pct/100;
-      const minX = parentRect.left + 12;                        // левый безопасный отступ
-      const maxX = parentRect.right - 12;                       // правый безопасный отступ
-      const clampedX = clamp(rawX, minX, maxX);
-      badge.style.left = (clampedX - parentRect.left) + 'px';
-      badge.style.background = `hsl(${hue} 80% 50%)`;
-
-      updateMainButtonTask();
+    function updateMainButtonSchedule(){ if(!tg) return; const ok = isValidTime($('sleep').value||'') && isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
+    function updateMainButtonGoal(){ if(!tg) return; const ok = ( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
+    function updateMainButtonTask(){
+      if(!tg) return;
+      const ok = ( $('action').value||'' ).trim().length>0 && (selectedImportance===1 || selectedImportance===2 || selectedImportance===3);
+      tg.MainButton[ ok ? 'show' : 'hide' ]();
     }
-    function exclusivity(){
-      const w=$('chk-willpower'), a=$('chk-addiction');
-      w.addEventListener('change', ()=>{
-        if(w.checked){ a.checked=false; try{tg?.HapticFeedback?.impactOccurred('light')}catch{} }
-        updateImpLabels(); updateImpUI();
-      });
-      a.addEventListener('change', ()=>{
-        if(a.checked){ w.checked=false; try{tg?.HapticFeedback?.impactOccurred('light')}catch{} }
-        updateImpLabels(); updateImpUI();
+
+    function bindImportance(){
+      const cont = $('importance');
+      if(!cont) return;
+      cont.querySelectorAll('.seg-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          cont.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedImportance = parseInt(btn.dataset.val, 10);
+          updateMainButtonTask();
+        });
       });
     }
 
     function sendPayload(){
-      const payload={};
+      const payload = {};
       payload.tz_offset_min = new Date().getTimezoneOffset();
 
       if(!$('screen-schedule').classList.contains('hidden')){
@@ -363,46 +279,40 @@
       }
       if(!$('screen-task').classList.contains('hidden')){
         const a=($('action').value||'').trim(); if(!a) return;
-        const goal=($('goal-view').textContent||'').trim();
-        const imp=parseFloat(($('imp').value||'1').replace(',','.'));
-        if(Number.isNaN(imp)) return;
-        payload.task = `Я ${a} ради ${goal}`;
-        payload.importance = Math.round(imp*10)/10;
-        payload.willpower = !!$('chk-willpower').checked;
-        payload.addiction = !!$('chk-addiction').checked;
+        const goalText=($('goal-view').textContent||'').trim();
+        if(!(selectedImportance===1 || selectedImportance===2 || selectedImportance===3)) return;
+        payload.task = `Я ${a} ради ${goalText}`;
+        payload.importance = selectedImportance;
       }
 
-      try{ tg?.sendData(JSON.stringify(payload)); }catch(e){ console.error(e) }
-      try{ tg?.HapticFeedback?.notificationOccurred('success'); }catch{}
+      try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
+      try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
       setTimeout(()=>tg?.close(), 120);
     }
 
     function bind(){
-      document.querySelectorAll('.menu-btn,.back,.toggle').forEach(el=>{
-        el.addEventListener('pointerdown', pressOn);
-        el.addEventListener('pointerup', pressOff);
-        el.addEventListener('pointerleave', pressOff);
-        el.addEventListener('click', addRipple);
-      });
-
       $('btn-settings')?.addEventListener('click', ()=>showScreen('settings'));
       $('btn-task')?.addEventListener('click', ()=>showScreen('task'));
+      $('btn-stats')?.addEventListener('click', ()=>showScreen('stats'));
+
+      $('btn-stats-mood')?.addEventListener('click', ()=>showScreen('stats-mood'));
+
       $('btn-edit-schedule')?.addEventListener('click', ()=>showScreen('schedule'));
       $('btn-edit-goal')?.addEventListener('click', ()=>showScreen('goal'));
+
       $('back-from-settings')?.addEventListener('click', ()=>showScreen('home'));
       $('back-from-schedule')?.addEventListener('click', ()=>showScreen('settings'));
       $('back-from-goal')?.addEventListener('click', ()=>showScreen('settings'));
       $('back-from-task')?.addEventListener('click', ()=>showScreen('home'));
+      $('back-from-stats')?.addEventListener('click', ()=>showScreen('home'));
+      $('back-from-stats-mood')?.addEventListener('click', ()=>showScreen('stats'));
 
       $('sleep')?.addEventListener('input', updateMainButtonSchedule);
       $('wake')?.addEventListener('input', updateMainButtonSchedule);
       $('goal')?.addEventListener('input', updateMainButtonGoal);
       $('action')?.addEventListener('input', updateMainButtonTask);
 
-      $('imp')?.addEventListener('input', updateImpUI);
-      window.addEventListener('resize', updateImpUI);
-      exclusivity();
-      updateImpLabels();
+      bindImportance();
     }
 
     function init(){
@@ -410,26 +320,37 @@
       tg?.onEvent('themeChanged', applyTheme);
       tg?.onEvent('mainButtonClicked', sendPayload);
 
+      // читаем параметры, которые передал бот
+      const params = new URLSearchParams(location.search);
+      balanceTotal = parseInt(params.get('b') || '0', 10);
+      moodLevel    = clampMood(params.get('m'));
+      userGoal     = (params.get('g') || params.get('goal') || '').trim();
+      userName     = (params.get('name') || '').trim();
+
+      if (userGoal) $('goal-view').textContent = userGoal;
+      renderBalanceBadge();
+      setMoodColor();
+
       bind();
 
-      const params=new URLSearchParams(location.search);
-      let screen=(params.get('screen')||'home').toLowerCase();
-      let goalFromQuery=params.get('goal');
-
-      const sp=tg?.initDataUnsafe?.start_param;
-      if(sp && typeof sp==='string'){
-        const usp=new URLSearchParams(sp);
-        screen=(usp.get('screen')||screen||'home').toLowerCase();
-        goalFromQuery=usp.get('goal')||goalFromQuery;
+      // поддержка start_param (deep-link совместимость)
+      let screen = (params.get('screen')||'home').toLowerCase();
+      const sp = tg?.initDataUnsafe?.start_param;
+      if (sp && typeof sp === 'string') {
+        const usp = new URLSearchParams(sp);
+        screen = (usp.get('screen') || screen || 'home').toLowerCase();
+        if (!userGoal) {
+          const g2 = usp.get('g') || usp.get('goal');
+          if (g2) { userGoal = g2; $('goal-view').textContent = userGoal; }
+        }
       }
-      if(goalFromQuery){ $('goal-view').textContent=goalFromQuery; }
 
-      if      (screen==='schedule') showScreen('schedule');
-      else if (screen==='goal')     showScreen('goal');
-      else if (screen==='task')     showScreen('task');
-      else                          showScreen('home');
-
-      updateImpUI();
+      if      (screen==='schedule')   showScreen('schedule');
+      else if (screen==='goal')       showScreen('goal');
+      else if (screen==='task')       showScreen('task');
+      else if (screen==='stats')      showScreen('stats');
+      else if (screen==='stats_mood' || screen==='mood') showScreen('stats-mood');
+      else                            showScreen('home');
     }
 
     document.addEventListener('DOMContentLoaded', init);
