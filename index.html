@@ -9,54 +9,137 @@
   <title>ForHer — мини-приложение</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root { --bg:#f6f8fc; --card:#ffffff; --text:#0b1220; --muted:#5b6676; --border:#e6e9f2; --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text); --input-bg:#fbfcff; --input-fg:var(--text); }
-    @media (prefers-color-scheme: dark){ :root { --bg:#0f1115; --card:#161923; --text:#e9eef6; --muted:#9aa4b2; --border:#232838; --surface:#10141e; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text); --input-bg:#0e1118; --input-fg:var(--text); } }
-    *{box-sizing:border-box} 
-    html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
-    .wrap{min-height:100%;display:grid;place-items:center;padding:24px}
-    .card{width:min(560px,92vw);padding:clamp(14px,4vw,20px);background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden}
+    :root{
+      --bg:#f6f8fc; --card:#ffffff; --text:#0b1220; --muted:#5b6676; --border:#e6e9f2;
+      --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
+      --input-bg:#fbfcff; --input-fg:var(--text);
+      --ease: cubic-bezier(.2,.7,.2,1);
+      --t-fast:.15s; --t-med:.25s; --t-slow:.6s;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0f1115; --card:#161923; --text:#e9eef6; --muted:#9aa4b2; --border:#232838;
+        --surface:#10141e; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
+        --input-bg:#0e1118; --input-fg:var(--text);
+      }
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
+
+    /* ===== Animated background ===== */
+    .wrap{min-height:100%;display:grid;place-items:center;padding:24px;position:relative;overflow:hidden}
+    .wrap::before{
+      content:""; position:fixed; inset:-30%;
+      background:
+        radial-gradient(40% 35% at 20% 25%, rgba(79,140,255,.16), transparent 60%),
+        radial-gradient(35% 30% at 80% 20%, rgba(255,150,190,.14), transparent 62%),
+        radial-gradient(45% 40% at 50% 85%, rgba(120,220,180,.14), transparent 60%);
+      filter: blur(40px);
+      animation: floatBg 18s ease-in-out infinite alternate;
+      pointer-events:none; z-index:0;
+    }
+    @keyframes floatBg{
+      0%{ transform:translate3d(0,0,0) scale(1) rotate(0deg) }
+      50%{ transform:translate3d(0,-10px,0) scale(1.02) rotate(1deg) }
+      100%{ transform:translate3d(0,0,0) scale(1) rotate(-1deg) }
+    }
+
+    .card{
+      position:relative; z-index:1;
+      width:min(560px,92vw);
+      padding:clamp(14px,4vw,20px);
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:0 8px 32px rgba(0,0,0,.12);
+      overflow:hidden;
+      transition: box-shadow var(--t-slow) var(--ease), transform var(--t-slow) var(--ease);
+    }
+
     h1{margin:0 0 12px;font-size:22px}
     p{margin:0 0 18px;color:var(--muted)}
     .grid{display:grid;gap:12px;width:100%}
-    .menu-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;font-size:16px;border-radius:12px;background:var(--btn-bg);color:var(--btn-fg);border:1px solid var(--border);cursor:pointer}
+
+    /* ===== Buttons (with ripple & press) ===== */
+    .menu-btn,.back,.seg-btn{
+      position:relative;
+      overflow:hidden;
+      transition: transform var(--t-fast) var(--ease), box-shadow var(--t-med) var(--ease), filter var(--t-med) var(--ease), border-color var(--t-med) var(--ease);
+      will-change: transform;
+      touch-action: manipulation;
+    }
+    .menu-btn{
+      display:flex; align-items:center; justify-content:space-between; width:100%;
+      padding:14px 16px; font-size:16px; border-radius:12px;
+      background:var(--btn-bg); color:var(--btn-fg); border:1px solid var(--border); cursor:pointer;
+    }
+    .menu-btn:hover{ filter: brightness(1.02); }
+    .menu-btn.pressed, .back.pressed, .seg-btn.pressed{ transform: translateY(1px) scale(.98); box-shadow: inset 0 2px 10px rgba(0,0,0,.08); }
+
     .row{display:grid;gap:14px;width:100%}
     .row.two{grid-template-columns:1fr 1fr}
     .row>div{min-width:0}
-    label{display:block;font-size:20px;color:var(--muted);margin-bottom:0px}
-    input[type="time"], input[type="text"], textarea{display:block;width:100%;max-width:100%;min-width:0;background:var(--input-bg);color:var(--input-fg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;transition:border-color .2s}
+
+    label{display:block;font-size:20px;color:var(--muted);margin-bottom:0}
+    input[type="time"],input[type="text"],textarea{
+      display:block;width:100%;max-width:100%;min-width:0;background:var(--input-bg);color:var(--input-fg);
+      border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;
+      transition:border-color var(--t-med) var(--ease), box-shadow var(--t-med) var(--ease), transform var(--t-fast) var(--ease);
+    }
     input[type="time"]{height:48px;line-height:48px;appearance:none;-webkit-appearance:none;background-clip:padding-box}
-    input[type="time"]:focus, input[type="text"]:focus, textarea:focus{border-color:var(--accent)}
+    input[type="time"]:focus,input[type="text"]:focus,textarea:focus{border-color:var(--accent); box-shadow:0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent)}
     textarea{min-height:120px;resize:vertical}
     .hint{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
     .topbar{display:flex;align-items:center;gap:8px;margin:-8px 0 12px}
     .back{padding:6px 10px;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer}
     .hidden{display:none}
-    @media (max-width:520px){ .row.two{grid-template-columns:1fr} .grid,.row{gap:12px} }
-    @media (max-width:360px){ .grid,.row{gap:10px} .card{padding:12px} }
+
+    /* Screen transitions */
+    section{opacity:0; transform: translateY(8px); pointer-events:none}
+    section.active{opacity:1; transform:none; pointer-events:auto; transition: opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease)}
+    section.leaving{opacity:0; transform: translateY(8px) scale(.98); transition: opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease)}
 
     /* ===== Task importance segmented control ===== */
-    .segmented {
+    .segmented{
       display:flex; gap:8px; background:var(--surface); border:1px solid var(--border);
       border-radius:12px; padding:6px; align-items:center; justify-content:space-between;
     }
-    .seg-btn {
+    .seg-btn{
       flex:1; padding:10px 12px; text-align:center; border-radius:10px; border:1px solid transparent;
-      background:transparent; color:var(--text); cursor:pointer; font-size:14px;
-      user-select:none;
+      background:transparent; color:var(--text); cursor:pointer; font-size:14px; user-select:none;
     }
-    .seg-btn small { display:block; font-size:15px; color:var(--muted); margin-top:10px; }
-    .seg-btn.active { background:var(--card); border-color:var(--border); box-shadow:0 1px 0 rgba(0,0,0,.05) inset; }
+    .seg-btn small{ display:block; font-size:15px; color:var(--muted); margin-top:10px }
+    .seg-btn.active{ background:var(--card); border-color:var(--border); box-shadow:0 1px 0 rgba(0,0,0,.05) inset }
+    .seg-btn.active{ animation: pop .18s var(--ease) }
+    @keyframes pop{ from{ transform:scale(.96) } to{ transform:scale(1) } }
+
     /* Task layout tweaks */
-    #screen-task .form { display: grid; gap: 14px; }
-    #screen-task .goal-line { margin: 0px 0 15px; color: var(--muted); }
-    #screen-task .segmented { width: 100%; }         /* чтобы шло ровно по ширине, как инпут */
+    #screen-task .form{ display:grid; gap:14px }
+    #screen-task .goal-line{ margin:0 0 15px; color:var(--muted) }
+    #screen-task .segmented{ width:100% }
+
+    /* Ripple */
+    .ripple{
+      position:absolute; border-radius:50%; transform:scale(0); pointer-events:none;
+      background:currentColor; opacity:.15; animation:ripple .6s var(--ease) forwards;
+    }
+    @keyframes ripple{ to{ transform:scale(12); opacity:0 } }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important }
+    }
+    @media (max-width:520px){ .row.two{grid-template-columns:1fr} .grid,.row{gap:12px} }
+    @media (max-width:360px){ .grid,.row{gap:10px} .card{padding:12px} }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <!-- HOME -->
-      <section id="screen-home" class="grid">
+      <section id="screen-home" class="grid active">
         <h1>🏠 Главный экран</h1>
         <p>Мини-приложение ForHer.</p>
         <button class="menu-btn" id="btn-settings">⚙️ Настройки <span>›</span></button>
@@ -96,21 +179,16 @@
           <h1 style="margin:0">✍️ Новая задача</h1>
         </div>
         <p>Формат: <b>Я</b> [сделаю действие] <b>ради</b> [моей цели].</p>
-      
         <div class="form">
           <label for="action">Я</label>
           <input id="action" type="text" placeholder="изучу материалы/сделаю 10 отжиманий" />
-      
-          <!-- перенесено ВЫШЕ звёзд -->
           <p class="goal-line">ради <b id="goal-view">достижения мечты</b></p>
-      
           <label>Влияние задачи на достижение цели</label>
           <div class="segmented" id="importance">
             <button type="button" class="seg-btn" data-val="1">★☆☆<small>Слабое</small></button>
             <button type="button" class="seg-btn" data-val="2">★★☆<small>Среднее</small></button>
             <button type="button" class="seg-btn" data-val="3">★★★<small>Прямое</small></button>
           </div>
-      
           <div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
         </div>
       </section>
@@ -121,24 +199,49 @@
     const tg = window.Telegram?.WebApp;
     const $ = (id) => document.getElementById(id);
     const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
-
     let selectedImportance = null;
 
     function applyTheme(){
       const scheme = tg?.colorScheme ?? 'light';
       const set = (k,v)=>document.documentElement.style.setProperty(k,v);
       if(scheme==='dark'){
-        set('--bg','#0f1115'); set('--card','#161923'); set('--text','#e9eef6'); set('--muted','#9aa4b2'); set('--border','#232838'); set('--surface','#10141e'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#0e1118'); set('--input-fg','var(--text)');
-      } else {
-        set('--bg','#f6f8fc'); set('--card','#ffffff'); set('--text','#0b1220'); set('--muted','#5b6676'); set('--border','#e6e9f2'); set('--surface','#f1f4fa'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#fbfcff'); set('--input-fg','var(--text)');
+        set('--bg','#0f1115'); set('--card','#161923'); set('--text','#e9eef6'); set('--muted','#9aa4b2');
+        set('--border','#232838'); set('--surface','#10141e'); set('--accent','#4f8cff');
+        set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)');
+        set('--input-bg','#0e1118'); set('--input-fg','var(--text)');
+      }else{
+        set('--bg','#f6f8fc'); set('--card','#ffffff'); set('--text','#0b1220'); set('--muted','#5b6676');
+        set('--border','#e6e9f2'); set('--surface','#f1f4fa'); set('--accent','#4f8cff');
+        set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)');
+        set('--input-bg','#fbfcff'); set('--input-fg','var(--text)');
       }
       if(tg?.themeParams?.button_color){ set('--accent', tg.themeParams.button_color); }
     }
 
+    /* ===== Screen transitions (fade + slide) ===== */
     function showScreen(name){
-      ['home','settings','schedule','goal','task'].forEach(id=>{
-        $(`screen-${id}`).classList.toggle('hidden', id!==name);
+      const ids = ['home','settings','schedule','goal','task'];
+      const next = $(`screen-${name}`);
+      const current = document.querySelector('section.active');
+
+      if(current === next) return;
+
+      // prepare next
+      next.classList.remove('hidden'); // allow transition
+      requestAnimationFrame(()=>{
+        current?.classList.add('leaving');
+        next.classList.add('active');
+        next.classList.remove('leaving');
+
+        // hide after transition
+        setTimeout(()=>{
+          current?.classList.remove('active','leaving');
+          if(current && !ids.some(k=>current.id===`screen-${k}` && current.classList.contains('active'))){
+            current.classList.add('hidden');
+          }
+        }, 260);
       });
+
       if(!tg) return;
       if(name==='schedule'){ tg.MainButton.setText('Отправить'); updateMainButtonSchedule(); }
       else if(name==='goal'){ tg.MainButton.setText('Сохранить'); updateMainButtonGoal(); }
@@ -154,22 +257,47 @@
       tg.MainButton[ ok ? 'show' : 'hide' ]();
     }
 
+    /* ===== Segmented control ===== */
     function bindImportance(){
-      const cont = $('importance');
-      if(!cont) return;
+      const cont = $('importance'); if(!cont) return;
       cont.querySelectorAll('.seg-btn').forEach(btn=>{
         btn.addEventListener('click', ()=>{
           cont.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
           btn.classList.add('active');
           selectedImportance = parseInt(btn.dataset.val, 10);
           updateMainButtonTask();
+          try{ tg?.HapticFeedback?.impactOccurred('light'); }catch{}
         });
+      });
+    }
+
+    /* ===== Ripple + press feedback for all buttons ===== */
+    function addRipple(e){
+      const el = e.currentTarget;
+      const rect = el.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      r.style.width = r.style.height = size + 'px';
+      r.style.left = (e.clientX - rect.left - size/2) + 'px';
+      r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+      el.appendChild(r);
+      setTimeout(()=>r.remove(), 650);
+    }
+    function pressOn(e){ e.currentTarget.classList.add('pressed'); try{ tg?.HapticFeedback?.impactOccurred('light'); }catch{} }
+    function pressOff(e){ e.currentTarget.classList.remove('pressed'); }
+
+    function wireButtonFX(selector){
+      document.querySelectorAll(selector).forEach(el=>{
+        el.addEventListener('pointerdown', pressOn);
+        el.addEventListener('pointerup', pressOff);
+        el.addEventListener('pointerleave', pressOff);
+        el.addEventListener('click', addRipple);
       });
     }
 
     function sendPayload(){
       const payload = {};
-      // общие: часовой пояс
       payload.tz_offset_min = new Date().getTimezoneOffset();
 
       if(!$('screen-schedule').classList.contains('hidden')){
@@ -207,16 +335,22 @@
       $('goal')?.addEventListener('input', updateMainButtonGoal);
       $('action')?.addEventListener('input', updateMainButtonTask);
       bindImportance();
+
+      // подключим анимации на все кликабельные
+      wireButtonFX('.menu-btn, .back, .seg-btn');
     }
 
     function init(){
-      tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme); tg?.onEvent('mainButtonClicked', sendPayload);
+      tg?.ready(); tg?.expand(); applyTheme();
+      tg?.onEvent('themeChanged', applyTheme);
+      tg?.onEvent('mainButtonClicked', sendPayload);
+
       bind();
+
       const params = new URLSearchParams(location.search);
       let screen = (params.get('screen')||'home').toLowerCase();
       let goalFromQuery = params.get('goal');
 
-      // поддержка startapp (если используешь deep-linkи — останется совместимость)
       const sp = tg?.initDataUnsafe?.start_param;
       if (sp && typeof sp === 'string') {
         const usp = new URLSearchParams(sp);
