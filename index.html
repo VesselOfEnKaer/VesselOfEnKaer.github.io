@@ -261,6 +261,9 @@ input[type="range"]::-moz-range-thumb{
         </div>
 
         <div class="divider"></div>
+
+        <button class="menu-btn" id="btn-day-details">🧾 Подробнее в чате <span>›</span></button>
+        
         <div class="hint">Слева — текущий баланс, справа — баланс после учёта суммы за день.</div>
       </div>
     </section>
@@ -313,7 +316,7 @@ input[type="range"]::-moz-range-thumb{
           <label>Режим</label>
           <div class="chips">
             <div class="chip" id="chip-will">💪 Волевое действие</div>
-            <div class="chip" id="chip-add">🧲 Борьба с зависимостью</div>
+            <div class="chip" id="chip-add">🧲 Зависимость</div>
           </div>
         </div>
 
@@ -529,6 +532,12 @@ function bind(){
 
   $('btn-stats-mood')?.addEventListener('click', ()=>showScreen('stats-mood'));
   $('btn-stats-day')?.addEventListener('click',  ()=>showScreen('stats-day'));
+  $('btn-day-details')?.addEventListener('click', ()=>{
+  try { tg?.HapticFeedback?.impactOccurred('heavy'); } catch {}
+  try { tg?.sendData(JSON.stringify({ request: 'day_details' })); } catch(e){ console.error(e); }
+  // Закроем мини-апп, чтобы сразу увидеть сообщение в чате
+  setTimeout(()=>tg?.close?.(), 120);
+});
 
   $('btn-edit-schedule')?.addEventListener('click', ()=>showScreen('schedule'));
   $('btn-edit-goal')?.addEventListener('click', ()=>showScreen('goal'));
