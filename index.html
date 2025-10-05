@@ -445,14 +445,15 @@ get: (k) => new Promise(res => tg?.CloudStorage?.getItem?.(k, v => res(v))),
 set: (k, v) => new Promise(res => tg?.CloudStorage?.setItem?.(k, String(v), () => res(true)))
 };
 
-let balanceTotal = 0;   // общий
-let balanceToday = 0;   // дневной (+/-)
+let balanceTotal = 0;
+let balanceToday = 0;
 let moodLevel    = 0;
 let userGoal     = '';
 let userName     = '';
-let mode         = 'normal';
-let DEPS         = [];  // [{id,title,strength,active}]
-let selectedDep  = null;
+
+let mode          = 'normal';
+let DEPS          = [];              // нормализуем позже
+let selectedDepId = null;            // <-- вот он, единый идентификатор выбора
 
 // настроение пресеты
 const MOOD = {
@@ -738,11 +739,11 @@ function renderTaskDepsList(){
   block.classList.remove('hidden');
   list.innerHTML = '';
 
-  const deps = normalizeDeps(DEPS);
-  if (!deps.length){
-    list.innerHTML = '<div class="hint">Нет зависимостей. Добавь через «Настройки → Добавить зависимости».</div>';
-    return;
-  }
+  const deps = DEPS; // уже нормализован в init
+if (!deps.length){
+  list.innerHTML = '<div class="hint">Нет зависимостей. Добавь через «Настройки → Добавить зависимости».</div>';
+  return;
+}
 
   deps.forEach(d => {
     const btn = document.createElement('button');
@@ -882,9 +883,6 @@ try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
 setTimeout(()=>tg?.close(), 120);
 }
 
-async function init(){
-tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme);
-     
 function normalizeDeps(arr){
   return (Array.isArray(arr) ? arr : [])
     .map((d, i) => ({
@@ -894,6 +892,9 @@ function normalizeDeps(arr){
     }))
     .filter(d => d.title);
 }
+
+async function init(){
+tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme);
 
 // ...в init() сразу после hydrate:
 await hydrateFromParamsOrCS();
