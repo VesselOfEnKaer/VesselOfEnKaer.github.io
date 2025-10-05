@@ -14,7 +14,7 @@
   --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
   --input-bg:#fbfcff; --input-fg:var(--text);
   --mood:#8aa0b4; --meter:#4f8cff; --radius:16px;
-  --good:#20c997; --bad:#ff4d4f; --warn:#ff9f40;
+  --good:#20c997; --bad:#ff4d4f; --series:#ff8c1a;
 }
 @media (prefers-color-scheme: dark){
 :root{
@@ -36,19 +36,16 @@ h1{margin:0 0 12px;font-size:22px}
 p{margin:0 0 18px;color:var(--muted)}
 .grid{display:grid;gap:12px;width:100%}
 
-/* кнопки-меню */
 .menu-btn{
   display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;
   font-size:16px;border-radius:12px;background:var(--btn-bg);color:var(--btn-fg);
   border:1px solid var(--border);cursor:pointer;transition:transform .08s ease, background .2s ease, box-shadow .2s ease;
-  box-shadow:0 1px 0 rgba(0,0,0,.04) inset; -webkit-tap-highlight-color: transparent;
-  will-change:transform;
+  box-shadow:0 1px 0 rgba(0,0,0,.04) inset; -webkit-tap-highlight-color: transparent; will-change:transform;
 }
 .menu-btn:hover{ box-shadow:0 4px 14px rgba(0,0,0,.08) }
 .menu-btn:active{ transform:scale(.98) }
 .menu-btn > * { pointer-events:none }
 
-/* формы */
 .row{display:grid;gap:14px;width:100%}
 .row.two{grid-template-columns:1fr 1fr}
 .row>div{min-width:0}
@@ -72,8 +69,7 @@ textarea{min-height:120px;resize:vertical}
 .wrap::before,.wrap::after{
   content:""; position:absolute; inset:auto; width:70vmax; height:70vmax; border-radius:50%;
   background: radial-gradient(closest-side, rgba(79,140,255,.12), transparent 70%);
-  filter: blur(20px); z-index:0; animation:float 24s ease-in-out infinite alternate;
-  pointer-events:none;
+  filter: blur(20px); z-index:0; animation:float 24s ease-in-out infinite alternate; pointer-events:none;
 }
 .wrap::before{ top:-30vmax; left:-20vmax }
 .wrap::after { bottom:-30vmax; right:-25vmax; animation-duration:28s }
@@ -171,56 +167,78 @@ input[type="range"]::-moz-range-thumb{
 }
 
 /* ===== Итоги дня ===== */
-.summary{ display:grid; gap:14px; place-items:center; text-align:center;
-  padding:14px; border:1px solid var(--border); border-radius:14px; background:var(--surface); }
-.summary-row{ display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px; width:100%; }
+.summary{
+  display:grid; gap:14px; place-items:center; text-align:center;
+  padding:14px; border:1px solid var(--border); border-radius:14px; background:var(--surface);
+}
+.summary-row{
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px; width:100%;
+}
 .summary-col{ display:grid; gap:6px; justify-items:center; }
 .summary-amount{ font-size:26px; font-weight:900; letter-spacing:.2px; }
 .summary-label{ font-size:12px; color:var(--muted) }
-.summary-arrow{ position:relative; font-size:20px; font-weight:900; color:var(--muted);
-  display:flex; align-items:center; justify-content:center; min-width:44px; }
-.delta-badge{ position:absolute; top:-10px; right:-18px; font-size:11px; font-weight:900;
-  padding:4px 8px; border-radius:999px; border:1px solid var(--border); background:var(--card); }
-.delta-badge.pos{ color:var(--good) } .delta-badge.neg{ color:var(--bad) } .delta-badge.zero{ color:var(--muted) }
+.summary-arrow{
+  position:relative; font-size:20px; font-weight:900; color:var(--muted);
+  display:flex; align-items:center; justify-content:center; min-width:44px;
+}
+.delta-badge{
+  position:absolute; top:-10px; right:-18px; font-size:11px; font-weight:900;
+  padding:4px 8px; border-radius:999px; border:1px solid var(--border);
+  background:var(--card);
+}
+.delta-badge.pos{ color:var(--good); }
+.delta-badge.neg{ color:var(--bad); }
+.delta-badge.zero{ color:var(--muted); }
+
 .divider{ height:1px; width:100%; background:var(--border); margin:4px 0; }
 .swap{ transform:translateY(4px); opacity:.98 }
 
 /* ===== Инфо: бонусы и штрафы ===== */
 .subttl{ margin:8px 0 6px; font-size:16px; }
-.subttl.good{ color: var(--good); } .subttl.bad{ color: var(--bad); }
+.subttl.good{ color: var(--good); }
+.subttl.bad{ color: var(--bad); }
 .subhint{ margin:0 0 10px; color: var(--muted); font-size:12px; }
+
 .rule-table{ display:grid; gap:8px; }
-.rule-head{ display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
-  padding:6px 8px; border-radius:10px; background:var(--surface); border:1px solid var(--border); color:var(--muted); font-size:12px; }
-.rule-row{ display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px; align-items:stretch;
+.rule-head{
+  display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
+  padding:6px 8px; border-radius:10px; background:var(--surface);
+  border:1px solid var(--border); color:var(--muted); font-size:12px;
+}
+.rule-row{
+  display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
+  align-items:stretch;
   border:1px solid var(--border); border-radius:12px; overflow:hidden;
-  background:linear-gradient(0deg, rgba(0,0,0,.02), rgba(0,0,0,0)); box-shadow:0 4px 14px rgba(0,0,0,.06); }
-.rule-row.streak .ttl{ color: var(--warn); }
+  background:linear-gradient(0deg, rgba(0,0,0,.02), rgba(0,0,0,0));
+  box-shadow:0 4px 14px rgba(0,0,0,.06);
+}
 .rule-name{ padding:10px 12px; display:grid; gap:4px; }
 .rule-name .ttl{ font-weight:700; font-size:14px; }
 .rule-name .desc{ font-size:12px; color:var(--muted); line-height:1.3; }
-.rule-per,.rule-max{ display:flex; align-items:center; justify-content:flex-end;
-  padding:10px 12px; font-weight:800; font-variant-numeric: tabular-nums; }
-.rule-per.good,.rule-max.good{ color:var(--good); } .rule-per.bad, .rule-max.bad { color:var(--bad);  }
+.rule-per,.rule-max{
+  display:flex; align-items:center; justify-content:flex-end;
+  padding:10px 12px; font-weight:800; font-variant-numeric: tabular-nums;
+}
+.rule-per.good,.rule-max.good{ color:var(--good); }
+.rule-per.bad, .rule-max.bad { color:var(--bad);  }
 .rule-total{ margin:6px 0 16px; font-weight:800; }
-.rule-total.good{ color:var(--good); } .rule-total.bad{ color:var(--bad); }
-@media (max-width:480px){ .rule-head, .rule-row{ grid-template-columns: 1.5fr .8fr .8fr; } }
+.rule-total.good{ color:var(--good); }
+.rule-total.bad{ color:var(--bad); }
 
-/* ===== Зависимости ===== */
-.dep-list{ display:grid; gap:8px; }
-.dep-item{
-  display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border);
-  border-radius:12px; background:var(--surface);
-}
-.dep-item .name{ font-weight:800; }
-.sev-pill{ margin-left:auto; padding:4px 8px; border-radius:999px; border:1px solid var(--border); background:var(--card); font-variant-numeric: tabular-nums; }
-.dep-empty{ font-size:14px; color:var(--muted); padding:10px 0; text-align:center; }
-
-.dep-chips{ display:flex; gap:8px; flex-wrap:wrap; }
+/* ===== Зависимости (UI) ===== */
+.deps-wrap{ display:grid; gap:8px; }
+.deps-list{ display:flex; gap:8px; flex-wrap:wrap }
 .dep-chip{
-  padding:6px 10px; border:1px solid var(--border); background:var(--surface); border-radius:999px; cursor:pointer; user-select:none;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; border-radius:999px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text); cursor:pointer; font-size:14px; user-select:none;
+  transition:background .2s, border-color .2s, transform .06s ease;
 }
-.dep-chip.active{ border-color:var(--accent); background:var(--card); box-shadow:0 0 0 4px rgb(79 140 255 / 12%) }
+.dep-chip:active{ transform:scale(.98) }
+.dep-chip.active{ background:var(--card); border-color:var(--accent); box-shadow:0 0 0 4px rgb(79 140 255 / 12%) }
+.dep-badge{ font-size:12px; color:var(--muted) }
+.deps-empty{ font-size:12px; color:var(--muted) }
+
 </style>
 </head>
 <body>
@@ -248,10 +266,10 @@ input[type="range"]::-moz-range-thumb{
       <div class="topbar"><button class="back" id="back-from-settings">← Назад</button><h1 style="margin:0">⚙️ Настройки</h1></div>
       <button class="menu-btn" id="btn-edit-schedule">🛌 Изменить расписание <span>›</span></button>
       <button class="menu-btn" id="btn-edit-goal">🎯 Изменить цель <span>›</span></button>
-      <button class="menu-btn" id="btn-dependencies">🧲 Добавить зависимости <span>›</span></button>
+      <button class="menu-btn" id="btn-edit-deps">➕ Добавить зависимости <span>›</span></button>
     </section>
 
-    <!-- INFO HUB -->
+    <!-- INFO -->
     <section id="screen-info" class="grid hidden">
       <div class="topbar"><button class="back" id="back-from-info">← Назад</button><h1 style="margin:0">ℹ️ Инфо</h1></div>
       <button class="menu-btn" id="btn-info-day">📅 Итоги дня <span>›</span></button>
@@ -268,7 +286,10 @@ input[type="range"]::-moz-range-thumb{
             <div class="summary-amount" id="sum-current">0 🎴</div>
             <div class="summary-label">сегодня</div>
           </div>
-          <div class="summary-arrow">→ <div id="sum-delta" class="delta-badge zero">0</div></div>
+          <div class="summary-arrow">
+            →
+            <div id="sum-delta" class="delta-badge zero">0</div>
+          </div>
           <div class="summary-col">
             <div class="summary-amount" id="sum-next">0 🎴</div>
             <div class="summary-label">завтра</div>
@@ -294,18 +315,21 @@ input[type="range"]::-moz-range-thumb{
     <!-- BONUSES & PENALTIES -->
     <section id="screen-bonuses" class="grid hidden">
       <div class="topbar"><button class="back" id="back-from-bonuses">← Назад</button><h1 style="margin:0">🎴 Бонусы и штрафы</h1></div>
-
       <h2 class="subttl good">Бонусы</h2>
-      <p class="subhint">Проценты действуют на модуль дневной суммы. Оранжевые — серии.</p>
+      <p class="subhint">Проценты суммируются и применяются к модулю дневного итога.</p>
       <div class="rule-table" id="bonus-table">
-        <div class="rule-head"><div>Правило</div><div>За раз</div><div>Макс/день</div></div>
+        <div class="rule-head">
+          <div>Правило</div><div>Одноразово</div><div>Макс/день</div>
+        </div>
       </div>
       <div class="rule-total good" id="bonus-total">Итого максимум бонусов: +0%</div>
 
       <h2 class="subttl bad" style="margin-top:10px">Штрафы</h2>
-      <p class="subhint">Суммируются: проценты и фиксированные штрафы 🎴.</p>
+      <p class="subhint">Штрафы тоже выражаются в процентах, плюс отдельные фикс-штрафы в 🎴.</p>
       <div class="rule-table" id="penalty-table">
-        <div class="rule-head"><div>Правило</div><div>За раз</div><div>Макс/день</div></div>
+        <div class="rule-head">
+          <div>Правило</div><div>Одноразово</div><div>Макс/день</div>
+        </div>
       </div>
       <div class="rule-total bad" id="penalty-total">Максимум штрафов: −0%</div>
     </section>
@@ -329,30 +353,20 @@ input[type="range"]::-moz-range-thumb{
       <div class="hint">Нажми системную кнопку внизу, чтобы сохранить цель.</div>
     </section>
 
-    <!-- DEPENDENCIES: LIST/MANAGE -->
+    <!-- DEPS -->
     <section id="screen-deps" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-deps">← Назад</button><h1 style="margin:0">🧲 Зависимости</h1></div>
-      <div class="dep-list" id="deps-list"></div>
-      <button class="menu-btn" id="btn-dep-add">➕ Добавить зависимость <span>›</span></button>
-      <p class="hint">Сохранятся в бота и появятся в задачах «Зависимость».</p>
-    </section>
-
-    <!-- DEPENDENCIES: ADD FORM -->
-    <section id="screen-deps-add" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-deps-add">← Назад</button><h1 style="margin:0">➕ Новая зависимость</h1></div>
-      <label for="dep-name">Я зависим от…</label>
-      <input id="dep-name" type="text" placeholder="например: сладкого / соцсетей / алкоголя" />
-
+      <div class="topbar"><button class="back" id="back-from-deps">← Назад</button><h1 style="margin:0">➕ Зависимости</h1></div>
+      <p>Добавь то, что хочешь победить. Потом сможешь выбирать это при создании задач-обещаний.</p>
+      <label for="dep-title">Я зависим от…</label>
+      <input id="dep-title" type="text" placeholder="сладкого / соцсетей / алкоголя…" />
       <div class="scale-head">
-        <label id="dep-scale-title">Сила зависимости</label>
-        <div class="readout"><span>уровень</span> <span class="pill" id="dep-imp-pill">1,0</span></div>
+        <label for="dep-strength">Сила зависимости</label>
+        <div class="readout"><span>вес</span> <span class="pill" id="dep-pill">1,0</span></div>
       </div>
-      <div class="scale-labels"><span id="dep-lbl-min">Лёгкая тяга</span><span id="dep-lbl-max">Сильная зависимость</span></div>
       <div class="slider-wrap">
-        <input id="dep-range" type="range" min="0.1" max="3" step="0.1" value="1.0" />
+        <input id="dep-strength" type="range" min="0.1" max="3" step="0.1" value="1.0" />
       </div>
-
-      <div class="hint">Нажми системную кнопку внизу, чтобы сохранить зависимость.</div>
+      <div class="hint">Системная кнопка «Сохранить» внизу отправит зависимость боту.</div>
     </section>
 
     <!-- TASK -->
@@ -365,7 +379,7 @@ input[type="range"]::-moz-range-thumb{
 
       <div class="grid">
         <label for="action">Я</label>
-        <input id="action" type="text" placeholder="изучу материалы / сделаю 10 отжиманий / не ем сладкое сегодня" />
+        <input id="action" type="text" placeholder="изучу материалы / сделаю 10 отжиманий" />
         <p class="goal-line" style="margin:-6px 0 10px; color:var(--muted)">ради <b id="goal-view">достижения мечты</b></p>
 
         <div class="grid" style="gap:8px">
@@ -376,11 +390,13 @@ input[type="range"]::-moz-range-thumb{
           </div>
         </div>
 
-        <!-- Пикер зависимостей для режима "Зависимость" -->
-        <div id="dep-picker-wrap" class="grid hidden" style="gap:8px">
+        <!-- Dependencies selector (visible only in addiction mode) -->
+        <div class="deps-wrap hidden" id="deps-wrap">
           <label>Выбери зависимость</label>
-          <div class="dep-chips" id="dep-chips"></div>
-          <div class="hint" id="dep-picker-hint">Нет зависимостей? Добавь их в «Настройки → Добавить зависимости».</div>
+          <div class="deps-list" id="deps-list"></div>
+          <div class="deps-empty hidden" id="deps-empty">
+            Нет зависимостей? Добавь их через «Настройки → Добавить зависимости».
+          </div>
         </div>
 
         <div class="scale-head">
@@ -392,7 +408,7 @@ input[type="range"]::-moz-range-thumb{
           <input id="importanceRange" type="range" min="0.1" max="3" step="0.1" value="1.0" />
         </div>
 
-        <div class="hint" id="task-hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
+        <div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
       </div>
     </section>
   </div>
@@ -403,21 +419,42 @@ const tg = window.Telegram?.WebApp;
 const $  = (id) => document.getElementById(id);
 const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
 
-/* CloudStorage helpers */
+// CloudStorage helpers
 const cs = {
   get: (k) => new Promise(res => tg?.CloudStorage?.getItem?.(k, v => res(v))),
   set: (k, v) => new Promise(res => tg?.CloudStorage?.setItem?.(k, String(v), () => res(true)))
 };
 
-let balanceTotal = 0, balanceToday = 0, moodLevel = 0;
-let userGoal = '', userName = '';
+let balanceTotal = 0;   // общий
+let balanceToday = 0;   // дневной (+/-)
+let moodLevel    = 0;
+let userGoal     = '';
+let userName     = '';
 let mode = 'normal';
 
-/* локальный список зависимостей (синхронизируем с CloudStorage, а бот сохранит у себя при отправке) */
-let deps = []; // [{id, name, sev}] sev ∈ [0.1..3.0]
-let selectedDepId = null;
+// deps cache from URL/CS: [{id, t, s}]
+let depsCache = [];
+let selectedDep = null; // {id,t,s} or null
 
-/* Настроение пресеты */
+/* ===== Bonuses UI stubs (same as раньше) ===== */
+const BONUS_RULES = [
+  { emoji:"🧩", title:"Малые шаги", desc:"По +1% за каждую задачу, до +10% за день.", per:+1, max:+10 },
+  { emoji:"⭐️", title:"Значимые действия", desc:"+10% за каждую задачу важности ≥2.0 (без потолка).", per:+10, max:+999 },
+  { emoji:"⚡",  title:"Без провалов", desc:"+10%, если нет провалов и задачи сегодня были.", per:+10, max:+10 },
+  { emoji:"⏱️", title:"Быстрый старт", desc:"+5% если первая выполненная задача в течение 1 часа после подъёма.", per:+5, max:+5 },
+  { emoji:"⏲️", title:"Значимая в первые 5ч", desc:"+10% если была выполнена значимая задача (≥2.0) в первые 5 часов.", per:+10, max:+10 },
+  { emoji:"🧠", title:"Все зависимости поборены", desc:"+20% если сегодня взятые зависимости — все выполнены. Если зависимостей нет совсем (профиль пуст) — пассивно +10%.", per:+20, max:+20 },
+  { emoji:"🛌", title:"Режим соблюдён", desc:"+20% если и подъём, и сон подтверждены в окне.", per:+20, max:+20 },
+  { emoji:"🔁", title:"Серии (оранжевым)", desc:"За серии ежедневных шагов/режима/по зависимостям начисляем растущий процент (подробнее в чате).", per:+0, max:+999 }
+];
+const PENALTY_RULES = [
+  { emoji:"❌", title:"Провалы сверх первого", desc:"−5% за каждый провал свыше первого, максимум −30%.", per:-5, max:-30 },
+  { emoji:"📵", title:"Игнор нуджей", desc:"−1% за каждый игнор, максимум −10%.", per:-1, max:-10 },
+  { emoji:"⏰", title:"Режим нарушен", desc:"−10% за событие (подъём/сон не подтверждены), максимум −20%.", per:-10, max:-20 },
+  { emoji:"🪫", title:"Нет важного шага", desc:"Фикс-штраф −300 🎴, если не было ни одной «основной» задачи за цель (не воля, не зависимость).", per:0, max:0 },
+  { emoji:"🕳️", title:"Пустой день", desc:"Фикс-штраф −500 🎴, если не было вообще задач.", per:0, max:0 },
+];
+
 const MOOD = {
   2:   { emoji:'😇', title:'Добрячок (+2)', color:'#20c997', desc:'Я мягкий и поддерживающий. Лайтовые нуджи, много похвалы.' },
   1:   { emoji:'🙂', title:'Тёплый (+1)',   color:'#2ea8ff', desc:'Дружелюбен, но собран. Напоминаю мягко, мотивирую.' },
@@ -428,77 +465,41 @@ const MOOD = {
 const clampMood = (m)=>{ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
 const fmtInt = (n)=> new Intl.NumberFormat('ru-RU').format(n);
 
-/* ====== Бонусы/штрафы (инфо) ====== */
-/* Универсальный формат: kind: 'pct' | 'fixed' */
-const BONUS_RULES = [
-  { emoji:"🧮", title:"Каждая выполненная задача", desc:"За каждую выполненную задачу: +1% к модулю дневной суммы. Лимит +10%/день.", kind:"pct", per:+1, max:+10 },
-  { emoji:"⭐️", title:"Каждая значимая (≥2.0)", desc:"+10% за каждую задачу с важностью ≥2.0. Без лимита — стекуется.", kind:"pct", per:+10, max:null },
-  { emoji:"🚦", title:"Быстрый старт дня", desc:"Первая задача в первые 60 минут рабочей фазы: +5% (однократно).", kind:"pct", per:+5, max:+5 },
-  { emoji:"⏰", title:"Ранний hi-impact", desc:"Любая задача ≥2.0 в первые 5 часов после подъёма: +10% (однократно).", kind:"pct", per:+10, max:+10 },
-  { emoji:"🧲", title:"Все зависимости побеждены", desc:"Если сегодня все отмеченные задачи «Зависимость» закрыты как выполненные: +20%.", kind:"pct", per:+20, max:+20 },
-  { emoji:"🫙", title:"Нет зависимостей у пользователя", desc:"Если в списке зависимостей пусто: пассивный бонус +10% ежедневно.", kind:"pct", per:+10, max:+10 },
-  { emoji:"🛌", title:"Режим соблюдён", desc:"Подтвердил подъём и отбой в окне 10 минут: +20% (за день).", kind:"pct", per:+20, max:+20 },
-
-  /* Серии (оранжевым) */
-  { emoji:"🧩", title:"Серия: дни с задачами", desc:"С 2-го подряд дня: +1% × длина серии (макс +7%). Сброс при дне без задач.", kind:"pct", per:"+1%/день", max:+7, streak:true },
-  { emoji:"🔥", title:"Серия: hi-impact", desc:"С 2-го дня с ≥1 задачей ≥2.0: +2% × длина серии (макс +14%).", kind:"pct", per:"+2%/день", max:+14, streak:true },
-  { emoji:"🛡️", title:"Серия: без провалов", desc:"С 2-го дня без ❌: +3% × длина серии (макс +18%).", kind:"pct", per:"+3%/день", max:+18, streak:true },
-  { emoji:"⛓️", title:"Серия: зависимости по списку", desc:"С 1-го дня; каждая зависимость даёт +0.5% × сложность × длина (макс 21 день).", kind:"pct", per:"до +0.5%·S/д", max:"+по списку", streak:true },
-];
-
-const PENALTY_RULES = [
-  { emoji:"❌", title:"Проваленная задача", desc:"−5% за каждый фейл; максимум −30% за день.", kind:"pct", per:-5, max:-30 },
-  { emoji:"📵", title:"Игнор нуджа", desc:"−1% за игнор; максимум −10% за день.", kind:"pct", per:-1, max:-10 },
-  { emoji:"⏰", title:"Режим нарушен", desc:"Поздний подъём или отбой: −10% каждое (до −20% за день).", kind:"pct", per:-10, max:-20 },
-  { emoji:"🎯", title:"Нет шагов к цели", desc:"Если не было задач по цели (не воля/зависимость): фикс −300 🎴.", kind:"fixed", per:-300, max:-300 },
-  { emoji:"🪫", title:"Пустой день", desc:"Если задач не было вовсе: фикс −500 🎴.", kind:"fixed", per:-500, max:-500 },
-];
-
+/* ===== Helpers ===== */
 function fmtPct(n){ return (n>0?`+${n}`:`${n}`) + "%"; }
-function fmtFixed(n){ return (n>0?`+${n}`:`${n}`) + " 🎴"; }
-function cellFmt(kind, v){
-  if (v === null || v === undefined) return "—";
-  if (kind === "fixed") return fmtFixed(v);
-  if (typeof v === "string") return v;
-  return fmtPct(v);
-}
+function b64urlToStr(s){ try{ return atob(s.replace(/-/g,'+').replace(/_/g,'/')); }catch{ return ''; } }
+
+/* ===== Render Bonuses/Penalties lists ===== */
 function renderRuleList(tableEl, rules, isBonus){
   tableEl.querySelectorAll('.rule-row').forEach(n=>n.remove());
   rules.forEach(r=>{
     const row = document.createElement('div');
-    row.className = 'rule-row' + (r.streak?' streak':'');
-    const isGood = r.kind==="fixed" ? (r.per>0) : (typeof r.per==="number" ? r.per>0 : true);
-    const perClass = r.kind==="fixed" ? (r.per<0?'bad':'good') : (typeof r.per==="number" ? (r.per<0?'bad':'good') : '');
-    const maxVal = r.max;
-    const maxClass = (typeof maxVal==="number") ? (maxVal<0?'bad':'good') : '';
+    row.className = 'rule-row';
     row.innerHTML = `
       <div class="rule-name">
         <div class="ttl">${r.emoji} ${r.title}</div>
         <div class="desc">${r.desc}</div>
       </div>
-      <div class="rule-per ${perClass}">${cellFmt(r.kind, r.per)}</div>
-      <div class="rule-max ${maxClass}">${cellFmt(r.kind, r.max)}</div>
+      <div class="rule-per ${r.per<0?'bad':'good'}">${r.per===0?'—':fmtPct(r.per)}</div>
+      <div class="rule-max ${r.max<0?'bad':'good'}">${r.max===0?'—':fmtPct(r.max)}</div>
     `;
     tableEl.appendChild(row);
   });
 }
 function renderBonusesScreen(){
-  const bt = $('bonus-table'), pt = $('penalty-table');
+  const bt = $('bonus-table');
+  const pt = $('penalty-table');
   if (bt && pt){
     renderRuleList(bt, BONUS_RULES, true);
     renderRuleList(pt, PENALTY_RULES, false);
-    const bonusSum = BONUS_RULES
-      .filter(r=>r.kind==='pct' && typeof r.max==="number" && !r.streak)
-      .reduce((s,r)=>s+(r.max>0?r.max:0),0);
-    const penSumPct = PENALTY_RULES
-      .filter(r=>r.kind==='pct' && typeof r.max==="number")
-      .reduce((s,r)=>s+(r.max<0?r.max:0),0);
-    $('bonus-total').textContent   = `Итого максимум бонусов (без серий): ${fmtPct(bonusSum)}`;
-    $('penalty-total').textContent = `Максимум штрафов (проц.): ${fmtPct(penSumPct)}; фикс: −800 🎴`;
+    const bonusSum = BONUS_RULES.reduce((s,r)=>s+(r.max>0?r.max:0),0);
+    const penSum   = PENALTY_RULES.reduce((s,r)=>s+(r.max<0?r.max:0),0);
+    $('bonus-total').textContent   = `Итого максимум бонусов: ${fmtPct(bonusSum)}`;
+    $('penalty-total').textContent = `Максимум штрафов: ${fmtPct(penSum)}`;
   }
 }
 
-/* ====== Тема/баланс/муд ====== */
+/* ===== Theme & mood ===== */
 function applyTheme(){
   const scheme = tg?.colorScheme ?? 'light';
   const set = (k,v)=>document.documentElement.style.setProperty(k,v);
@@ -521,9 +522,9 @@ function setMoodColor(){
   document.documentElement.style.setProperty('--mood', c);
 }
 
-/* ====== Экраны ====== */
+/* ===== Screens ===== */
 function showScreen(name){
-  ['home','settings','schedule','goal','task','info','stats-mood','stats-day','bonuses','deps','deps-add'].forEach(id=>{
+  ['home','settings','schedule','goal','task','info','stats-mood','stats-day','bonuses','deps'].forEach(id=>{
     $(`screen-${id}`).classList.toggle('hidden', id!==name);
   });
   const card = $('card');
@@ -533,7 +534,7 @@ function showScreen(name){
   if(!tg) return;
   if(name==='schedule'){ tg.MainButton.setText('Отправить'); updateMainButtonSchedule(); }
   else if(name==='goal'){ tg.MainButton.setText('Сохранить'); updateMainButtonGoal(); }
-  else if(name==='deps-add'){ tg.MainButton.setText('Сохранить'); updateMainButtonDep(); }
+  else if(name==='deps'){ tg.MainButton.setText('Сохранить зависимость'); updateMainButtonDeps(); }
   else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); }
   else { tg.MainButton.hide(); }
 
@@ -546,11 +547,10 @@ function showScreen(name){
   }
   if(name==='stats-day'){ renderDaySummary(); }
   if(name==='bonuses'){ renderBonusesScreen(); }
-  if(name==='deps'){ renderDepsList(); }
-  if(name==='task'){ renderDepPicker(); }
+  if(name==='task'){ renderDepsSelect(); }
 }
 
-/* ====== Итоги дня ====== */
+/* ===== Day Summary ===== */
 function renderDaySummary(){
   const cur = balanceTotal;
   const delta = balanceToday;
@@ -563,62 +563,7 @@ function renderDaySummary(){
   else { db.textContent = '0'; db.className = 'delta-badge zero'; }
 }
 
-/* ====== Зависимости: UI ====== */
-function fmtRu(x){ return new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(x); }
-function renderDepsList(){
-  const box = $('deps-list'); box.innerHTML = '';
-  if (!deps.length){
-    box.innerHTML = `<div class="dep-empty">Пока пусто. Добавь первую зависимость 👇</div>`;
-    return;
-  }
-  deps.forEach(d=>{
-    const el = document.createElement('div');
-    el.className = 'dep-item';
-    el.innerHTML = `<span class="name">${d.name}</span><span class="sev-pill">уровень: ${fmtRu(d.sev)}</span>`;
-    box.appendChild(el);
-  });
-}
-function renderDepPicker(){
-  const wrap = $('dep-picker-wrap'), chips = $('dep-chips');
-  if (mode!=='addiction'){ wrap.classList.add('hidden'); return; }
-  wrap.classList.remove('hidden');
-  chips.innerHTML = '';
-  if (!deps.length){
-    $('dep-picker-hint').classList.remove('hidden');
-    return;
-  }
-  $('dep-picker-hint').classList.add('hidden');
-  deps.forEach(d=>{
-    const chip = document.createElement('div');
-    chip.className = 'dep-chip' + (selectedDepId===d.id?' active':'');
-    chip.textContent = d.name;
-    chip.addEventListener('click', ()=>{
-      selectedDepId = d.id;
-      // слайдер → базовая сила зависимости
-      const r = $('importanceRange');
-      r.value = String(d.sev);
-      updateSliderUI();
-      // перерисовать активность
-      renderDepPicker();
-    });
-    chips.appendChild(chip);
-  });
-}
-
-/* ====== Важность/режимы/слайдер ====== */
-function updateMainButtonSchedule(){ if(!tg) return; const ok = isValidTime($('sleep').value||'') && isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
-function updateMainButtonGoal(){ if(!tg) return; const ok = ( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
-function updateMainButtonDep(){ if(!tg) return; const ok = ( $('dep-name').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
-function updateMainButtonTask(){
-  if(!tg) return;
-  const hasText = ( $('action').value||'' ).trim().length>0;
-  let ok = hasText;
-  if (mode==='addiction'){
-    ok = ok && !!selectedDepId; // надо выбрать зависимость
-  }
-  tg.MainButton[ ok ? 'show' : 'hide' ]();
-}
-
+/* ===== Mode & slider ===== */
 function setMode(newMode){
   if (newMode === mode) {
     mode = 'normal';
@@ -629,9 +574,10 @@ function setMode(newMode){
     $('chip-will').classList.toggle('active', mode==='willpower');
     $('chip-add').classList.toggle('active', mode==='addiction');
   }
+  selectedDep = null;
   updateScaleLabels();
-  renderDepPicker();
   updateSliderUI();
+  renderDepsSelect();
   updateMainButtonTask();
 }
 function updateScaleLabels(){
@@ -639,66 +585,109 @@ function updateScaleLabels(){
   if (mode === 'willpower'){
     lblMin.textContent = 'Простое'; lblMax.textContent = 'Мучительное';
     title.textContent = 'Сила воли — насколько было тяжело';
-    $('task-hint').textContent = 'Системная кнопка → создать и сразу отметить в чате позже.';
   } else if (mode === 'addiction'){
     lblMin.textContent = 'Балуюсь'; lblMax.textContent = 'Серьёзно зависим';
-    title.textContent = 'Зависимость — интенсивность тяги (можешь поправить)';
-    $('task-hint').textContent = 'Выбери зависимость, отрегулируй уровень и создай. Отметим результат вечером.';
+    title.textContent = 'Зависимость — интенсивность тяги';
   } else {
     lblMin.textContent = 'Косвенное'; lblMax.textContent = 'Прямое';
     title.textContent = 'Влияние задачи на цель';
-    $('task-hint').textContent = 'Системная кнопка → создать задачу.';
   }
 }
 function colorForValue(val){
   const t = Math.min(1, Math.max(0, (val - 0.1) / (3 - 0.1)));
   if (mode === 'willpower'){
-    const start = [79,140,255], end = [192,72,255];
-    const r = Math.round(start[0] + (end[0]-start[0])*t);
-    const g = Math.round(start[1] + (end[1]-start[1])*t);
-    const b = Math.round(start[2] + (end[2]-start[2])*t);
+    const start=[79,140,255], end=[192,72,255];
+    const r=Math.round(start[0]+(end[0]-start[0])*t), g=Math.round(start[1]+(end[1]-start[1])*t), b=Math.round(start[2]+(end[2]-start[2])*t);
     return `rgb(${r} ${g} ${b})`;
   } else if (mode === 'addiction'){
-    const start = [255,170,54], end = [255,77,79];
-    const r = Math.round(start[0] + (end[0]-start[0])*t);
-    const g = Math.round(start[1] + (end[1]-start[1])*t);
-    const b = Math.round(start[2] + (end[2]-start[2])*t);
+    const start=[255,170,54], end=[255,77,79];
+    const r=Math.round(start[0]+(end[0]-start[0])*t), g=Math.round(start[1]+(end[1]-start[1])*t), b=Math.round(start[2]+(end[2]-start[2])*t);
     return `rgb(${r} ${g} ${b})`;
   } else {
-    const start = [64,199,129], end = [79,140,255];
-    const r = Math.round(start[0] + (end[0]-start[0])*t);
-    const g = Math.round(start[1] + (end[1]-start[1])*t);
-    const b = Math.round(start[2] + (end[2]-start[2])*t);
+    const start=[64,199,129], end=[79,140,255];
+    const r=Math.round(start[0]+(end[0]-start[0])*t), g=Math.round(start[1]+(end[1]-start[1])*t), b=Math.round(start[2]+(end[2]-start[2])*t);
     return `rgb(${r} ${g} ${b})`;
   }
 }
 function updateSliderUI(){
-  const r = $('importanceRange'); if(r){
-    const v = parseFloat(r.value||'1') || 1;
-    const p = ((v - 0.1) / (3 - 0.1)) * 100;
-    const color = colorForValue(v);
-    r.style.setProperty('--val', `${p}%`);
-    document.documentElement.style.setProperty('--meter', color);
-    $('imp-pill').textContent = fmtRu(v);
-  }
-  const rd = $('dep-range'); if (rd){
-    const v = parseFloat(rd.value||'1') || 1;
-    const p = ((v - 0.1) / (3 - 0.1)) * 100;
-    const color = colorForValue(v);
-    rd.style.setProperty('--val', `${p}%`);
-    document.documentElement.style.setProperty('--meter', color);
-    $('dep-imp-pill').textContent = fmtRu(v);
-  }
+  const r = $('importanceRange'); if(!r) return;
+  const v = parseFloat(r.value||'1') || 1;
+  const p = ((v - 0.1) / (3 - 0.1)) * 100;
+  const color = colorForValue(v);
+  r.style.setProperty('--val', `${p}%`);
+  document.documentElement.style.setProperty('--meter', color);
+  $('imp-pill').textContent = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(v);
+}
+function updateDepSliderUI(){
+  const r = $('dep-strength'); if(!r) return;
+  const v = parseFloat(r.value||'1') || 1;
+  const p = ((v - 0.1) / (3 - 0.1)) * 100;
+  r.style.setProperty('--val', `${p}%`);
+  $('dep-pill').textContent = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(v);
 }
 
-/* ====== bind/init/send ====== */
+/* ===== Dependencies ===== */
+function renderDepsSelect(){
+  const wrap = $('deps-wrap'); const listEl = $('deps-list'); const emptyEl = $('deps-empty');
+  if (!wrap) return;
+  const show = (mode==='addiction');
+  wrap.classList.toggle('hidden', !show);
+  if (!show) return;
+
+  listEl.innerHTML = '';
+  if (!depsCache || depsCache.length===0){
+    emptyEl.classList.remove('hidden');
+  } else {
+    emptyEl.classList.add('hidden');
+    depsCache.forEach(d=>{
+      const btn = document.createElement('div');
+      btn.className = 'dep-chip';
+      btn.innerHTML = `<span>🧲 ${d.t}</span><span class="dep-badge">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(d.s)}</span>`;
+      if (selectedDep && selectedDep.id===d.id) btn.classList.add('active');
+      btn.addEventListener('click', ()=>{
+        selectedDep = d;
+        // проставим слайдер в её силу
+        const r = $('importanceRange');
+        if (r){ r.value = (d.s || 1.0); updateSliderUI(); }
+        // подсветка
+        listEl.querySelectorAll('.dep-chip').forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active');
+        updateMainButtonTask();
+      });
+      listEl.appendChild(btn);
+    });
+  }
+}
+function decodeDepsFromURL(){
+  const p = new URLSearchParams(location.search);
+  const b64 = p.get('deps');
+  const has = p.get('has_deps') === '1';
+  let arr = [];
+  if (b64){
+    try { arr = JSON.parse(b64urlToStr(b64)); } catch(e){ arr = []; }
+  }
+  if (!b64 && !has) return []; // ничего не передавали
+  return Array.isArray(arr) ? arr : [];
+}
+
+/* ===== Bind / init / send ===== */
+function updateMainButtonSchedule(){ if(!tg) return; const ok = isValidTime($('sleep').value||'') && isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
+function updateMainButtonGoal(){ if(!tg) return; const ok = ( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
+function updateMainButtonDeps(){ if(!tg) return; const ok = ( $('dep-title').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
+function updateMainButtonTask(){
+  if(!tg) return;
+  const okText = ( $('action').value||'' ).trim().length>0;
+  const okDeps = (mode!=='addiction') || !!selectedDep;
+  tg.MainButton[ (okText && okDeps) ? 'show' : 'hide' ]();
+}
+
 function bind(){
-  // Навигация
   $('btn-settings')?.addEventListener('click', ()=>showScreen('settings'));
   $('btn-task')?.addEventListener('click', ()=>showScreen('task'));
+
+  // Info hub
   $('btn-info')?.addEventListener('click', ()=>showScreen('info'));
   $('back-from-info')?.addEventListener('click', ()=>showScreen('home'));
-
   $('btn-info-day')?.addEventListener('click', ()=>showScreen('stats-day'));
   $('btn-info-mood')?.addEventListener('click', ()=>showScreen('stats-mood'));
   $('btn-info-bonuses')?.addEventListener('click', ()=>showScreen('bonuses'));
@@ -710,63 +699,48 @@ function bind(){
     setTimeout(()=>tg?.close?.(), 120);
   });
 
-  // Настройки
+  $('back-from-stats-mood')?.addEventListener('click', ()=>showScreen('info'));
+  $('back-from-stats-day')?.addEventListener('click',  ()=>showScreen('info'));
+
   $('btn-edit-schedule')?.addEventListener('click', ()=>showScreen('schedule'));
   $('btn-edit-goal')?.addEventListener('click', ()=>showScreen('goal'));
+  $('btn-edit-deps')?.addEventListener('click', ()=>showScreen('deps'));
   $('back-from-settings')?.addEventListener('click', ()=>showScreen('home'));
-
-  // Зависимости
-  $('btn-dependencies')?.addEventListener('click', ()=>showScreen('deps'));
+  $('back-from-schedule')?.addEventListener('click', ()=>showScreen('settings'));
+  $('back-from-goal')?.addEventListener('click', ()=>showScreen('settings'));
   $('back-from-deps')?.addEventListener('click', ()=>showScreen('settings'));
-  $('btn-dep-add')?.addEventListener('click', ()=>showScreen('deps-add'));
-  $('back-from-deps-add')?.addEventListener('click', ()=>showScreen('deps'));
-  $('dep-name')?.addEventListener('input', updateMainButtonDep);
+  $('back-from-task')?.addEventListener('click', ()=>showScreen('home'));
 
-  // Поля
   $('sleep')?.addEventListener('input', updateMainButtonSchedule);
   $('wake')?.addEventListener('input', updateMainButtonSchedule);
   $('goal')?.addEventListener('input', updateMainButtonGoal);
+  $('dep-title')?.addEventListener('input', updateMainButtonDeps);
+  $('dep-strength')?.addEventListener('input', updateDepSliderUI);
   $('action')?.addEventListener('input', updateMainButtonTask);
 
-  // Режимы
   $('chip-will')?.addEventListener('click', ()=>setMode('willpower'));
   $('chip-add')?.addEventListener('click',  ()=>setMode('addiction'));
 
-  // Слайдеры
-  $('importanceRange')?.addEventListener('input', ()=>{ updateSliderUI(); updateMainButtonTask(); });
-  $('dep-range')?.addEventListener('input', updateSliderUI);
+  $('importanceRange')?.addEventListener('input', updateSliderUI);
 }
 
 function sendPayload(){
   const payload = {};
   payload.tz_offset_min = new Date().getTimezoneOffset();
 
-  // Сохранение расписания
   if(!$('screen-schedule').classList.contains('hidden')){
     const st=$('sleep').value, wt=$('wake').value;
     if(!isValidTime(st)||!isValidTime(wt)) return;
     payload.sleep_time=st; payload.wake_time=wt;
   }
-
-  // Сохранение цели
   if(!$('screen-goal').classList.contains('hidden')){
     const g=($('goal').value||'').trim(); if(!g) return; payload.goal=g;
   }
-
-  // Добавление зависимости
-  if(!$('screen-deps-add').classList.contains('hidden')){
-    const name = ($('dep-name').value||'').trim(); if(!name) return;
-    const sev = parseFloat($('dep-range').value||'1') || 1;
-    const dep = { id: crypto.randomUUID?.() || ('dep-'+Date.now()), name, sev };
-    // локально сохраним и в CS
-    deps.push(dep);
-    try { cs.set('deps', JSON.stringify(deps)); } catch {}
-    // в бот — сохранить
-    payload.cmd = "save_dependency";
-    payload.dependency = dep;
+  if(!$('screen-deps').classList.contains('hidden')){
+    const t=($('dep-title').value||'').trim(); if(!t) return;
+    const s=parseFloat($('dep-strength').value||'1')||1;
+    payload.dependency_add = { title: t, strength: s };
   }
-
-  // Создание задачи
   if(!$('screen-task').classList.contains('hidden')){
     const a=($('action').value||'').trim(); if(!a) return;
     const goalText=($('goal-view').textContent||'').trim();
@@ -777,73 +751,73 @@ function sendPayload(){
     payload.task           = `Я ${a} ради ${goalText}`;
     payload.importance     = valInt;
     payload.importance_f   = val;
-    payload.importance_ru  = fmtRu(val);
+    payload.importance_ru  = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(val);
     payload.mode           = mode;
     payload.willpower      = (mode==='willpower');
     payload.addiction      = (mode==='addiction');
 
-    if (mode==='addiction'){
-      // прикрепим выбранную зависимость
-      const dep = deps.find(d=>d.id===selectedDepId);
-      if (!dep){ return; }
-      payload.addiction_dep = { id: dep.id, name: dep.name, base_sev: dep.sev };
-      payload.deferred = true; // попросим бэкенд отложить отметку до вечера
+    if(mode==='addiction' && selectedDep){
+      payload.dep_id    = selectedDep.id || '';
+      payload.dep_title = selectedDep.t || '';
     }
   }
 
   try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
   try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
-  setTimeout(()=>tg?.close?.(), 120);
+  setTimeout(()=>tg?.close(), 120);
 }
 
-/* ====== hydrate ====== */
-async function hydrate(){
+/* ===== Hydrate (URL → CS, fallback CS) ===== */
+async function hydrateFromParamsOrCS(){
   const p = new URLSearchParams(location.search);
   const b  = p.get('b'),  bt = p.get('bt');
   const m  = p.get('m'),  g  = p.get('g') || p.get('goal');
   const n  = p.get('name');
+  const depsB64 = p.get('deps'); const hasDeps = p.get('has_deps')==='1';
+
   let changed = false;
   if (b  !== null) { balanceTotal = parseInt(b,10) || 0; changed = true; }
   if (bt !== null) { balanceToday = parseInt(bt,10) || 0; changed = true; }
   if (m  !== null) { moodLevel    = clampMood(m);        changed = true; }
   if (g)           { userGoal     = g.trim();             changed = true; }
   if (n)           { userName     = n.trim();             changed = true; }
-
-  // deps из CloudStorage
-  try {
-    const raw = await cs.get('deps');
-    if (raw){
-      try { deps = JSON.parse(raw) || []; } catch { deps = []; }
-    }
-  } catch {}
+  if (depsB64 || hasDeps){
+    try{ depsCache = decodeDepsFromURL(); changed = true; }catch{}
+  }
 
   if (!changed && tg?.CloudStorage){
-    const [cb, cbt, cm, cg, cn] = await Promise.all([
-      cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name')
+    const [cb, cbt, cm, cg, cn, cd] = await Promise.all([
+      cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name'), cs.get('deps')
     ]);
     if (cb  != null) balanceTotal = parseInt(cb,10)  || 0;
     if (cbt != null) balanceToday = parseInt(cbt,10) || 0;
     if (cm  != null) moodLevel    = clampMood(cm);
     if (cg) userGoal = cg;
     if (cn) userName = cn;
+    if (cd) { try{ depsCache = JSON.parse(cd); }catch{} }
   }
-  if (changed && tg?.CloudStorage){
+
+  // persist for next open
+  if (tg?.CloudStorage){
     await Promise.allSettled([
       cs.set('b', balanceTotal), cs.set('bt', balanceToday),
-      cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || '')
+      cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || ''),
+      cs.set('deps', JSON.stringify(depsCache||[]))
     ]);
   }
 }
 
-/* ====== init ====== */
+function applyGoalToTask(){
+  if (userGoal && $('goal-view')) { $('goal-view').textContent = userGoal; }
+}
+
+/* ===== Init ===== */
 async function init(){
   tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme);
-  await hydrate();
-  renderBalanceBadge(); setMoodColor();
+  await hydrateFromParamsOrCS();
+  renderBalanceBadge(); setMoodColor(); applyGoalToTask();
 
-  if (userGoal && $('goal-view')) { $('goal-view').textContent = userGoal; }
-
-  bind(); updateScaleLabels(); updateSliderUI();
+  bind(); updateScaleLabels(); updateSliderUI(); updateDepSliderUI();
 
   const params = new URLSearchParams(location.search);
   let screen = (params.get('screen') || 'home').toLowerCase();
@@ -866,7 +840,6 @@ async function init(){
   else if (screen==='stats_mood' || screen==='mood') showScreen('stats-mood');
   else if (screen==='bonuses')    showScreen('bonuses');
   else if (screen==='deps')       showScreen('deps');
-  else if (screen==='deps-add')   showScreen('deps-add');
   else                            showScreen('home');
 
   tg?.onEvent('mainButtonClicked', sendPayload);
