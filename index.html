@@ -257,6 +257,31 @@ box-shadow:0 0 0 4px rgb(79 140 255 / 12%);
 .dep-title{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .dep-weight{ margin-left:auto; color:var(--muted); font-variant-numeric:tabular-nums; }
 
+/* читаемость карточек зависимостей */
+.dep-option{
+  background: color-mix(in srgb, var(--card) 14%, var(--surface));
+  border: 1.5px solid var(--border);
+}
+.dep-option .dep-title{
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+.dep-option .dep-weight{
+  font-size: 12px;
+  color: var(--muted);
+}
+.dep-option.active{
+  background: var(--card);
+  box-shadow: 0 0 0 4px rgb(79 140 255 / 12%);
+}
+
+/* чуть больше контраста в тёмной теме */
+@media (prefers-color-scheme: dark){
+  .dep-option{ background: #1a1f2a; }
+  .dep-option.active{ background: #202638; }
+}
+
 </style>
 </head>
 <body>
@@ -465,6 +490,14 @@ const MOOD = {
 };
 const clampMood = (m)=>{ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
 const fmtInt = (n)=> new Intl.NumberFormat('ru-RU').format(n);
+function depTitleDisplay(t){
+  t = String(t || '').trim();
+  const low = t.toLowerCase();
+  if (!t) return '';
+  if (low.startsWith('зависим')) return t;        // уже норм
+  if (low.startsWith('от '))     return `Зависимость ${t}`;
+  return `Зависимость от ${t}`;
+}
 
 /* ====== Бонусы/штрафы (проценты) ====== */
 const BONUS_RULES = [
@@ -740,10 +773,11 @@ function renderTaskDepsList(){
   list.innerHTML = '';
 
   const deps = DEPS; // уже нормализован в init
-if (!deps.length){
-  list.innerHTML = '<div class="hint">Нет зависимостей. Добавь через «Настройки → Добавить зависимости».</div>';
-  return;
-}
+     if (!deps.length){
+       list.innerHTML = '<div class="hint">Нет зависимостей. Добавь через «Настройки → Добавить зависимости».</div>';
+       return;
+     }
+
 
   deps.forEach(d => {
     const btn = document.createElement('button');
@@ -751,10 +785,10 @@ if (!deps.length){
     btn.className = 'dep-option' + (String(selectedDepId)===String(d.id) ? ' active' : '');
     btn.dataset.id = String(d.id);
     btn.innerHTML = `
-      <span>🧲</span>
-      <span class="dep-title">${d.title}</span>
-      <span class="dep-weight">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(d.strength)}</span>
-    `;
+       <span>🧲</span>
+       <span class="dep-title">${depTitleDisplay(d.title)}</span>
+       <span class="dep-weight">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(d.strength)}</span>
+     `;
     list.appendChild(btn);
   });
 }
@@ -776,7 +810,16 @@ const r = $('importanceRange');
 if(r){ r.value = String(d.strength); updateSliderUI(); }
 }
 
-setMode('addiction');   // на всякий случай
+// не выключаем режим, если уже 'addiction'
+if (mode !== 'addiction') {
+  setMode('addiction');
+} else {
+  // просто убедимся, что визуально всё как надо
+  $('chip-add')?.classList.add('active');
+  $('deps-block')?.classList.remove('hidden');
+  updateScaleLabels();
+  updateSliderUI();
+}
 updateMainButtonTask();
 });
 
@@ -791,7 +834,8 @@ box.appendChild(p); return;
 DEPS.forEach(dep=>{
 const row = document.createElement('div');
 row.className = 'menu-btn';
-row.innerHTML = `🧲 ${dep.title} <span style="font-weight:800; font-size:12px; opacity:.8">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(dep.strength)}</span>`;
+// в renderDepsCurrent():
+row.innerHTML = `🧲 ${depTitleDisplay(dep.title)} <span style="font-weight:800; font-size:12px; opacity:.8">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(dep.strength)}</span>`;
 box.appendChild(row);
 });
 }
