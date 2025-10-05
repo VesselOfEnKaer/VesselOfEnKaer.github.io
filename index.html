@@ -772,6 +772,7 @@ function bind(){
   $('wake')?.addEventListener('input', updateMainButtonSchedule);
   $('goal')?.addEventListener('input', updateMainButtonGoal);
   $('action')?.addEventListener('input', updateMainButtonTask);
+  $('dep-title')?.addEventListener('input', updateMainButtonDeps);   // ← показываем MainButton при вводе зависимости
 
   $('chip-will')?.addEventListener('click', ()=>setMode('willpower'));
   $('chip-add')?.addEventListener('click',  ()=>setMode('addiction'));
