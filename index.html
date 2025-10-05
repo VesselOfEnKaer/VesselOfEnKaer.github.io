@@ -31,7 +31,7 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
   background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
   box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden;position:relative;
   transition:transform .18s ease, opacity .18s ease;
-  z-index:2;
+  z-index:2; margin-inline:auto;
 }
 h1{margin:0 0 12px;font-size:22px}
 p{margin:0 0 18px;color:var(--muted)}
@@ -177,12 +177,8 @@ input[type="range"]::-moz-range-thumb{
 .summary-row{
   display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px; width:100%;
 }
-.summary-col{
-  display:grid; gap:6px; justify-items:center;
-}
-.summary-amount{
-  font-size:26px; font-weight:900; letter-spacing:.2px;
-}
+.summary-col{ display:grid; gap:6px; justify-items:center; }
+.summary-amount{ font-size:26px; font-weight:900; letter-spacing:.2px; }
 .summary-label{ font-size:12px; color:var(--muted) }
 .summary-arrow{
   position:relative; font-size:20px; font-weight:900; color:var(--muted);
@@ -197,11 +193,48 @@ input[type="range"]::-moz-range-thumb{
 .delta-badge.neg{ color:var(--bad); }
 .delta-badge.zero{ color:var(--muted); }
 
-.divider{
-  height:1px; width:100%; background:var(--border); margin:4px 0;
-}
+.divider{ height:1px; width:100%; background:var(--border); margin:4px 0; }
 
 .swap{ transform:translateY(4px); opacity:.98 }
+
+/* ===== Инфо: бонусы и штрафы ===== */
+.subttl{ margin:8px 0 6px; font-size:16px; }
+.subttl.good{ color: var(--good); }
+.subttl.bad{ color: var(--bad); }
+.subhint{ margin:0 0 10px; color: var(--muted); font-size:12px; }
+
+.rule-table{ display:grid; gap:8px; }
+.rule-head{
+  display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
+  padding:6px 8px; border-radius:10px; background:var(--surface);
+  border:1px solid var(--border); color:var(--muted); font-size:12px;
+}
+.rule-row{
+  display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
+  align-items:stretch;
+  border:1px solid var(--border); border-radius:12px; overflow:hidden;
+  background:linear-gradient(0deg, rgba(0,0,0,.02), rgba(0,0,0,0));
+  box-shadow:0 4px 14px rgba(0,0,0,.06);
+}
+.rule-name{ padding:10px 12px; display:grid; gap:4px; }
+.rule-name .ttl{ font-weight:700; font-size:14px; }
+.rule-name .desc{ font-size:12px; color:var(--muted); line-height:1.3; }
+
+.rule-per,.rule-max{
+  display:flex; align-items:center; justify-content:flex-end;
+  padding:10px 12px; font-weight:800; font-variant-numeric: tabular-nums;
+}
+.rule-per.good,.rule-max.good{ color:var(--good); }
+.rule-per.bad, .rule-max.bad { color:var(--bad);  }
+.rule-total{ margin:6px 0 16px; font-weight:800; }
+.rule-total.good{ color:var(--good); }
+.rule-total.bad{ color:var(--bad); }
+
+.rule-row:active{ transform:translateY(1px) scale(0.998); }
+
+@media (max-width:480px){
+  .rule-head, .rule-row{ grid-template-columns: 1.5fr .8fr .8fr; }
+}
 </style>
 </head>
 <body>
@@ -221,7 +254,7 @@ input[type="range"]::-moz-range-thumb{
       <p>Мини-приложение ForHer.</p>
       <button class="menu-btn" id="btn-settings">⚙️ Настройки <span>›</span></button>
       <button class="menu-btn" id="btn-task">✍️ Создать задачу <span>›</span></button>
-      <button class="menu-btn" id="btn-stats">📊 Статистика <span>›</span></button>
+      <button class="menu-btn" id="btn-info">ℹ️ Инфо <span>›</span></button>
     </section>
 
     <!-- SETTINGS -->
@@ -231,14 +264,15 @@ input[type="range"]::-moz-range-thumb{
       <button class="menu-btn" id="btn-edit-goal">🎯 Изменить цель <span>›</span></button>
     </section>
 
-    <!-- STATS -->
-    <section id="screen-stats" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-stats">← Назад</button><h1 style="margin:0">📊 Статистика</h1></div>
-      <button class="menu-btn" id="btn-stats-day">📅 Итоги дня <span>›</span></button>
-      <button class="menu-btn" id="btn-stats-mood">🧠 Настроение бота <span>›</span></button>
+    <!-- INFO (ex-Статистика) -->
+    <section id="screen-info" class="grid hidden">
+      <div class="topbar"><button class="back" id="back-from-info">← Назад</button><h1 style="margin:0">ℹ️ Инфо</h1></div>
+      <button class="menu-btn" id="btn-info-day">📅 Итоги дня <span>›</span></button>
+      <button class="menu-btn" id="btn-info-mood">🧠 Настроение бота <span>›</span></button>
+      <button class="menu-btn" id="btn-info-bonuses">🎴 Бонусы и штрафы <span>›</span></button>
     </section>
 
-    <!-- STATS: DAY SUMMARY -->
+    <!-- DAY SUMMARY -->
     <section id="screen-stats-day" class="grid hidden">
       <div class="topbar"><button class="back" id="back-from-stats-day">← Назад</button><h1 style="margin:0">📅 Итоги дня</h1></div>
 
@@ -263,7 +297,6 @@ input[type="range"]::-moz-range-thumb{
         <div class="divider"></div>
 
         <button class="menu-btn" id="btn-day-details">🧾 Подробнее в чате <span>›</span></button>
-        
         <div class="hint">Слева — текущий баланс, справа — баланс после учёта суммы за день.</div>
       </div>
     </section>
@@ -277,6 +310,29 @@ input[type="range"]::-moz-range-thumb{
         <div class="mood-desc" id="mood-desc">Нейтральный баланс. Поровну мягких и жёстких фраз — по делу.</div>
       </div>
       <p class="hint">Настроение зависит от общего баланса 🎴 и меняет стиль сообщений.</p>
+    </section>
+
+    <!-- BONUSES & PENALTIES -->
+    <section id="screen-bonuses" class="grid hidden">
+      <div class="topbar"><button class="back" id="back-from-bonuses">← Назад</button><h1 style="margin:0">🎴 Бонусы и штрафы</h1></div>
+
+      <h2 class="subttl good">Бонусы</h2>
+      <p class="subhint">Проценты применяются к дневному множителю. «Одноразово» — за событие, «Макс/день» — потолок по правилу.</p>
+      <div class="rule-table" id="bonus-table">
+        <div class="rule-head">
+          <div>Правило</div><div>Одноразово</div><div>Макс/день</div>
+        </div>
+      </div>
+      <div class="rule-total good" id="bonus-total">Итого максимум бонусов: +0%</div>
+
+      <h2 class="subttl bad" style="margin-top:10px">Штрафы</h2>
+      <p class="subhint">Отрицательные проценты уменьшают множитель. Лимит — чтобы «не утонуть» за один день.</p>
+      <div class="rule-table" id="penalty-table">
+        <div class="rule-head">
+          <div>Правило</div><div>Одноразово</div><div>Макс/день</div>
+        </div>
+      </div>
+      <div class="rule-total bad" id="penalty-total">Максимум штрафов: −0%</div>
     </section>
 
     <!-- SCHEDULE -->
@@ -304,7 +360,6 @@ input[type="range"]::-moz-range-thumb{
         <button class="back" id="back-from-task">← Назад</button>
         <h1 style="margin:0">✍️ Новая задача</h1>
       </div>
-
       <p>Формат: <b>Я</b> [сделаю действие] <b>ради</b> [моей цели].</p>
 
       <div class="grid">
@@ -353,7 +408,7 @@ let userGoal     = '';
 let userName     = '';
 let mode = 'normal';
 
-// настроение пресеты (для экрана «настроение»)
+// настроение пресеты
 const MOOD = {
   2:   { emoji:'😇', title:'Добрячок (+2)', color:'#20c997', desc:'Я мягкий и поддерживающий. Лайтовые нуджи, много похвалы.' },
   1:   { emoji:'🙂', title:'Тёплый (+1)',   color:'#2ea8ff', desc:'Дружелюбен, но собран. Напоминаю мягко, мотивирую.' },
@@ -363,6 +418,52 @@ const MOOD = {
 };
 const clampMood = (m)=>{ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
 const fmtInt = (n)=> new Intl.NumberFormat('ru-RU').format(n);
+
+/* ====== Бонусы/штрафы (проценты) ====== */
+const BONUS_RULES = [
+  { emoji:"✅", title:"Выполненная задача", desc:"За любую выполненную задачу (учитывая вес)", per:+1, max:+5 },
+  { emoji:"⭐️", title:"Значимая задача (≥2.0)", desc:"За действие с высокой важностью", per:+2, max:+6 },
+  { emoji:"⛓️", title:"Серия 3 задачи подряд", desc:"Поддержал темп без срывов", per:+2, max:+4 },
+  { emoji:"🎯", title:"Доля значимых ≥50%", desc:"Фокус на важном в течение дня", per:+3, max:+3 },
+  { emoji:"⏱️", title:"Без игнора нуджей 60 мин", desc:"Удерживал внимание и ритм", per:+1, max:+3 },
+];
+
+const PENALTY_RULES = [
+  { emoji:"❌", title:"Проваленная задача", desc:"Обещал — не сделал", per:-2, max:-10 },
+  { emoji:"📵", title:"Игнор нуджа", desc:"Прозевал сигнал к действию", per:-1, max:-10 },
+  { emoji:"🛑", title:"Нет задач за день", desc:"День без шага", per:-5, max:-5 },
+  { emoji:"📉", title:"Доля провалов > 40%", desc:"Слишком много отказов", per:-3, max:-6 },
+];
+
+function fmtPct(n){ return (n>0?`+${n}`:`${n}`) + "%"; }
+function renderRuleList(tableEl, rules, isBonus){
+  tableEl.querySelectorAll('.rule-row').forEach(n=>n.remove());
+  rules.forEach(r=>{
+    const row = document.createElement('div');
+    row.className = 'rule-row';
+    row.innerHTML = `
+      <div class="rule-name">
+        <div class="ttl">${r.emoji} ${r.title}</div>
+        <div class="desc">${r.desc}</div>
+      </div>
+      <div class="rule-per ${isBonus?'good':(r.per<0?'bad':'good')}">${fmtPct(r.per)}</div>
+      <div class="rule-max ${isBonus?'good':(r.max<0?'bad':'good')}">${fmtPct(r.max)}</div>
+    `;
+    tableEl.appendChild(row);
+  });
+}
+function renderBonusesScreen(){
+  const bt = $('bonus-table');
+  const pt = $('penalty-table');
+  if (bt && pt){
+    renderRuleList(bt, BONUS_RULES, true);
+    renderRuleList(pt, PENALTY_RULES, false);
+    const bonusSum = BONUS_RULES.reduce((s,r)=>s+(r.max>0?r.max:0),0);
+    const penSum   = PENALTY_RULES.reduce((s,r)=>s+(r.max<0?r.max:0),0);
+    $('bonus-total').textContent   = `Итого максимум бонусов: ${fmtPct(bonusSum)}`;
+    $('penalty-total').textContent = `Максимум штрафов: ${fmtPct(penSum)}`;
+  }
+}
 
 // читаем из URL → CloudStorage (fallback)
 async function hydrateFromParamsOrCS(){
@@ -405,7 +506,6 @@ function applyTheme(){
   }
   if(tg?.themeParams?.button_color){ set('--accent', tg.themeParams.button_color); }
 }
-
 function renderBalanceBadge(){
   $('balance-total').textContent = `${fmtInt(balanceTotal)} 🎴`;
   const d = $('balance-delta');
@@ -413,7 +513,6 @@ function renderBalanceBadge(){
   else if (balanceToday < 0){ d.textContent = `${fmtInt(balanceToday)}`; d.className = 'delta neg'; }
   else { d.textContent = '0'; d.className = 'delta zero'; }
 }
-
 function setMoodColor(){
   const c = (MOOD[moodLevel] || MOOD[0]).color;
   document.documentElement.style.setProperty('--mood', c);
@@ -421,7 +520,7 @@ function setMoodColor(){
 
 /* ====== Экраны ====== */
 function showScreen(name){
-  ['home','settings','schedule','goal','task','stats','stats-mood','stats-day'].forEach(id=>{
+  ['home','settings','schedule','goal','task','info','stats-mood','stats-day','bonuses'].forEach(id=>{
     $(`screen-${id}`).classList.toggle('hidden', id!==name);
   });
   const card = $('card');
@@ -441,9 +540,8 @@ function showScreen(name){
     $('mood-desc').textContent  = m.desc;
     setMoodColor();
   }
-  if(name==='stats-day'){
-    renderDaySummary();
-  }
+  if(name==='stats-day'){ renderDaySummary(); }
+  if(name==='bonuses'){ renderBonusesScreen(); }
 }
 
 /* ====== Итоги дня ====== */
@@ -451,17 +549,15 @@ function renderDaySummary(){
   const cur = balanceTotal;
   const delta = balanceToday;
   const nxt = cur + delta;
-
   $('sum-current').textContent = `${fmtInt(cur)} 🎴`;
   $('sum-next').textContent    = `${fmtInt(nxt)} 🎴`;
-
   const db = $('sum-delta');
   if (delta > 0) { db.textContent = `+${fmtInt(delta)}`; db.className = 'delta-badge pos'; }
   else if (delta < 0){ db.textContent = `${fmtInt(delta)}`; db.className = 'delta-badge neg'; }
   else { db.textContent = '0'; db.className = 'delta-badge zero'; }
 }
 
-/* ====== Важность/режимы/слайдер (как было) ====== */
+/* ====== Важность/режимы/слайдер ====== */
 function updateMainButtonSchedule(){ if(!tg) return; const ok = isValidTime($('sleep').value||'') && isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
 function updateMainButtonGoal(){ if(!tg) return; const ok = ( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
 function updateMainButtonTask(){ if(!tg) return; const ok = ( $('action').value||'' ).trim().length>0; tg.MainButton[ ok ? 'show' : 'hide' ](); }
@@ -528,27 +624,30 @@ function updateSliderUI(){
 function bind(){
   $('btn-settings')?.addEventListener('click', ()=>showScreen('settings'));
   $('btn-task')?.addEventListener('click', ()=>showScreen('task'));
-  $('btn-stats')?.addEventListener('click', ()=>showScreen('stats'));
 
-  $('btn-stats-mood')?.addEventListener('click', ()=>showScreen('stats-mood'));
-  $('btn-stats-day')?.addEventListener('click',  ()=>showScreen('stats-day'));
+  // Info hub
+  $('btn-info')?.addEventListener('click', ()=>showScreen('info'));
+  $('back-from-info')?.addEventListener('click', ()=>showScreen('home'));
+  $('btn-info-day')?.addEventListener('click', ()=>showScreen('stats-day'));
+  $('btn-info-mood')?.addEventListener('click', ()=>showScreen('stats-mood'));
+  $('btn-info-bonuses')?.addEventListener('click', ()=>showScreen('bonuses'));
+  $('back-from-bonuses')?.addEventListener('click', ()=>showScreen('info'));
+
   $('btn-day-details')?.addEventListener('click', ()=>{
-  try { tg?.HapticFeedback?.impactOccurred('heavy'); } catch {}
-  try { tg?.sendData(JSON.stringify({ request: 'day_details' })); } catch(e){ console.error(e); }
-  // Закроем мини-апп, чтобы сразу увидеть сообщение в чате
-  setTimeout(()=>tg?.close?.(), 120);
-});
+    try { tg?.HapticFeedback?.impactOccurred('heavy'); } catch {}
+    try { tg?.sendData(JSON.stringify({ request: 'day_details' })); } catch(e){ console.error(e); }
+    setTimeout(()=>tg?.close?.(), 120);
+  });
+
+  $('back-from-stats-mood')?.addEventListener('click', ()=>showScreen('info'));
+  $('back-from-stats-day')?.addEventListener('click',  ()=>showScreen('info'));
 
   $('btn-edit-schedule')?.addEventListener('click', ()=>showScreen('schedule'));
   $('btn-edit-goal')?.addEventListener('click', ()=>showScreen('goal'));
-
   $('back-from-settings')?.addEventListener('click', ()=>showScreen('home'));
   $('back-from-schedule')?.addEventListener('click', ()=>showScreen('settings'));
   $('back-from-goal')?.addEventListener('click', ()=>showScreen('settings'));
   $('back-from-task')?.addEventListener('click', ()=>showScreen('home'));
-  $('back-from-stats')?.addEventListener('click', ()=>showScreen('home'));
-  $('back-from-stats-mood')?.addEventListener('click', ()=>showScreen('stats'));
-  $('back-from-stats-day')?.addEventListener('click',  ()=>showScreen('stats'));
 
   $('sleep')?.addEventListener('input', updateMainButtonSchedule);
   $('wake')?.addEventListener('input', updateMainButtonSchedule);
@@ -558,8 +657,7 @@ function bind(){
   $('chip-will')?.addEventListener('click', ()=>setMode('willpower'));
   $('chip-add')?.addEventListener('click',  ()=>setMode('addiction'));
 
-  const r = $('importanceRange');
-  if (r){ r.addEventListener('input', updateSliderUI); }
+  const r = $('importanceRange'); if (r){ r.addEventListener('input', updateSliderUI); }
 }
 
 function sendPayload(){
@@ -594,6 +692,36 @@ function sendPayload(){
   setTimeout(()=>tg?.close(), 120);
 }
 
+async function hydrateFromParamsOrCS(){
+  const p = new URLSearchParams(location.search);
+  const b  = p.get('b'),  bt = p.get('bt');
+  const m  = p.get('m'),  g  = p.get('g') || p.get('goal');
+  const n  = p.get('name');
+  let changed = false;
+  if (b  !== null) { balanceTotal = parseInt(b,10) || 0; changed = true; }
+  if (bt !== null) { balanceToday = parseInt(bt,10) || 0; changed = true; }
+  if (m  !== null) { moodLevel    = clampMood(m);        changed = true; }
+  if (g)           { userGoal     = g.trim();             changed = true; }
+  if (n)           { userName     = n.trim();             changed = true; }
+
+  if (!changed && tg?.CloudStorage){
+    const [cb, cbt, cm, cg, cn] = await Promise.all([
+      cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name')
+    ]);
+    if (cb  != null) balanceTotal = parseInt(cb,10)  || 0;
+    if (cbt != null) balanceToday = parseInt(cbt,10) || 0;
+    if (cm  != null) moodLevel    = clampMood(cm);
+    if (cg) userGoal = cg;
+    if (cn) userName = cn;
+  }
+  if (changed && tg?.CloudStorage){
+    await Promise.allSettled([
+      cs.set('b', balanceTotal), cs.set('bt', balanceToday),
+      cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || '')
+    ]);
+  }
+}
+
 async function init(){
   tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme);
   await hydrateFromParamsOrCS();
@@ -619,9 +747,10 @@ async function init(){
   if      (screen==='schedule')   showScreen('schedule');
   else if (screen==='goal')       showScreen('goal');
   else if (screen==='task')       showScreen('task');
-  else if (screen==='stats')      showScreen('stats');
+  else if (screen==='info')       showScreen('info');
   else if (screen==='stats-day')  showScreen('stats-day');
   else if (screen==='stats_mood' || screen==='mood') showScreen('stats-mood');
+  else if (screen==='bonuses')    showScreen('bonuses');
   else                            showScreen('home');
 
   tg?.onEvent('mainButtonClicked', sendPayload);
