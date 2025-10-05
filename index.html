@@ -390,13 +390,9 @@ input[type="range"]::-moz-range-thumb{
           </div>
         </div>
 
-        <!-- Dependencies selector (visible only in addiction mode) -->
-        <div class="deps-wrap hidden" id="deps-wrap">
+        <div id="deps-block" class="grid hidden" style="gap:8px">
           <label>Выбери зависимость</label>
-          <div class="deps-list" id="deps-list"></div>
-          <div class="deps-empty hidden" id="deps-empty">
-            Нет зависимостей? Добавь их через «Настройки → Добавить зависимости».
-          </div>
+          <div id="deps-list" class="grid" style="gap:8px"></div>
         </div>
 
         <div class="scale-head">
@@ -435,6 +431,42 @@ let mode = 'normal';
 // deps cache from URL/CS: [{id, t, s}]
 let depsCache = [];
 let selectedDep = null; // {id,t,s} or null
+
+function renderDepsList(){
+  const box = $('deps-block');
+  const list = $('deps-list');
+  if (!box || !list) return;
+  list.innerHTML = '';
+
+  if (mode !== 'addiction'){
+    box.classList.add('hidden');
+    selectedDep = null;
+    return;
+  }
+  if (!DEPS || DEPS.length === 0){
+    box.classList.remove('hidden');
+    list.innerHTML = `<div style="font-size:13px; color:var(--muted)">Нет зависимостей? Добавь их: Настройки → «Добавить зависимости».</div>`;
+    return;
+  }
+  box.classList.remove('hidden');
+
+  DEPS.forEach(dep=>{
+    const row = document.createElement('div');
+    row.className = 'menu-btn';
+    row.innerHTML = `🧲 ${dep.title} <span style="font-weight:800; font-size:12px; opacity:.8">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(dep.strength)}</span>`;
+    row.addEventListener('click', ()=>{
+      selectedDep = dep;
+      // проставим слайдер в «сохранённую» силу зависимости
+      const r = $('importanceRange');
+      if (r){
+        r.value = String(dep.strength);
+        updateSliderUI();
+      }
+      try { tg?.HapticFeedback?.selectionChanged?.(); } catch {}
+    });
+    list.appendChild(row);
+  });
+}
 
 /* ===== Bonuses UI stubs (same as раньше) ===== */
 const BONUS_RULES = [
@@ -576,6 +608,7 @@ function setMode(newMode){
   }
   selectedDep = null;
   updateScaleLabels();
+  renderDepsList();
   updateSliderUI();
   renderDepsSelect();
   updateMainButtonTask();
@@ -756,9 +789,9 @@ function sendPayload(){
     payload.willpower      = (mode==='willpower');
     payload.addiction      = (mode==='addiction');
 
-    if(mode==='addiction' && selectedDep){
+    if (mode==='addiction' && selectedDep){
       payload.dep_id    = selectedDep.id || '';
-      payload.dep_title = selectedDep.t || '';
+      payload.dep_title = selectedDep.title || '';
     }
   }
 
@@ -767,13 +800,27 @@ function sendPayload(){
   setTimeout(()=>tg?.close(), 120);
 }
 
+let DEPS = []; // [{id,title,strength,active}]
+
+function b64urlToUtf8Json(b64){
+  // поддержка URL-safe base64
+  const norm = (b64 || "").replace(/-/g,'+').replace(/_/g,'/');
+  const bin  = atob(norm);
+  const bytes = new Uint8Array([...bin].map(c=>c.charCodeAt(0)));
+  return JSON.parse(new TextDecoder("utf-8").decode(bytes));
+}
+
 /* ===== Hydrate (URL → CS, fallback CS) ===== */
 async function hydrateFromParamsOrCS(){
   const p = new URLSearchParams(location.search);
   const b  = p.get('b'),  bt = p.get('bt');
   const m  = p.get('m'),  g  = p.get('g') || p.get('goal');
   const n  = p.get('name');
-  const depsB64 = p.get('deps'); const hasDeps = p.get('has_deps')==='1';
+  const depsb64 = p.get('depsb64');
+  if (depsb64){
+    try { DEPS = b64urlToUtf8Json(depsb64); } catch(e){ console.warn('deps decode failed', e); }
+  }
+  const hasDeps = p.get('has_deps')==='1';
 
   let changed = false;
   if (b  !== null) { balanceTotal = parseInt(b,10) || 0; changed = true; }
@@ -817,7 +864,7 @@ async function init(){
   await hydrateFromParamsOrCS();
   renderBalanceBadge(); setMoodColor(); applyGoalToTask();
 
-  bind(); updateScaleLabels(); updateSliderUI(); updateDepSliderUI();
+  bind(); updateScaleLabels(); updateSliderUI(); updateDepSliderUI(); renderDepsList();
 
   const params = new URLSearchParams(location.search);
   let screen = (params.get('screen') || 'home').toLowerCase();
