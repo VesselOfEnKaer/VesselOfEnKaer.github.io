@@ -244,19 +244,19 @@ font-size:12px; color:var(--muted); background:var(--surface);
 
 /* список зависимостей в задаче */
 .dep-option{
-  display:flex; align-items:center; gap:10px;
-  padding:10px 12px; border-radius:12px;
-  border:1px solid var(--border); background:var(--surface);
-  cursor:pointer; user-select:none; transition:background .2s, border-color .2s, box-shadow .2s, transform .06s ease;
+display:flex; align-items:center; gap:10px;
+width:100%; padding:10px 12px; border-radius:12px;
+border:1px solid var(--border); background:var(--surface);
+cursor:pointer; user-select:none; transition:background .2s, border-color .2s, box-shadow .2s, transform .06s ease;
 }
 .dep-option:active{ transform:scale(.99) }
 .dep-option.active{
-  background:var(--card); border-color:var(--accent);
-  box-shadow:0 0 0 4px rgb(79 140 255 / 12%);
+background:var(--card); border-color:var(--accent);
+box-shadow:0 0 0 4px rgb(79 140 255 / 12%);
 }
 .dep-title{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.dep-weight{ margin-left:auto; color:var(--muted); font-variant-numeric:tabular-nums; }  
-  
+.dep-weight{ margin-left:auto; color:var(--muted); font-variant-numeric:tabular-nums; }
+
 </style>
 </head>
 <body>
@@ -604,15 +604,13 @@ document.body.classList.toggle('mood-on', name==='stats-mood');
 if(!tg) return;
 if(name==='schedule'){ tg.MainButton.setText('Отправить'); updateMainButtonSchedule(); }
 else if(name==='goal'){ tg.MainButton.setText('Сохранить'); updateMainButtonGoal(); }
-  else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); }
-  else if(name==='deps-add'){ tg.MainButton.setText('Сохранить'); updateMainButtonDeps(); }
-  else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); renderTaskDepsList();}
-  else if(name==='deps-add'){
-     tg.MainButton.setText('Сохранить');
-     // сразу оценим, показывать ли кнопку (и дернём ещё раз в next-tick)
-     updateMainButtonDeps();
-     setTimeout(updateMainButtonDeps, 0);
-   }
+else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); renderTaskDepsList();}
+else if(name==='deps-add'){
+tg.MainButton.setText('Сохранить');
+// сразу оценим, показывать ли кнопку (и дернём ещё раз в next-tick)
+updateMainButtonDeps();
+setTimeout(updateMainButtonDeps, 0);
+}
 else { tg.MainButton.hide(); }
 
 if(name==='stats-mood'){
@@ -624,7 +622,6 @@ setMoodColor();
 }
 if(name==='stats-day'){ renderDaySummary(); }
 if(name==='bonuses'){ renderBonusesScreen(); }
-if(name==='task'){ renderDepsList(); }
 if(name==='deps-add'){ renderDepsCurrent(); }
 }
 
@@ -644,12 +641,17 @@ else { db.textContent = '0'; db.className = 'delta-badge zero'; }
 /* ====== Важность/режимы/слайдер ====== */
 function updateMainButtonSchedule(){ if(!tg) return; const ok = isValidTime($('sleep').value||'') && isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
 function updateMainButtonGoal(){ if(!tg) return; const ok = ( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
-function updateMainButtonTask(){ if(!tg) return; const ok = ( $('action').value||'' ).trim().length>0 && (mode!=='addiction' || (DEPS && DEPS.length ? true : true)); tg.MainButton[ ok ? 'show' : 'hide' ](); }
-function updateMainButtonDeps(){ if(!tg) return; const ok = ( $('dep-title').value||'' ).trim().length>0; tg.MainButton[ ok ? 'show' : 'hide' ](); }
+function updateMainButtonTask(){
+if(!tg) return;
+const hasAction = ( $('action').value||'' ).trim().length > 0;
+const needDep   = (mode === 'addiction');
+const ok = hasAction && (!needDep || !!selectedDepId);
+tg.MainButton[ ok ? 'show' : 'hide' ]();
+}
 function updateMainButtonDeps(){
-  if(!tg) return;
-  const ok = ( ($('dep-title')?.value || '').trim().length > 0 );
-  tg.MainButton[ ok ? 'show' : 'hide']();
+if(!tg) return;
+const ok = ( ($('dep-title')?.value || '').trim().length > 0 );
+tg.MainButton[ ok ? 'show' : 'hide']();
 }
 
 function setMode(newMode){
@@ -664,7 +666,12 @@ $('chip-add').classList.toggle('active', mode==='addiction');
 }
 updateScaleLabels();
 updateSliderUI();
-renderDepsList();
+
+const showDeps = (mode === 'addiction');
+$('deps-block')?.classList.toggle('hidden', !showDeps);
+if (showDeps) renderTaskDepsList();
+
+updateMainButtonTask();
 }
 function updateScaleLabels(){
 const lblMin = $('lbl-min'), lblMax = $('lbl-max'), title = $('scale-title');
@@ -719,38 +726,63 @@ $('dep-strength-pill').textContent = new Intl.NumberFormat('ru-RU',{minimumFract
 }
 
 /* ====== Dependencies UI ====== */
-let selectedDepId = null;   // текущий выбор
-let depsCache = [];         // сюда кладёшь массив зависимостей [{id,title,strength},...]
+let mode         = 'normal';
+let DEPS         = [];               // [{id,title,strength,active}]
+let selectedDepId = null;            // id выбранной зависимости
 
+/* ====== Dependencies UI (единственная версия) ====== */
 function renderTaskDepsList(){
-  const list = $('deps-list');
-  if(!list) return;
-  list.innerHTML = '';
-  if (!depsCache.length){
-    list.innerHTML = '<div class="hint">Нет зависимостей. Добавь в «Настройки → Добавить зависимости»</div>';
-    return;
-  }
+const block = $('deps-block');
+const list  = $('deps-list');
+if (!block || !list) return;
 
-  depsCache.forEach(d=>{
-    const row = document.createElement('div');
-    row.className = 'dep-option' + (selectedDepId===d.id ? ' active' : '');
-    row.dataset.id = d.id;
-    row.innerHTML = `
-      <span>🧲</span>
-      <span class="dep-title">${d.title}</span>
-      <span class="dep-weight">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(d.strength)}</span>
-    `;
-    row.addEventListener('click', ()=>{
-      selectedDepId = d.id;
-      // подставим «базовую» силу зависимости в слайдер — пользователь может подкрутить
-      const r = $('importanceRange');
-      if(r){ r.value = String(d.strength); updateSliderUI(); }
-      renderTaskDepsList(); // перерисуем, чтобы подсветка обновилась
-    });
-    list.appendChild(row);
-  });
+if (mode !== 'addiction'){
+block.classList.add('hidden');
+return;
 }
-  
+block.classList.remove('hidden');
+list.innerHTML = '';
+
+if (!DEPS || DEPS.length === 0){
+list.innerHTML = '<div class="hint">Нет зависимостей. Добавь через «Настройки → Добавить зависимости».</div>';
+return;
+}
+
+DEPS.forEach(d=>{
+const btn = document.createElement('button');
+btn.type = 'button';
+btn.className = 'dep-option' + (String(selectedDepId)===String(d.id) ? ' active' : '');
+btn.dataset.id = String(d.id);
+btn.innerHTML = `
+     <span>🧲</span>
+     <span class="dep-title">${d.title}</span>
+     <span class="dep-weight">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(d.strength)}</span>
+   `;
+list.appendChild(btn);
+});
+}
+
+// делегирование клика — подсветка, подстановка веса, показ MainButton
+$('deps-list')?.addEventListener('click', (e)=>{
+const row = e.target.closest('.dep-option');
+if(!row) return;
+
+selectedDepId = row.dataset.id;
+
+document.querySelectorAll('#deps-list .dep-option').forEach(el=>{
+el.classList.toggle('active', el === row);
+});
+
+const d = DEPS.find(x => String(x.id) === String(selectedDepId));
+if (d){
+const r = $('importanceRange');
+if(r){ r.value = String(d.strength); updateSliderUI(); }
+}
+
+setMode('addiction');   // на всякий случай
+updateMainButtonTask();
+});
+
 function renderDepsCurrent(){
 const box = $('deps-current');
 if (!box) return;
@@ -764,36 +796,6 @@ const row = document.createElement('div');
 row.className = 'menu-btn';
 row.innerHTML = `🧲 ${dep.title} <span style="font-weight:800; font-size:12px; opacity:.8">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(dep.strength)}</span>`;
 box.appendChild(row);
-});
-}
-
-function renderDepsList(){
-const block = $('deps-block');
-const list = $('deps-list');
-if (!block || !list) return;
-list.innerHTML = '';
-if (mode !== 'addiction'){
-block.classList.add('hidden');
-selectedDep = null;
-return;
-}
-block.classList.remove('hidden');
-
-if (!DEPS || DEPS.length===0){
-list.innerHTML = `<div style="font-size:13px; color:var(--muted)">Нет зависимостей? Добавь их: <span class="badge">Настройки → «Добавить зависимости»</span>.</div>`;
-return;
-}
-DEPS.forEach(dep=>{
-const row = document.createElement('div');
-row.className = 'menu-btn';
-row.innerHTML = `🧲 ${dep.title} <span style="font-weight:800; font-size:12px; opacity:.8">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(dep.strength)}</span>`;
-row.addEventListener('click', ()=>{
-selectedDep = dep;
-const r = $('importanceRange');
-if (r){ r.value = String(dep.strength); updateSliderUI(); }
-try { tg?.HapticFeedback?.selectionChanged?.(); } catch {}
-});
-list.appendChild(row);
 });
 }
 
@@ -872,9 +874,10 @@ payload.mode           = mode;
 payload.willpower      = (mode==='willpower');
 payload.addiction      = (mode==='addiction');
 
-if (mode==='addiction' && selectedDep){
-payload.dep_id    = selectedDep.id || '';
-payload.dep_title = selectedDep.title || '';
+if (mode==='addiction' && selectedDepId){
+const d = DEPS.find(x => String(x.id) === String(selectedDepId));
+payload.dep_id    = selectedDepId;
+payload.dep_title = d?.title || '';
 }
 }
 
