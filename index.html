@@ -14,7 +14,7 @@
   --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
   --input-bg:#fbfcff; --input-fg:var(--text);
   --mood:#8aa0b4; --meter:#4f8cff; --radius:16px;
-  --good:#20c997; --bad:#ff4d4f;
+  --good:#20c997; --bad:#ff4d4f; --streak:#ff8a00;
 }
 @media (prefers-color-scheme: dark){
 :root{
@@ -191,7 +191,7 @@ input[type="range"]::-moz-range-thumb{
 }
 .delta-badge.pos{ color:var(--good); }
 .delta-badge.neg{ color:var(--bad); }
-.delta-badge.zero{ color:var(--muted); }
+.delta-badge.zero{ color:var(--muted) }
 
 .divider{ height:1px; width:100%; background:var(--border); margin:4px 0; }
 
@@ -205,27 +205,32 @@ input[type="range"]::-moz-range-thumb{
 
 .rule-table{ display:grid; gap:8px; }
 .rule-head{
-  display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
+  display:grid; grid-template-columns: 3fr 1fr; gap:8px;
   padding:6px 8px; border-radius:10px; background:var(--surface);
   border:1px solid var(--border); color:var(--muted); font-size:12px;
 }
 .rule-row{
-  display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
+  display:grid; grid-template-columns: 3fr 1fr; gap:8px;
   align-items:stretch;
   border:1px solid var(--border); border-radius:12px; overflow:hidden;
   background:linear-gradient(0deg, rgba(0,0,0,.02), rgba(0,0,0,0));
   box-shadow:0 4px 14px rgba(0,0,0,.06);
 }
+.rule-row.streak{
+  border-color: color-mix(in srgb, var(--streak) 40%, var(--border));
+  background: linear-gradient(0deg, color-mix(in srgb, var(--streak) 8%, transparent), transparent);
+}
 .rule-name{ padding:10px 12px; display:grid; gap:4px; }
 .rule-name .ttl{ font-weight:700; font-size:14px; }
+.rule-row.streak .rule-name .ttl{ color: var(--streak); }
 .rule-name .desc{ font-size:12px; color:var(--muted); line-height:1.3; }
 
-.rule-per,.rule-max{
+.rule-max{
   display:flex; align-items:center; justify-content:flex-end;
   padding:10px 12px; font-weight:800; font-variant-numeric: tabular-nums;
 }
-.rule-per.good,.rule-max.good{ color:var(--good); }
-.rule-per.bad, .rule-max.bad { color:var(--bad);  }
+.rule-max.good{ color:var(--good); }
+.rule-max.bad { color:var(--bad);  }
 .rule-total{ margin:6px 0 16px; font-weight:800; }
 .rule-total.good{ color:var(--good); }
 .rule-total.bad{ color:var(--bad); }
@@ -233,7 +238,7 @@ input[type="range"]::-moz-range-thumb{
 .rule-row:active{ transform:translateY(1px) scale(0.998); }
 
 @media (max-width:480px){
-  .rule-head, .rule-row{ grid-template-columns: 1.5fr .8fr .8fr; }
+  .rule-head, .rule-row{ grid-template-columns: 1.6fr .9fr; }
 }
 </style>
 </head>
@@ -283,7 +288,7 @@ input[type="range"]::-moz-range-thumb{
             <div class="summary-label">сегодня</div>
           </div>
 
-          <div class="summary-arrow">
+        <div class="summary-arrow">
             →
             <div id="sum-delta" class="delta-badge zero">0</div>
           </div>
@@ -317,19 +322,19 @@ input[type="range"]::-moz-range-thumb{
       <div class="topbar"><button class="back" id="back-from-bonuses">← Назад</button><h1 style="margin:0">🎴 Бонусы и штрафы</h1></div>
 
       <h2 class="subttl good">Бонусы</h2>
-      <p class="subhint">Проценты применяются к дневному множителю. «Одноразово» — за событие, «Макс/день» — потолок по правилу.</p>
+      <p class="subhint">Проценты складываются в дневной бонус. Серии подсвечены оранжевым.</p>
       <div class="rule-table" id="bonus-table">
         <div class="rule-head">
-          <div>Правило</div><div>Одноразово</div><div>Макс/день</div>
+          <div>Правило</div><div>Макс/день</div>
         </div>
       </div>
       <div class="rule-total good" id="bonus-total">Итого максимум бонусов: +0%</div>
 
       <h2 class="subttl bad" style="margin-top:10px">Штрафы</h2>
-      <p class="subhint">Отрицательные проценты уменьшают множитель. Лимит — чтобы «не утонуть» за один день.</p>
+      <p class="subhint">Штрафы — проценты и фикс в 🎴. Все проценты суммируются, фикс — дополнительно.</p>
       <div class="rule-table" id="penalty-table">
         <div class="rule-head">
-          <div>Правило</div><div>Одноразово</div><div>Макс/день</div>
+          <div>Правило</div><div>Макс/день</div>
         </div>
       </div>
       <div class="rule-total bad" id="penalty-total">Максимум штрафов: −0%</div>
@@ -419,53 +424,135 @@ const MOOD = {
 const clampMood = (m)=>{ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
 const fmtInt = (n)=> new Intl.NumberFormat('ru-RU').format(n);
 
-/* ====== Бонусы/штрафы (проценты) ====== */
+/* ====== Бонусы/штрафы (проценты и фикс) ====== */
+/* kind: 'percent' | 'flat'; streak?: true; max: number|null|string; maxFlat?: number */
 const BONUS_RULES = [
-  { emoji:"✅", title:"Выполненная задача", desc:"За любую выполненную задачу (учитывая вес)", per:+1, max:+5 },
-  { emoji:"⭐️", title:"Значимая задача (≥2.0)", desc:"За действие с высокой важностью", per:+2, max:+6 },
-  { emoji:"⛓️", title:"Серия 3 задачи подряд", desc:"Поддержал темп без срывов", per:+2, max:+4 },
-  { emoji:"🎯", title:"Доля значимых ≥50%", desc:"Фокус на важном в течение дня", per:+3, max:+3 },
-  { emoji:"⏱️", title:"Без игнора нуджей 60 мин", desc:"Удерживал внимание и ритм", per:+1, max:+3 },
+  { emoji:"🧩", title:"Малые шаги", streak:false,
+    desc:"За каждую закрытую задачу (любой исход). +1% за штуку, максимум +10% в день.",
+    kind:"percent", max:+10 },
+
+  { emoji:"💥", title:"Значимые действия (≥2.0)", streak:false,
+    desc:"За каждую важную (включая «волевую» и «зависимость»). +10% за каждую, без лимита.",
+    kind:"percent", max:null },
+
+  { emoji:"⚡️", title:"Быстрый старт", streak:false,
+    desc:"Первая задача в течение часа после пробуждения: +5% (один раз в день).",
+    kind:"percent", max:+5 },
+
+  { emoji:"🌅", title:"Важно в первые 5 часов", streak:false,
+    desc:"Любая значимая (≥2.0) в первые 5 часов после пробуждения: +10% (один раз в день).",
+    kind:"percent", max:+10 },
+
+  { emoji:"🧷", title:"Без провалов", streak:false,
+    desc:"За день ни одного провала (fail=0): +10%.",
+    kind:"percent", max:+10 },
+
+  { emoji:"🧠", title:"Все зависимости поборены", streak:false,
+    desc:"Сегодня по всем зависимостям — только «done»: +20%. Если зависимостей нет вовсе — пассивно +10% ежедневно.",
+    kind:"percent", max:+20 },
+
+  { emoji:"⏰", title:"Режим соблюдён", streak:false,
+    desc:"Подтверждён и подъём, и сон вовремя: +20% за день.",
+    kind:"percent", max:+20 },
+
+  /* ——— Серии (оранжевые) ——— */
+  { emoji:"📈", title:"Серия: ежедневный шаг", streak:true,
+    desc:"2-й день подряд даёт +1%, 3-й — +2%, … до +10%. Сбрасывается днём без задач.",
+    kind:"percent", max:+10 },
+
+  { emoji:"🛌", title:"Серия: режим соблюдён", streak:true,
+    desc:"2-й день подряд +1%, … до +10%. Сбрасывается при пропуске подтверждения.",
+    kind:"percent", max:+10 },
+
+  { emoji:"🧲", title:"Серия: зависимость", streak:true,
+    desc:"По каждой зависимости: +0.5% × сложность × N (N ≤ 21). Пример: сложность 3 → до +31.5% на зависимость.",
+    kind:"percent", max:"до 10.5% × сложность" },
 ];
 
 const PENALTY_RULES = [
-  { emoji:"❌", title:"Проваленная задача", desc:"Обещал — не сделал", per:-2, max:-10 },
-  { emoji:"📵", title:"Игнор нуджа", desc:"Прозевал сигнал к действию", per:-1, max:-10 },
-  { emoji:"🛑", title:"Нет задач за день", desc:"День без шага", per:-5, max:-5 },
-  { emoji:"📉", title:"Доля провалов > 40%", desc:"Слишком много отказов", per:-3, max:-6 },
+  { emoji:"😵", title:"Провалы", 
+    desc:"−5% за каждый провал сверх первого, максимум −30% за день.",
+    kind:"percent", max:-30 },
+
+  { emoji:"🔕", title:"Игнор нуджей",
+    desc:"−1% за каждый проигнорированный нудж (после 10-мин. окна), максимум −10%.",
+    kind:"percent", max:-10 },
+
+  { emoji:"⏱️", title:"Режим нарушен",
+    desc:"Проспал или лёг позже — −10% за событие (максимум −20% за день).",
+    kind:"percent", max:-20 },
+
+  { emoji:"🎯", title:"Нет важного шага к цели",
+    desc:"За день не было ни одной «важной для цели» задачи: −300 🎴 (фикс).",
+    kind:"flat", maxFlat:-300 },
+
+  { emoji:"🕳", title:"Пустой день",
+    desc:"Нет ни одной закрытой задачи: −500 🎴 (фикс).",
+    kind:"flat", maxFlat:-500 },
 ];
 
-function fmtPct(n){ return (n>0?`+${n}`:`${n}`) + "%"; }
+/* ===== helpers for rendering rules ===== */
+function fmtPctVal(n){ return (n>0?`+${n}`:`${n}`) + "%"; }
+function fmtMaxCell(rule, isBonus){
+  if (rule.kind === "flat"){
+    const v = rule.maxFlat || 0;
+    return `${v} 🎴`; // already signed negative
+  }
+  // percent
+  if (rule.max === null || rule.max === undefined){
+    return "без лимита";
+  }
+  if (typeof rule.max === "string"){
+    return rule.max; // e.g. 'до 10.5% × сложность'
+  }
+  const cls = isBonus ? "good" : (rule.max<0 ? "bad" : "good");
+  return `<span class="${cls}">${fmtPctVal(rule.max)}</span>`;
+}
+
 function renderRuleList(tableEl, rules, isBonus){
   tableEl.querySelectorAll('.rule-row').forEach(n=>n.remove());
   rules.forEach(r=>{
     const row = document.createElement('div');
-    row.className = 'rule-row';
+    row.className = 'rule-row' + (r.streak ? ' streak' : '');
     row.innerHTML = `
       <div class="rule-name">
         <div class="ttl">${r.emoji} ${r.title}</div>
         <div class="desc">${r.desc}</div>
       </div>
-      <div class="rule-per ${isBonus?'good':(r.per<0?'bad':'good')}">${fmtPct(r.per)}</div>
-      <div class="rule-max ${isBonus?'good':(r.max<0?'bad':'good')}">${fmtPct(r.max)}</div>
+      <div class="rule-max ${isBonus?'good':(r.kind==='percent' && r.max<0?'bad':'good')}">${fmtMaxCell(r, isBonus)}</div>
     `;
     tableEl.appendChild(row);
   });
 }
-function renderBonusesScreen(){
-  const bt = $('bonus-table');
-  const pt = $('penalty-table');
-  if (bt && pt){
-    renderRuleList(bt, BONUS_RULES, true);
-    renderRuleList(pt, PENALTY_RULES, false);
-    const bonusSum = BONUS_RULES.reduce((s,r)=>s+(r.max>0?r.max:0),0);
-    const penSum   = PENALTY_RULES.reduce((s,r)=>s+(r.max<0?r.max:0),0);
-    $('bonus-total').textContent   = `Итого максимум бонусов: ${fmtPct(bonusSum)}`;
-    $('penalty-total').textContent = `Максимум штрафов: ${fmtPct(penSum)}`;
+
+function totalsText(){
+  // bonuses: if any rule is unlimited → 'без лимита'
+  const unlimited = BONUS_RULES.some(r => r.kind==='percent' && (r.max===null || r.max===undefined));
+  let bonusText;
+  if (unlimited){
+    bonusText = "Итого максимум бонусов: без лимита";
+  } else {
+    const sum = BONUS_RULES.reduce((s,r)=> s + (r.kind==='percent' && typeof r.max==='number' ? Math.max(0,r.max) : 0), 0);
+    bonusText = `Итого максимум бонусов: ${fmtPctVal(sum)}`;
   }
+
+  // penalties: percent sum + list of flats
+  const penPct = PENALTY_RULES.reduce((s,r)=> s + (r.kind==='percent' && typeof r.max==='number' ? Math.min(0,r.max) : 0), 0);
+  const flats = PENALTY_RULES.filter(r=>r.kind==='flat' && typeof r.maxFlat==='number' && r.maxFlat<0).map(r=>`${r.maxFlat} 🎴`);
+  const flatTxt = flats.length ? ` + фикс: ${flats.join(", ")}` : "";
+  const penText = `Максимум штрафов: ${fmtPctVal(penPct)}${flatTxt}`;
+  return { bonusText, penText };
 }
 
-// читаем из URL → CloudStorage (fallback)
+function renderBonusesScreen(){
+  renderRuleList($('bonus-table'), BONUS_RULES, true);
+  renderRuleList($('penalty-table'), PENALTY_RULES, false);
+  const t = totalsText();
+  $('bonus-total').textContent = t.bonusText;
+  $('penalty-total').textContent = t.penText;
+}
+
+/* ===== читаем стейт из URL/CloudStorage ===== */
 async function hydrateFromParamsOrCS(){
   const p = new URLSearchParams(location.search);
   const b  = p.get('b'),  bt = p.get('bt');
@@ -690,36 +777,6 @@ function sendPayload(){
   try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
   try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
   setTimeout(()=>tg?.close(), 120);
-}
-
-async function hydrateFromParamsOrCS(){
-  const p = new URLSearchParams(location.search);
-  const b  = p.get('b'),  bt = p.get('bt');
-  const m  = p.get('m'),  g  = p.get('g') || p.get('goal');
-  const n  = p.get('name');
-  let changed = false;
-  if (b  !== null) { balanceTotal = parseInt(b,10) || 0; changed = true; }
-  if (bt !== null) { balanceToday = parseInt(bt,10) || 0; changed = true; }
-  if (m  !== null) { moodLevel    = clampMood(m);        changed = true; }
-  if (g)           { userGoal     = g.trim();             changed = true; }
-  if (n)           { userName     = n.trim();             changed = true; }
-
-  if (!changed && tg?.CloudStorage){
-    const [cb, cbt, cm, cg, cn] = await Promise.all([
-      cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name')
-    ]);
-    if (cb  != null) balanceTotal = parseInt(cb,10)  || 0;
-    if (cbt != null) balanceToday = parseInt(cbt,10) || 0;
-    if (cm  != null) moodLevel    = clampMood(cm);
-    if (cg) userGoal = cg;
-    if (cn) userName = cn;
-  }
-  if (changed && tg?.CloudStorage){
-    await Promise.allSettled([
-      cs.set('b', balanceTotal), cs.set('bt', balanceToday),
-      cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || '')
-    ]);
-  }
 }
 
 async function init(){
