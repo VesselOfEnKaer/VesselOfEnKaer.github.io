@@ -241,6 +241,22 @@ input[type="range"]::-moz-range-thumb{
   display:inline-block;padding:4px 8px;border:1px solid var(--border);border-radius:999px;
   font-size:12px; color:var(--muted); background:var(--surface);
 }
+
+/* список зависимостей в задаче */
+.dep-option{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border-radius:12px;
+  border:1px solid var(--border); background:var(--surface);
+  cursor:pointer; user-select:none; transition:background .2s, border-color .2s, box-shadow .2s, transform .06s ease;
+}
+.dep-option:active{ transform:scale(.99) }
+.dep-option.active{
+  background:var(--card); border-color:var(--accent);
+  box-shadow:0 0 0 4px rgb(79 140 255 / 12%);
+}
+.dep-title{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dep-weight{ margin-left:auto; color:var(--muted); font-variant-numeric:tabular-nums; }  
+  
 </style>
 </head>
 <body>
@@ -588,8 +604,13 @@ function showScreen(name){
   if(!tg) return;
   if(name==='schedule'){ tg.MainButton.setText('Отправить'); updateMainButtonSchedule(); }
   else if(name==='goal'){ tg.MainButton.setText('Сохранить'); updateMainButtonGoal(); }
-  else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); }
-  else if(name==='deps-add'){ tg.MainButton.setText('Сохранить'); updateMainButtonDeps(); }
+  else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); renderTaskDepsList();}
+  else if(name==='deps-add'){
+     tg.MainButton.setText('Сохранить');
+     // сразу оценим, показывать ли кнопку (и дернём ещё раз в next-tick)
+     updateMainButtonDeps();
+     setTimeout(updateMainButtonDeps, 0);
+   }
   else { tg.MainButton.hide(); }
 
   if(name==='stats-mood'){
@@ -622,7 +643,11 @@ function renderDaySummary(){
 function updateMainButtonSchedule(){ if(!tg) return; const ok = isValidTime($('sleep').value||'') && isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
 function updateMainButtonGoal(){ if(!tg) return; const ok = ( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
 function updateMainButtonTask(){ if(!tg) return; const ok = ( $('action').value||'' ).trim().length>0 && (mode!=='addiction' || (DEPS && DEPS.length ? true : true)); tg.MainButton[ ok ? 'show' : 'hide' ](); }
-function updateMainButtonDeps(){ if(!tg) return; const ok = ( $('dep-title').value||'' ).trim().length>0; tg.MainButton[ ok ? 'show' : 'hide' ](); }
+function updateMainButtonDeps(){
+  if(!tg) return;
+  const ok = ( ($('dep-title')?.value || '').trim().length > 0 );
+  tg.MainButton[ ok ? 'show' : 'hide']();
+}
 
 function setMode(newMode){
   if (newMode === mode) {
@@ -691,6 +716,38 @@ function updateSliderUI(){
 }
 
 /* ====== Dependencies UI ====== */
+let selectedDepId = null;   // текущий выбор
+let depsCache = [];         // сюда кладёшь массив зависимостей [{id,title,strength},...]
+
+function renderTaskDepsList(){
+  const list = $('deps-list');
+  if(!list) return;
+  list.innerHTML = '';
+  if (!depsCache.length){
+    list.innerHTML = '<div class="hint">Нет зависимостей. Добавь в «Настройки → Добавить зависимости»</div>';
+    return;
+  }
+
+  depsCache.forEach(d=>{
+    const row = document.createElement('div');
+    row.className = 'dep-option' + (selectedDepId===d.id ? ' active' : '');
+    row.dataset.id = d.id;
+    row.innerHTML = `
+      <span>🧲</span>
+      <span class="dep-title">${d.title}</span>
+      <span class="dep-weight">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(d.strength)}</span>
+    `;
+    row.addEventListener('click', ()=>{
+      selectedDepId = d.id;
+      // подставим «базовую» силу зависимости в слайдер — пользователь может подкрутить
+      const r = $('importanceRange');
+      if(r){ r.value = String(d.strength); updateSliderUI(); }
+      renderTaskDepsList(); // перерисуем, чтобы подсветка обновилась
+    });
+    list.appendChild(row);
+  });
+}
+  
 function renderDepsCurrent(){
   const box = $('deps-current');
   if (!box) return;
