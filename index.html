@@ -727,34 +727,35 @@ $('dep-strength-pill').textContent = new Intl.NumberFormat('ru-RU',{minimumFract
 
 /* ====== Dependencies UI (единственная версия) ====== */
 function renderTaskDepsList(){
-const block = $('deps-block');
-const list  = $('deps-list');
-if (!block || !list) return;
+  const block = $('deps-block');
+  const list  = $('deps-list');
+  if (!block || !list) return;
 
-if (mode !== 'addiction'){
-block.classList.add('hidden');
-return;
-}
-block.classList.remove('hidden');
-list.innerHTML = '';
+  if (mode !== 'addiction'){
+    block.classList.add('hidden');
+    return;
+  }
+  block.classList.remove('hidden');
+  list.innerHTML = '';
 
-if (!DEPS || DEPS.length === 0){
-list.innerHTML = '<div class="hint">Нет зависимостей. Добавь через «Настройки → Добавить зависимости».</div>';
-return;
-}
+  const deps = normalizeDeps(DEPS);
+  if (!deps.length){
+    list.innerHTML = '<div class="hint">Нет зависимостей. Добавь через «Настройки → Добавить зависимости».</div>';
+    return;
+  }
 
-DEPS.forEach(d=>{
-const btn = document.createElement('button');
-btn.type = 'button';
-btn.className = 'dep-option' + (String(selectedDepId)===String(d.id) ? ' active' : '');
-btn.dataset.id = String(d.id);
-btn.innerHTML = `
-     <span>🧲</span>
-     <span class="dep-title">${d.title}</span>
-     <span class="dep-weight">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(d.strength)}</span>
-   `;
-list.appendChild(btn);
-});
+  deps.forEach(d => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'dep-option' + (String(selectedDepId)===String(d.id) ? ' active' : '');
+    btn.dataset.id = String(d.id);
+    btn.innerHTML = `
+      <span>🧲</span>
+      <span class="dep-title">${d.title}</span>
+      <span class="dep-weight">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(d.strength)}</span>
+    `;
+    list.appendChild(btn);
+  });
 }
 
 // делегирование клика — подсветка, подстановка веса, показ MainButton
@@ -883,7 +884,20 @@ setTimeout(()=>tg?.close(), 120);
 
 async function init(){
 tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme);
+     
+function normalizeDeps(arr){
+  return (Array.isArray(arr) ? arr : [])
+    .map((d, i) => ({
+      id: String(d.id ?? d._id ?? i + 1),
+      title: String(d.title ?? d.name ?? '').trim(),
+      strength: Number(d.strength ?? d.weight ?? d.value ?? 1) || 1
+    }))
+    .filter(d => d.title);
+}
+
+// ...в init() сразу после hydrate:
 await hydrateFromParamsOrCS();
+DEPS = normalizeDeps(DEPS);
 renderBalanceBadge(); setMoodColor();
 
 if (userGoal && $('goal-view')) { $('goal-view').textContent = userGoal; }
