@@ -10,39 +10,39 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{
-  --bg:#f6f8fc; --card:#ffffff; --text:#0b1220; --muted:#5b6676; --border:#e6e9f2;
-  --surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
-  --input-bg:#fbfcff; --input-fg:var(--text);
-  --mood:#8aa0b4; --meter:#4f8cff; --radius:16px;
-  --good:#20c997; --bad:#ff4d4f; --warn:#ff9f43;
+--bg:#f6f8fc; --card:#ffffff; --text:#0b1220; --muted:#5b6676; --border:#e6e9f2;
+--surface:#f1f4fa; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
+--input-bg:#fbfcff; --input-fg:var(--text);
+--mood:#8aa0b4; --meter:#4f8cff; --radius:16px;
+--good:#20c997; --bad:#ff4d4f; --warn:#ff9f43;
 }
 @media (prefers-color-scheme: dark){
 :root{
-  --bg:#0f1115; --card:#161923; --text:#e9eef6; --muted:#9aa4b2; --border:#232838;
-  --surface:#10141e; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
-  --input-bg:#0e1118; --input-fg:var(--text);
+--bg:#0f1115; --card:#161923; --text:#e9eef6; --muted:#9aa4b2; --border:#232838;
+--surface:#10141e; --accent:#4f8cff; --btn-bg:var(--surface); --btn-fg:var(--text);
+--input-bg:#0e1118; --input-fg:var(--text);
 }
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
 .wrap{min-height:100%;display:grid;place-items:center;padding:24px;position:relative;overflow:hidden}
 .card{
-  width:min(560px,92vw);padding:clamp(14px,4vw,20px);
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden;position:relative;
-  transition:transform .18s ease, opacity .18s ease;
-  z-index:2; margin-inline:auto;
+width:min(560px,92vw);padding:clamp(14px,4vw,20px);
+background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden;position:relative;
+transition:transform .18s ease, opacity .18s ease;
+z-index:2; margin-inline:auto;
 }
 h1{margin:0 0 12px;font-size:22px}
 p{margin:0 0 18px;color:var(--muted)}
 .grid{display:grid;gap:12px;width:100%}
 
 .menu-btn{
-  display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;
-  font-size:16px;border-radius:12px;background:var(--btn-bg);color:var(--btn-fg);
-  border:1px solid var(--border);cursor:pointer;transition:transform .08s ease, background .2s ease, box-shadow .2s ease;
-  box-shadow:0 1px 0 rgba(0,0,0,.04) inset; -webkit-tap-highlight-color: transparent;
-  will-change:transform;
+display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;
+font-size:16px;border-radius:12px;background:var(--btn-bg);color:var(--btn-fg);
+border:1px solid var(--border);cursor:pointer;transition:transform .08s ease, background .2s ease, box-shadow .2s ease;
+box-shadow:0 1px 0 rgba(0,0,0,.04) inset; -webkit-tap-highlight-color: transparent;
+will-change:transform;
 }
 .menu-btn:hover{ box-shadow:0 4px 14px rgba(0,0,0,.08) }
 .menu-btn:active{ transform:scale(.98) }
@@ -53,8 +53,8 @@ p{margin:0 0 18px;color:var(--muted)}
 .row>div{min-width:0}
 label{display:block;font-size:15px;color:var(--muted);margin-bottom:6px}
 input[type="time"], input[type="text"], textarea{
-  display:block;width:100%;max-width:100%;min-width:0;background:var(--input-bg);color:var(--input-fg);
-  border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;transition:border-color .2s, box-shadow .2s;
+display:block;width:100%;max-width:100%;min-width:0;background:var(--input-bg);color:var(--input-fg);
+border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;transition:border-color .2s, box-shadow .2s;
 }
 input[type="time"]{height:48px;line-height:48px;appearance:none;-webkit-appearance:none;background-clip:padding-box}
 input[type="time"]:focus, input[type="text"]:focus, textarea:focus{border-color:var(--accent); box-shadow:0 0 0 4px rgb(79 140 255 / 12%)}
@@ -69,10 +69,10 @@ textarea{min-height:120px;resize:vertical}
 
 /* фоновые шары */
 .wrap::before,.wrap::after{
-  content:""; position:absolute; inset:auto; width:70vmax; height:70vmax; border-radius:50%;
-  background: radial-gradient(closest-side, rgba(79,140,255,.12), transparent 70%);
-  filter: blur(20px); z-index:0; animation:float 24s ease-in-out infinite alternate;
-  pointer-events:none;
+content:""; position:absolute; inset:auto; width:70vmax; height:70vmax; border-radius:50%;
+background: radial-gradient(closest-side, rgba(79,140,255,.12), transparent 70%);
+filter: blur(20px); z-index:0; animation:float 24s ease-in-out infinite alternate;
+pointer-events:none;
 }
 .wrap::before{ top:-30vmax; left:-20vmax }
 .wrap::after { bottom:-30vmax; right:-25vmax; animation-duration:28s }
@@ -80,23 +80,23 @@ textarea{min-height:120px;resize:vertical}
 
 /* оверлей настроения */
 .mood-overlay{
-  position:fixed; inset:0; pointer-events:none; opacity:0; transition:opacity .35s ease;
-  background:
-    radial-gradient(900px 600px at 80% -10%, color-mix(in srgb, var(--mood) 35%, transparent), transparent 60%),
-    radial-gradient(600px 400px at -10% 100%, color-mix(in srgb, var(--mood) 30%, transparent), transparent 60%);
-  z-index:1;
+position:fixed; inset:0; pointer-events:none; opacity:0; transition:opacity .35s ease;
+background:
+radial-gradient(900px 600px at 80% -10%, color-mix(in srgb, var(--mood) 35%, transparent), transparent 60%),
+radial-gradient(600px 400px at -10% 100%, color-mix(in srgb, var(--mood) 30%, transparent), transparent 60%);
+z-index:1;
 }
 .mood-on .mood-overlay{ opacity:.65 }
 
 /* бейдж баланса */
 .balance-badge{
-  position:fixed; top:10px; right:12px; z-index:20;
-  padding:8px 12px; border-radius:12px;
-  background:rgba(0,0,0,.06); backdrop-filter:blur(6px);
-  color:var(--text); border:1px solid var(--border);
-  font-weight:800; font-size:14px; line-height:1;
-  transition:transform .12s ease, opacity .2s ease;
-  user-select:none; display:flex; align-items:baseline; gap:6px;
+position:fixed; top:10px; right:12px; z-index:20;
+padding:8px 12px; border-radius:12px;
+background:rgba(0,0,0,.06); backdrop-filter:blur(6px);
+color:var(--text); border:1px solid var(--border);
+font-weight:800; font-size:14px; line-height:1;
+transition:transform .12s ease, opacity .2s ease;
+user-select:none; display:flex; align-items:baseline; gap:6px;
 }
 .balance-badge:active{ transform:scale(.98) }
 @media (prefers-color-scheme: dark){ .balance-badge{ background:rgba(255,255,255,.06) } }
@@ -107,13 +107,13 @@ textarea{min-height:120px;resize:vertical}
 
 /* карточка настроения */
 .mood-card{
-  display:grid; gap:10px; place-items:center; text-align:center;
-  padding:24px; border-radius:16px; border:1px solid var(--border);
-  background:color-mix(in srgb, var(--mood) 6%, var(--card)); position:relative; overflow:hidden;
+display:grid; gap:10px; place-items:center; text-align:center;
+padding:24px; border-radius:16px; border:1px solid var(--border);
+background:color-mix(in srgb, var(--mood) 6%, var(--card)); position:relative; overflow:hidden;
 }
 .mood-card::after{
-  content:""; position:absolute; inset:-40%; background:radial-gradient(circle at 60% 40%, color-mix(in srgb, var(--mood) 25%, transparent), transparent 60%);
-  filter: blur(30px); opacity:.6; z-index:-1; animation: breathe 6s ease-in-out infinite;
+content:""; position:absolute; inset:-40%; background:radial-gradient(circle at 60% 40%, color-mix(in srgb, var(--mood) 25%, transparent), transparent 60%);
+filter: blur(30px); opacity:.6; z-index:-1; animation: breathe 6s ease-in-out infinite;
 }
 @keyframes breathe{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
 .mood-emoji{ font-size:48px; line-height:1; transform:translateZ(0); transition:transform .12s ease }
@@ -124,11 +124,11 @@ textarea{min-height:120px;resize:vertical}
 /* чипы режимов */
 .chips{ display:flex; gap:8px; flex-wrap:wrap }
 .chip{
-  flex:1 1 0; min-width:calc(50% - 4px);
-  text-align:center; padding:8px 12px; border-radius:999px; border:1px solid var(--border);
-  background:var(--surface); color:var(--text); cursor:pointer; user-select:none; font-size:14px;
-  transition:background .2s, transform .06s ease, border-color .2s, box-shadow .2s;
-  white-space:nowrap;
+flex:1 1 0; min-width:calc(50% - 4px);
+text-align:center; padding:8px 12px; border-radius:999px; border:1px solid var(--border);
+background:var(--surface); color:var(--text); cursor:pointer; user-select:none; font-size:14px;
+transition:background .2s, transform .06s ease, border-color .2s, box-shadow .2s;
+white-space:nowrap;
 }
 .chip:active{ transform:scale(.98) }
 .chip.active{ background:var(--card); border-color:var(--accent); box-shadow:0 0 0 4px rgb(79 140 255 / 12%) }
@@ -138,56 +138,56 @@ textarea{min-height:120px;resize:vertical}
 .scale-labels{ display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:4px }
 .slider-wrap{ padding:10px 2px 0; position:relative; z-index:1 }
 input[type="range"]{
-  -webkit-appearance:none; width:100%; height:38px; background:transparent; outline:none;
-  --val:0%; touch-action: pan-x; pointer-events:auto;
+-webkit-appearance:none; width:100%; height:38px; background:transparent; outline:none;
+--val:0%; touch-action: pan-x; pointer-events:auto;
 }
 input[type="range"]::-webkit-slider-runnable-track{
-  height:10px; border-radius:999px; background:
-  linear-gradient(to right, var(--meter) 0% , var(--meter) var(--val), var(--border) var(--val), var(--border) 100%);
-  border:1px solid color-mix(in srgb, var(--meter) 30%, var(--border));
-  transition:background .06s linear, border-color .15s ease;
+height:10px; border-radius:999px; background:
+linear-gradient(to right, var(--meter) 0% , var(--meter) var(--val), var(--border) var(--val), var(--border) 100%);
+border:1px solid color-mix(in srgb, var(--meter) 30%, var(--border));
+transition:background .06s linear, border-color .15s ease;
 }
 input[type="range"]::-webkit-slider-thumb{
-  -webkit-appearance:none; margin-top:-6px; width:22px; height:22px; border-radius:50%;
-  background:radial-gradient(circle at 30% 30%, #fff, #fff0 65%), var(--meter);
-  border:2px solid #fff; box-shadow:0 2px 10px rgba(0,0,0,.18);
-  transition:transform .08s ease, box-shadow .12s ease, background .15s ease;
+-webkit-appearance:none; margin-top:-6px; width:22px; height:22px; border-radius:50%;
+background:radial-gradient(circle at 30% 30%, #fff, #fff0 65%), var(--meter);
+border:2px solid #fff; box-shadow:0 2px 10px rgba(0,0,0,.18);
+transition:transform .08s ease, box-shadow .12s ease, background .15s ease;
 }
 input[type="range"]:active::-webkit-slider-thumb{ transform:scale(1.08); box-shadow:0 4px 16px rgba(0,0,0,.25) }
 input[type="range"]::-moz-range-track{
-  height:10px; border-radius:999px; background:
-  linear-gradient(to right, var(--meter) 0% , var(--meter) var(--val), var(--border) var(--val), var(--border) 100%);
-  border:1px solid color-mix(in srgb, var(--meter) 30%, var(--border));
+height:10px; border-radius:999px; background:
+linear-gradient(to right, var(--meter) 0% , var(--meter) var(--val), var(--border) var(--val), var(--border) 100%);
+border:1px solid color-mix(in srgb, var(--meter) 30%, var(--border));
 }
 input[type="range"]::-moz-range-thumb{
-  width:22px; height:22px; border-radius:50%; background:var(--meter); border:2px solid #fff; box-shadow:0 2px 10px rgba(0,0,0,.18);
+width:22px; height:22px; border-radius:50%; background:var(--meter); border:2px solid #fff; box-shadow:0 2px 10px rgba(0,0,0,.18);
 }
 .readout{ display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:4px; color:var(--muted); font-weight:700; }
 .pill{
-  padding:6px 10px; border-radius:999px; background:color-mix(in srgb, var(--meter) 16%, var(--card)); border:1px solid color-mix(in srgb, var(--meter) 40%, var(--border));
-  color:var(--text); font-variant-numeric: tabular-nums; box-shadow:0 1px 0 rgba(0,0,0,.06) inset;
-  transition:background .15s ease, border-color .15s ease;
+padding:6px 10px; border-radius:999px; background:color-mix(in srgb, var(--meter) 16%, var(--card)); border:1px solid color-mix(in srgb, var(--meter) 40%, var(--border));
+color:var(--text); font-variant-numeric: tabular-nums; box-shadow:0 1px 0 rgba(0,0,0,.06) inset;
+transition:background .15s ease, border-color .15s ease;
 }
 
 /* ===== Итоги дня ===== */
 .summary{
-  display:grid; gap:14px; place-items:center; text-align:center;
-  padding:14px; border:1px solid var(--border); border-radius:14px; background:var(--surface);
+display:grid; gap:14px; place-items:center; text-align:center;
+padding:14px; border:1px solid var(--border); border-radius:14px; background:var(--surface);
 }
 .summary-row{
-  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px; width:100%;
+display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px; width:100%;
 }
 .summary-col{ display:grid; gap:6px; justify-items:center; }
 .summary-amount{ font-size:26px; font-weight:900; letter-spacing:.2px; }
 .summary-label{ font-size:12px; color:var(--muted) }
 .summary-arrow{
-  position:relative; font-size:20px; font-weight:900; color:var(--muted);
-  display:flex; align-items:center; justify-content:center; min-width:44px;
+position:relative; font-size:20px; font-weight:900; color:var(--muted);
+display:flex; align-items:center; justify-content:center; min-width:44px;
 }
 .delta-badge{
-  position:absolute; top:-10px; right:-18px; font-size:11px; font-weight:900;
-  padding:4px 8px; border-radius:999px; border:1px solid var(--border);
-  background:var(--card);
+position:absolute; top:-10px; right:-18px; font-size:11px; font-weight:900;
+padding:4px 8px; border-radius:999px; border:1px solid var(--border);
+background:var(--card);
 }
 .delta-badge.pos{ color:var(--good); }
 .delta-badge.neg{ color:var(--bad); }
@@ -205,24 +205,24 @@ input[type="range"]::-moz-range-thumb{
 
 .rule-table{ display:grid; gap:8px; }
 .rule-head{
-  display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
-  padding:6px 8px; border-radius:10px; background:var(--surface);
-  border:1px solid var(--border); color:var(--muted); font-size:12px;
+display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
+padding:6px 8px; border-radius:10px; background:var(--surface);
+border:1px solid var(--border); color:var(--muted); font-size:12px;
 }
 .rule-row{
-  display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
-  align-items:stretch;
-  border:1px solid var(--border); border-radius:12px; overflow:hidden;
-  background:linear-gradient(0deg, rgba(0,0,0,.02), rgba(0,0,0,0));
-  box-shadow:0 4px 14px rgba(0,0,0,.06);
+display:grid; grid-template-columns: 3fr 1fr 1fr; gap:8px;
+align-items:stretch;
+border:1px solid var(--border); border-radius:12px; overflow:hidden;
+background:linear-gradient(0deg, rgba(0,0,0,.02), rgba(0,0,0,0));
+box-shadow:0 4px 14px rgba(0,0,0,.06);
 }
 .rule-name{ padding:10px 12px; display:grid; gap:4px; }
 .rule-name .ttl{ font-weight:700; font-size:14px; }
 .rule-name .desc{ font-size:12px; color:var(--muted); line-height:1.3; }
 
 .rule-per,.rule-max{
-  display:flex; align-items:center; justify-content:flex-end;
-  padding:10px 12px; font-weight:800; font-variant-numeric: tabular-nums;
+display:flex; align-items:center; justify-content:flex-end;
+padding:10px 12px; font-weight:800; font-variant-numeric: tabular-nums;
 }
 .rule-per.good,.rule-max.good{ color:var(--good); }
 .rule-per.bad, .rule-max.bad { color:var(--bad);  }
@@ -233,19 +233,19 @@ input[type="range"]::-moz-range-thumb{
 .rule-row:active{ transform:translateY(1px) scale(0.998); }
 
 @media (max-width:480px){
-  .rule-head, .rule-row{ grid-template-columns: 1.5fr .8fr .8fr; }
+.rule-head, .rule-row{ grid-template-columns: 1.5fr .8fr .8fr; }
 }
 
 /* маленькие подсказки */
 .badge{
-  display:inline-block;padding:4px 8px;border:1px solid var(--border);border-radius:999px;
-  font-size:12px; color:var(--muted); background:var(--surface);
+display:inline-block;padding:4px 8px;border:1px solid var(--border);border-radius:999px;
+font-size:12px; color:var(--muted); background:var(--surface);
 }
 
 /* список зависимостей в задаче */
 .dep-option{
   display:flex; align-items:center; gap:10px;
-  width:100%; padding:10px 12px; border-radius:12px;
+  padding:10px 12px; border-radius:12px;
   border:1px solid var(--border); background:var(--surface);
   cursor:pointer; user-select:none; transition:background .2s, border-color .2s, box-shadow .2s, transform .06s ease;
 }
@@ -255,7 +255,7 @@ input[type="range"]::-moz-range-thumb{
   box-shadow:0 0 0 4px rgb(79 140 255 / 12%);
 }
 .dep-title{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.dep-weight{ margin-left:auto; color:var(--muted); font-variant-numeric:tabular-nums; }
+.dep-weight{ margin-left:auto; color:var(--muted); font-variant-numeric:tabular-nums; }  
   
 </style>
 </head>
@@ -264,174 +264,174 @@ input[type="range"]::-moz-range-thumb{
 
 <!-- Бейдж с общим балансом и дневной дельтой -->
 <div id="balance-badge" class="balance-badge">
-  <span id="balance-total">0 🎴</span>
-  <span id="balance-delta" class="delta zero">0</span>
+<span id="balance-total">0 🎴</span>
+<span id="balance-delta" class="delta zero">0</span>
 </div>
 
 <div class="wrap">
-  <div class="card" id="card">
-    <!-- HOME -->
-    <section id="screen-home" class="grid">
-      <h1>🏠 Главный экран</h1>
-      <p>Мини-приложение ForHer.</p>
-      <button class="menu-btn" id="btn-settings">⚙️ Настройки <span>›</span></button>
-      <button class="menu-btn" id="btn-task">✍️ Создать задачу <span>›</span></button>
-      <button class="menu-btn" id="btn-info">ℹ️ Инфо <span>›</span></button>
-    </section>
+<div class="card" id="card">
+<!-- HOME -->
+<section id="screen-home" class="grid">
+<h1>🏠 Главный экран</h1>
+<p>Мини-приложение ForHer.</p>
+<button class="menu-btn" id="btn-settings">⚙️ Настройки <span>›</span></button>
+<button class="menu-btn" id="btn-task">✍️ Создать задачу <span>›</span></button>
+<button class="menu-btn" id="btn-info">ℹ️ Инфо <span>›</span></button>
+</section>
 
-    <!-- SETTINGS -->
-    <section id="screen-settings" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-settings">← Назад</button><h1 style="margin:0">⚙️ Настройки</h1></div>
-      <button class="menu-btn" id="btn-edit-schedule">🛌 Изменить расписание <span>›</span></button>
-      <button class="menu-btn" id="btn-edit-goal">🎯 Изменить цель <span>›</span></button>
-      <button class="menu-btn" id="btn-deps-add">🧲 Добавить зависимости <span>›</span></button>
-    </section>
+<!-- SETTINGS -->
+<section id="screen-settings" class="grid hidden">
+<div class="topbar"><button class="back" id="back-from-settings">← Назад</button><h1 style="margin:0">⚙️ Настройки</h1></div>
+<button class="menu-btn" id="btn-edit-schedule">🛌 Изменить расписание <span>›</span></button>
+<button class="menu-btn" id="btn-edit-goal">🎯 Изменить цель <span>›</span></button>
+<button class="menu-btn" id="btn-deps-add">🧲 Добавить зависимости <span>›</span></button>
+</section>
 
-    <!-- INFO -->
-    <section id="screen-info" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-info">← Назад</button><h1 style="margin:0">ℹ️ Инфо</h1></div>
-      <button class="menu-btn" id="btn-info-day">📅 Итоги дня <span>›</span></button>
-      <button class="menu-btn" id="btn-info-mood">🧠 Настроение бота <span>›</span></button>
-      <button class="menu-btn" id="btn-info-bonuses">🎴 Бонусы и штрафы <span>›</span></button>
-    </section>
+<!-- INFO -->
+<section id="screen-info" class="grid hidden">
+<div class="topbar"><button class="back" id="back-from-info">← Назад</button><h1 style="margin:0">ℹ️ Инфо</h1></div>
+<button class="menu-btn" id="btn-info-day">📅 Итоги дня <span>›</span></button>
+<button class="menu-btn" id="btn-info-mood">🧠 Настроение бота <span>›</span></button>
+<button class="menu-btn" id="btn-info-bonuses">🎴 Бонусы и штрафы <span>›</span></button>
+</section>
 
-    <!-- DAY SUMMARY -->
-    <section id="screen-stats-day" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-stats-day">← Назад</button><h1 style="margin:0">📅 Итоги дня</h1></div>
+<!-- DAY SUMMARY -->
+<section id="screen-stats-day" class="grid hidden">
+<div class="topbar"><button class="back" id="back-from-stats-day">← Назад</button><h1 style="margin:0">📅 Итоги дня</h1></div>
 
-      <div class="summary">
-        <div class="summary-row">
-          <div class="summary-col">
-            <div class="summary-amount" id="sum-current">0 🎴</div>
-            <div class="summary-label">сегодня</div>
-          </div>
+<div class="summary">
+<div class="summary-row">
+<div class="summary-col">
+<div class="summary-amount" id="sum-current">0 🎴</div>
+<div class="summary-label">сегодня</div>
+</div>
 
-          <div class="summary-arrow">
-            →
-            <div id="sum-delta" class="delta-badge zero">0</div>
-          </div>
+<div class="summary-arrow">
+→
+<div id="sum-delta" class="delta-badge zero">0</div>
+</div>
 
-          <div class="summary-col">
-            <div class="summary-amount" id="sum-next">0 🎴</div>
-            <div class="summary-label">завтра</div>
-          </div>
-        </div>
+<div class="summary-col">
+<div class="summary-amount" id="sum-next">0 🎴</div>
+<div class="summary-label">завтра</div>
+</div>
+</div>
 
-        <div class="divider"></div>
+<div class="divider"></div>
 
-        <button class="menu-btn" id="btn-day-details">🧾 Подробнее в чате <span>›</span></button>
-        <div class="hint">Слева — текущий баланс, справа — баланс после учёта суммы за день.</div>
-      </div>
-    </section>
+<button class="menu-btn" id="btn-day-details">🧾 Подробнее в чате <span>›</span></button>
+<div class="hint">Слева — текущий баланс, справа — баланс после учёта суммы за день.</div>
+</div>
+</section>
 
-    <!-- MOOD -->
-    <section id="screen-stats-mood" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-stats-mood">← Назад</button><h1 style="margin:0">🧠 Настроение бота</h1></div>
-      <div class="mood-card">
-        <div class="mood-emoji" id="mood-emoji">😌</div>
-        <div class="mood-title" id="mood-title">Ровный (0)</div>
-        <div class="mood-desc" id="mood-desc">Нейтральный баланс. Поровну мягких и жёстких фраз — по делу.</div>
-      </div>
-      <p class="hint">Настроение зависит от общего баланса 🎴 и меняет стиль сообщений.</p>
-    </section>
+<!-- MOOD -->
+<section id="screen-stats-mood" class="grid hidden">
+<div class="topbar"><button class="back" id="back-from-stats-mood">← Назад</button><h1 style="margin:0">🧠 Настроение бота</h1></div>
+<div class="mood-card">
+<div class="mood-emoji" id="mood-emoji">😌</div>
+<div class="mood-title" id="mood-title">Ровный (0)</div>
+<div class="mood-desc" id="mood-desc">Нейтральный баланс. Поровну мягких и жёстких фраз — по делу.</div>
+</div>
+<p class="hint">Настроение зависит от общего баланса 🎴 и меняет стиль сообщений.</p>
+</section>
 
-    <!-- BONUSES & PENALTIES -->
-    <section id="screen-bonuses" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-bonuses">← Назад</button><h1 style="margin:0">🎴 Бонусы и штрафы</h1></div>
+<!-- BONUSES & PENALTIES -->
+<section id="screen-bonuses" class="grid hidden">
+<div class="topbar"><button class="back" id="back-from-bonuses">← Назад</button><h1 style="margin:0">🎴 Бонусы и штрафы</h1></div>
 
-      <h2 class="subttl good">Бонусы</h2>
-      <p class="subhint">Проценты применяются к модулю дневной суммы. Оранжевым — серии.</p>
-      <div class="rule-table" id="bonus-table">
-        <div class="rule-head"><div>Правило</div><div>Разово</div><div>Макс/день</div></div>
-      </div>
-      <div class="rule-total good" id="bonus-total">Итого максимум бонусов: +0%</div>
+<h2 class="subttl good">Бонусы</h2>
+<p class="subhint">Проценты применяются к модулю дневной суммы. Оранжевым — серии.</p>
+<div class="rule-table" id="bonus-table">
+<div class="rule-head"><div>Правило</div><div>Разово</div><div>Макс/день</div></div>
+</div>
+<div class="rule-total good" id="bonus-total">Итого максимум бонусов: +0%</div>
 
-      <h2 class="subttl bad" style="margin-top:10px">Штрафы</h2>
-      <p class="subhint">Отрицательные проценты уменьшают мультипликатор. Фикс-штрафы списываются в 🎴.</p>
-      <div class="rule-table" id="penalty-table">
-        <div class="rule-head"><div>Правило</div><div>Разово</div><div>Макс/день</div></div>
-      </div>
-      <div class="rule-total bad" id="penalty-total">Максимум штрафов: −0%</div>
-    </section>
+<h2 class="subttl bad" style="margin-top:10px">Штрафы</h2>
+<p class="subhint">Отрицательные проценты уменьшают мультипликатор. Фикс-штрафы списываются в 🎴.</p>
+<div class="rule-table" id="penalty-table">
+<div class="rule-head"><div>Правило</div><div>Разово</div><div>Макс/день</div></div>
+</div>
+<div class="rule-total bad" id="penalty-total">Максимум штрафов: −0%</div>
+</section>
 
-    <!-- SCHEDULE -->
-    <section id="screen-schedule" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-schedule">← Назад</button><h1 style="margin:0">🛌 Настройка режима сна</h1></div>
-      <p>Укажи время отхода ко сну и пробуждения. Формат 24-часовой, HH:MM.</p>
-      <div class="row two">
-        <div><label for="sleep">Отход ко сну</label><input id="sleep" type="time" step="60" required /></div>
-        <div><label for="wake">Пробуждение</label><input id="wake" type="time" step="60" required /></div>
-      </div>
-      <div class="hint">Нажми системную кнопку внизу, чтобы отправить данные.</div>
-    </section>
+<!-- SCHEDULE -->
+<section id="screen-schedule" class="grid hidden">
+<div class="topbar"><button class="back" id="back-from-schedule">← Назад</button><h1 style="margin:0">🛌 Настройка режима сна</h1></div>
+<p>Укажи время отхода ко сну и пробуждения. Формат 24-часовой, HH:MM.</p>
+<div class="row two">
+<div><label for="sleep">Отход ко сну</label><input id="sleep" type="time" step="60" required /></div>
+<div><label for="wake">Пробуждение</label><input id="wake" type="time" step="60" required /></div>
+</div>
+<div class="hint">Нажми системную кнопку внизу, чтобы отправить данные.</div>
+</section>
 
-    <!-- GOAL -->
-    <section id="screen-goal" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-goal">← Назад</button><h1 style="margin:0">🎯 Цель</h1></div>
-      <p><b>Я</b> [сделаю действие] <b>ради</b> [моей цели]. Сформулируй цель, ради которой ты двигаешься.</p>
-      <textarea id="goal" placeholder="например: здорового сна и энергии на каждый день"></textarea>
-      <div class="hint">Нажми системную кнопку внизу, чтобы сохранить цель.</div>
-    </section>
+<!-- GOAL -->
+<section id="screen-goal" class="grid hidden">
+<div class="topbar"><button class="back" id="back-from-goal">← Назад</button><h1 style="margin:0">🎯 Цель</h1></div>
+<p><b>Я</b> [сделаю действие] <b>ради</b> [моей цели]. Сформулируй цель, ради которой ты двигаешься.</p>
+<textarea id="goal" placeholder="например: здорового сна и энергии на каждый день"></textarea>
+<div class="hint">Нажми системную кнопку внизу, чтобы сохранить цель.</div>
+</section>
 
-    <!-- DEPS ADD -->
-    <section id="screen-deps-add" class="grid hidden">
-      <div class="topbar"><button class="back" id="back-from-deps-add">← Назад</button><h1 style="margin:0">🧲 Добавить зависимости</h1></div>
-      <label for="dep-title">Я зависим от…</label>
-      <input id="dep-title" type="text" placeholder="сладкого / соцсетей / алкоголя…" />
-      <div class="scale-head" style="margin-top:4px">
-        <label>Сила зависимости</label>
-        <div class="readout"><span>вес</span> <span class="pill" id="dep-strength-pill">1,0</span></div>
-      </div>
-      <div class="scale-labels"><span>слабая</span><span>сильная</span></div>
-      <div class="slider-wrap">
-        <input id="dep-strength" type="range" min="0.1" max="3" step="0.1" value="1.0" />
-      </div>
-      <div class="hint">Системной кнопкой снизу «Сохранить» отправится в бота.</div>
+<!-- DEPS ADD -->
+<section id="screen-deps-add" class="grid hidden">
+<div class="topbar"><button class="back" id="back-from-deps-add">← Назад</button><h1 style="margin:0">🧲 Добавить зависимости</h1></div>
+<label for="dep-title">Я зависим от…</label>
+<input id="dep-title" type="text" placeholder="сладкого / соцсетей / алкоголя…" />
+<div class="scale-head" style="margin-top:4px">
+<label>Сила зависимости</label>
+<div class="readout"><span>вес</span> <span class="pill" id="dep-strength-pill">1,0</span></div>
+</div>
+<div class="scale-labels"><span>слабая</span><span>сильная</span></div>
+<div class="slider-wrap">
+<input id="dep-strength" type="range" min="0.1" max="3" step="0.1" value="1.0" />
+</div>
+<div class="hint">Системной кнопкой снизу «Сохранить» отправится в бота.</div>
 
-      <div id="deps-current" class="grid" style="gap:8px; margin-top:8px"></div>
-    </section>
+<div id="deps-current" class="grid" style="gap:8px; margin-top:8px"></div>
+</section>
 
-    <!-- TASK -->
-    <section id="screen-task" class="grid hidden">
-      <div class="topbar">
-        <button class="back" id="back-from-task">← Назад</button>
-        <h1 style="margin:0">✍️ Новая задача</h1>
-      </div>
-      <p>Формат: <b>Я</b> [сделаю действие] <b>ради</b> [моей цели].</p>
+<!-- TASK -->
+<section id="screen-task" class="grid hidden">
+<div class="topbar">
+<button class="back" id="back-from-task">← Назад</button>
+<h1 style="margin:0">✍️ Новая задача</h1>
+</div>
+<p>Формат: <b>Я</b> [сделаю действие] <b>ради</b> [моей цели].</p>
 
-      <div class="grid">
-        <label for="action">Я</label>
-        <input id="action" type="text" placeholder="изучу материалы / сделаю 10 отжиманий" />
-        <p class="goal-line" style="margin:-6px 0 10px; color:var(--muted)">ради <b id="goal-view">достижения мечты</b></p>
+<div class="grid">
+<label for="action">Я</label>
+<input id="action" type="text" placeholder="изучу материалы / сделаю 10 отжиманий" />
+<p class="goal-line" style="margin:-6px 0 10px; color:var(--muted)">ради <b id="goal-view">достижения мечты</b></p>
 
-        <div class="grid" style="gap:8px">
-          <label>Режим</label>
-          <div class="chips">
-            <div class="chip" id="chip-will">💪 Волевое действие</div>
-            <div class="chip" id="chip-add">🧲 Зависимость</div>
-          </div>
-        </div>
+<div class="grid" style="gap:8px">
+<label>Режим</label>
+<div class="chips">
+<div class="chip" id="chip-will">💪 Волевое действие</div>
+<div class="chip" id="chip-add">🧲 Зависимость</div>
+</div>
+</div>
 
-        <!-- блок выбора зависимости -->
-        <div id="deps-block" class="grid hidden" style="gap:8px">
-          <label>Выбери зависимость</label>
-          <div id="deps-list" class="grid" style="gap:8px"></div>
-          <div class="hint">Если зависимостей нет — добавь через «Настройки → Добавить зависимости».</div>
-        </div>
+<!-- блок выбора зависимости -->
+<div id="deps-block" class="grid hidden" style="gap:8px">
+<label>Выбери зависимость</label>
+<div id="deps-list" class="grid" style="gap:8px"></div>
+<div class="hint">Если зависимостей нет — добавь через «Настройки → Добавить зависимости».</div>
+</div>
 
-        <div class="scale-head">
-          <label id="scale-title">Влияние задачи на цель</label>
-          <div class="readout"><span>вес</span> <span class="pill" id="imp-pill">1,0</span></div>
-        </div>
-        <div class="scale-labels"><span id="lbl-min">Косвенное</span><span id="lbl-max">Прямое</span></div>
-        <div class="slider-wrap">
-          <input id="importanceRange" type="range" min="0.1" max="3" step="0.1" value="1.0" />
-        </div>
+<div class="scale-head">
+<label id="scale-title">Влияние задачи на цель</label>
+<div class="readout"><span>вес</span> <span class="pill" id="imp-pill">1,0</span></div>
+</div>
+<div class="scale-labels"><span id="lbl-min">Косвенное</span><span id="lbl-max">Прямое</span></div>
+<div class="slider-wrap">
+<input id="importanceRange" type="range" min="0.1" max="3" step="0.1" value="1.0" />
+</div>
 
-        <div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
-      </div>
-    </section>
-  </div>
+<div class="hint">Нажми системную кнопку внизу, чтобы создать задачу.</div>
+</div>
+</section>
+</div>
 </div>
 
 <script>
@@ -441,8 +441,8 @@ const isValidTime = (v) => /^\d{2}:\d{2}$/.test(v);
 
 // CloudStorage helpers
 const cs = {
-  get: (k) => new Promise(res => tg?.CloudStorage?.getItem?.(k, v => res(v))),
-  set: (k, v) => new Promise(res => tg?.CloudStorage?.setItem?.(k, String(v), () => res(true)))
+get: (k) => new Promise(res => tg?.CloudStorage?.getItem?.(k, v => res(v))),
+set: (k, v) => new Promise(res => tg?.CloudStorage?.setItem?.(k, String(v), () => res(true)))
 };
 
 let balanceTotal = 0;   // общий
@@ -456,154 +456,156 @@ let selectedDep  = null;
 
 // настроение пресеты
 const MOOD = {
-  2:   { emoji:'😇', title:'Добрячок (+2)', color:'#20c997', desc:'Я мягкий и поддерживающий. Лайтовые нуджи, много похвалы.' },
-  1:   { emoji:'🙂', title:'Тёплый (+1)',   color:'#2ea8ff', desc:'Дружелюбен, но собран. Напоминаю мягко, мотивирую.' },
-  0:   { emoji:'😌', title:'Ровный (0)',    color:'#8aa0b4', desc:'Нейтральный баланс. Поровну мягких и жёстких фраз.' },
-  [-1]:{ emoji:'😾', title:'Колючий (−1)',  color:'#ff9966', desc:'Становлюсь прямее. Меньше нежностей — больше дела.' },
-  [-2]:{ emoji:'😈', title:'Злой (−2)',     color:'#ff4d4f', desc:'Максимальная строгость. Цель важнее отговорок.' },
+2:   { emoji:'😇', title:'Добрячок (+2)', color:'#20c997', desc:'Я мягкий и поддерживающий. Лайтовые нуджи, много похвалы.' },
+1:   { emoji:'🙂', title:'Тёплый (+1)',   color:'#2ea8ff', desc:'Дружелюбен, но собран. Напоминаю мягко, мотивирую.' },
+0:   { emoji:'😌', title:'Ровный (0)',    color:'#8aa0b4', desc:'Нейтральный баланс. Поровну мягких и жёстких фраз.' },
+[-1]:{ emoji:'😾', title:'Колючий (−1)',  color:'#ff9966', desc:'Становлюсь прямее. Меньше нежностей — больше дела.' },
+[-2]:{ emoji:'😈', title:'Злой (−2)',     color:'#ff4d4f', desc:'Максимальная строгость. Цель важнее отговорок.' },
 };
 const clampMood = (m)=>{ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
 const fmtInt = (n)=> new Intl.NumberFormat('ru-RU').format(n);
 
 /* ====== Бонусы/штрафы (проценты) ====== */
 const BONUS_RULES = [
-  { emoji:"🧮", title:"Малые шаги", desc:"За любую отмеченную задачу: +1% за штуку, максимум +10%/день.", per:+1, max:+10 },
-  { emoji:"⭐️", title:"Значимые действия", desc:"За каждую задачу весом ≥2.0: +10% без верхнего лимита.", per:+10, max:+999 },
-  { emoji:"⚡", title:"Без провалов", desc:"Если в дне нет провалов: +10% один раз.", per:+10, max:+10 },
-  { emoji:"🚀", title:"Быстрый старт", desc:"Первая выполненная задача в течение 1 часа после подъёма: +5% один раз.", per:+5, max:+5 },
-  { emoji:"⏱️", title:"Hi-impact в первые 5ч", desc:"Любая выполненная ≥2.0 в первые 5 часов: +10% один раз.", per:+10, max:+10 },
-  { emoji:"🧲", title:"Зависимости поборены", desc:"Если в дне были зависимости и все отмечены «✅»: +20%. Если зависимостей нет вообще — пассивные +10%.", per:+20, max:+20 },
-  { emoji:"🛌", title:"Режим соблюдён", desc:"Подъём и сон подтверждены в окне 10 минут: +20% за день.", per:+20, max:+20 },
+{ emoji:"🧮", title:"Малые шаги", desc:"За любую отмеченную задачу: +1% за штуку, максимум +10%/день.", per:+1, max:+10 },
+{ emoji:"⭐️", title:"Значимые действия", desc:"За каждую задачу весом ≥2.0: +10% без верхнего лимита.", per:+10, max:+999 },
+{ emoji:"⚡", title:"Без провалов", desc:"Если в дне нет провалов: +10% один раз.", per:+10, max:+10 },
+{ emoji:"🚀", title:"Быстрый старт", desc:"Первая выполненная задача в течение 1 часа после подъёма: +5% один раз.", per:+5, max:+5 },
+{ emoji:"⏱️", title:"Hi-impact в первые 5ч", desc:"Любая выполненная ≥2.0 в первые 5 часов: +10% один раз.", per:+10, max:+10 },
+{ emoji:"🧲", title:"Зависимости поборены", desc:"Если в дне были зависимости и все отмечены «✅»: +20%. Если зависимостей нет вообще — пассивные +10%.", per:+20, max:+20 },
+{ emoji:"🛌", title:"Режим соблюдён", desc:"Подъём и сон подтверждены в окне 10 минут: +20% за день.", per:+20, max:+20 },
 
-  // СЕРИИ (оранжевым мысленно)
-  { emoji:"🟧", title:"Серия: ежедневный шаг", desc:"Второй день подряд даёт +1%, третий +2% … максимум +10%.", per:+1, max:+10 },
-  { emoji:"🟧", title:"Серия: режим", desc:"Аналогично — за подтверждённый подъём+сон, максимум +10%.", per:+1, max:+10 },
-  { emoji:"🟧", title:"Серия: зависимости", desc:"Для каждой зависимости: 0.5% × сложность × N (N≤21). Складывается по всем.", per:+0.5, max:+31.5 },
+// СЕРИИ (оранжевым мысленно)
+{ emoji:"🟧", title:"Серия: ежедневный шаг", desc:"Второй день подряд даёт +1%, третий +2% … максимум +10%.", per:+1, max:+10 },
+{ emoji:"🟧", title:"Серия: режим", desc:"Аналогично — за подтверждённый подъём+сон, максимум +10%.", per:+1, max:+10 },
+{ emoji:"🟧", title:"Серия: зависимости", desc:"Для каждой зависимости: 0.5% × сложность × N (N≤21). Складывается по всем.", per:+0.5, max:+31.5 },
 ];
 
 const PENALTY_RULES = [
-  { emoji:"❌", title:"Провалы сверх первого", desc:"−5% за каждый провал сверх первого, максимум −30%/день.", per:-5, max:-30 },
-  { emoji:"📵", title:"Игнор нуджей", desc:"−1% за каждый игнор, максимум −10%/день.", per:-1, max:-10 },
-  { emoji:"⛔", title:"Режим нарушен", desc:"Подъём/сон не подтверждены: −10% за событие (до −20%).", per:-10, max:-20 },
-  { emoji:"🕳️", title:"Нет важного шага", desc:"Нет ни одной «обычной» задачи, двигающей цель: −300 🎴.", per:0, max:0 },
-  { emoji:"🗓️", title:"Пустой день", desc:"Нет задач вообще: −500 🎴.", per:0, max:0 },
+{ emoji:"❌", title:"Провалы сверх первого", desc:"−5% за каждый провал сверх первого, максимум −30%/день.", per:-5, max:-30 },
+{ emoji:"📵", title:"Игнор нуджей", desc:"−1% за каждый игнор, максимум −10%/день.", per:-1, max:-10 },
+{ emoji:"⛔", title:"Режим нарушен", desc:"Подъём/сон не подтверждены: −10% за событие (до −20%).", per:-10, max:-20 },
+{ emoji:"🕳️", title:"Нет важного шага", desc:"Нет ни одной «обычной» задачи, двигающей цель: −300 🎴.", per:0, max:0 },
+{ emoji:"🗓️", title:"Пустой день", desc:"Нет задач вообще: −500 🎴.", per:0, max:0 },
 ];
 
 function fmtPct(n){ return (n>0?`+${n}`:`${n}`) + "%"; }
 function renderRuleList(tableEl, rules, isBonus){
-  tableEl.querySelectorAll('.rule-row').forEach(n=>n.remove());
-  rules.forEach(r=>{
-    const row = document.createElement('div');
-    row.className = 'rule-row';
-    row.innerHTML = `
-      <div class="rule-name">
-        <div class="ttl">${r.emoji} ${r.title}</div>
-        <div class="desc">${r.desc}</div>
-      </div>
-      <div class="rule-per ${isBonus?'good':(r.per<0?'bad':'good')}">${r.per===0?'—':fmtPct(r.per)}</div>
-      <div class="rule-max ${isBonus?'good':(r.max<0?'bad':'good')}">${r.max===0?'—':fmtPct(r.max)}</div>
-    `;
-    tableEl.appendChild(row);
-  });
+tableEl.querySelectorAll('.rule-row').forEach(n=>n.remove());
+rules.forEach(r=>{
+const row = document.createElement('div');
+row.className = 'rule-row';
+row.innerHTML = `
+     <div class="rule-name">
+       <div class="ttl">${r.emoji} ${r.title}</div>
+       <div class="desc">${r.desc}</div>
+     </div>
+     <div class="rule-per ${isBonus?'good':(r.per<0?'bad':'good')}">${r.per===0?'—':fmtPct(r.per)}</div>
+     <div class="rule-max ${isBonus?'good':(r.max<0?'bad':'good')}">${r.max===0?'—':fmtPct(r.max)}</div>
+   `;
+tableEl.appendChild(row);
+});
 }
 function renderBonusesScreen(){
-  const bt = $('bonus-table');
-  const pt = $('penalty-table');
-  if (bt && pt){
-    renderRuleList(bt, BONUS_RULES, true);
-    renderRuleList(pt, PENALTY_RULES, false);
-    const bonusSum = BONUS_RULES.reduce((s,r)=>s+(r.max>0?r.max:0),0);
-    const penSum   = PENALTY_RULES.reduce((s,r)=>s+(r.max<0?r.max:0),0);
-    $('bonus-total').textContent   = `Итого максимум бонусов: ${fmtPct(bonusSum)}`;
-    $('penalty-total').textContent = `Максимум штрафов: ${fmtPct(penSum)}`;
-  }
+const bt = $('bonus-table');
+const pt = $('penalty-table');
+if (bt && pt){
+renderRuleList(bt, BONUS_RULES, true);
+renderRuleList(pt, PENALTY_RULES, false);
+const bonusSum = BONUS_RULES.reduce((s,r)=>s+(r.max>0?r.max:0),0);
+const penSum   = PENALTY_RULES.reduce((s,r)=>s+(r.max<0?r.max:0),0);
+$('bonus-total').textContent   = `Итого максимум бонусов: ${fmtPct(bonusSum)}`;
+$('penalty-total').textContent = `Максимум штрафов: ${fmtPct(penSum)}`;
+}
 }
 
 /* ===== URL/CS hydrate ===== */
 function b64urlToUtf8Json(b64){
-  try{
-    const norm = (b64 || "").replace(/-/g,'+').replace(/_/g,'/');
-    const bin  = atob(norm);
-    const bytes = new Uint8Array([...bin].map(c=>c.charCodeAt(0)));
-    return JSON.parse(new TextDecoder("utf-8").decode(bytes));
-  }catch(e){ console.warn('b64 decode failed', e); return []; }
+try{
+const norm = (b64 || "").replace(/-/g,'+').replace(/_/g,'/');
+const bin  = atob(norm);
+const bytes = new Uint8Array([...bin].map(c=>c.charCodeAt(0)));
+return JSON.parse(new TextDecoder("utf-8").decode(bytes));
+}catch(e){ console.warn('b64 decode failed', e); return []; }
 }
 
 async function hydrateFromParamsOrCS(){
-  const p = new URLSearchParams(location.search);
-  const b  = p.get('b'),  bt = p.get('bt');
-  const m  = p.get('m'),  g  = p.get('g') || p.get('goal');
-  const n  = p.get('name');
-  const depsb64 = p.get('depsb64');
-  let changed = false;
+const p = new URLSearchParams(location.search);
+const b  = p.get('b'),  bt = p.get('bt');
+const m  = p.get('m'),  g  = p.get('g') || p.get('goal');
+const n  = p.get('name');
+const depsb64 = p.get('depsb64');
+let changed = false;
 
-  if (b  !== null) { balanceTotal = parseInt(b,10) || 0; changed = true; }
-  if (bt !== null) { balanceToday = parseInt(bt,10) || 0; changed = true; }
-  if (m  !== null) { moodLevel    = clampMood(m);        changed = true; }
-  if (g)           { userGoal     = g.trim();             changed = true; }
-  if (n)           { userName     = n.trim();             changed = true; }
-  if (depsb64)     { DEPS         = b64urlToUtf8Json(depsb64); changed = true; }
+if (b  !== null) { balanceTotal = parseInt(b,10) || 0; changed = true; }
+if (bt !== null) { balanceToday = parseInt(bt,10) || 0; changed = true; }
+if (m  !== null) { moodLevel    = clampMood(m);        changed = true; }
+if (g)           { userGoal     = g.trim();             changed = true; }
+if (n)           { userName     = n.trim();             changed = true; }
+if (depsb64)     { DEPS         = b64urlToUtf8Json(depsb64); changed = true; }
 
-  if (!changed && tg?.CloudStorage){
-    const [cb, cbt, cm, cg, cn, cd] = await Promise.all([
-      cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name'), cs.get('depsb64')
-    ]);
-    if (cb  != null) balanceTotal = parseInt(cb,10)  || 0;
-    if (cbt != null) balanceToday = parseInt(cbt,10) || 0;
-    if (cm  != null) moodLevel    = clampMood(cm);
-    if (cg) userGoal = cg;
-    if (cn) userName = cn;
-    if (cd) DEPS = b64urlToUtf8Json(cd);
-  }
-  // сохранить (если пришло из URL)
-  if (changed && tg?.CloudStorage){
-    const depsB64 = (()=>{ try{
-      const enc = new TextEncoder().encode(JSON.stringify(DEPS||[], null, 0));
-      const bin = Array.from(enc).map(x=>String.fromCharCode(x)).join('');
-      return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_');
-    }catch(e){ return ''; }})();
-    await Promise.allSettled([
-      cs.set('b', balanceTotal), cs.set('bt', balanceToday),
-      cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || ''),
-      cs.set('depsb64', depsB64)
-    ]);
-  }
+if (!changed && tg?.CloudStorage){
+const [cb, cbt, cm, cg, cn, cd] = await Promise.all([
+cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name'), cs.get('depsb64')
+]);
+if (cb  != null) balanceTotal = parseInt(cb,10)  || 0;
+if (cbt != null) balanceToday = parseInt(cbt,10) || 0;
+if (cm  != null) moodLevel    = clampMood(cm);
+if (cg) userGoal = cg;
+if (cn) userName = cn;
+if (cd) DEPS = b64urlToUtf8Json(cd);
+}
+// сохранить (если пришло из URL)
+if (changed && tg?.CloudStorage){
+const depsB64 = (()=>{ try{
+const enc = new TextEncoder().encode(JSON.stringify(DEPS||[], null, 0));
+const bin = Array.from(enc).map(x=>String.fromCharCode(x)).join('');
+return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_');
+}catch(e){ return ''; }})();
+await Promise.allSettled([
+cs.set('b', balanceTotal), cs.set('bt', balanceToday),
+cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || ''),
+cs.set('depsb64', depsB64)
+]);
+}
 }
 
 /* ===== THEME & CHROME ===== */
 function applyTheme(){
-  const scheme = tg?.colorScheme ?? 'light';
-  const set = (k,v)=>document.documentElement.style.setProperty(k,v);
-  if(scheme==='dark'){
-    set('--bg','#0f1115'); set('--card','#161923'); set('--text','#e9eef6'); set('--muted','#9aa4b2'); set('--border','#232838'); set('--surface','#10141e'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#0e1118'); set('--input-fg','var(--text)');
-  } else {
-    set('--bg','#f6f8fc'); set('--card','#ffffff'); set('--text','#0b1220'); set('--muted','#5b6676'); set('--border','#e6e9f2'); set('--surface','#f1f4fa'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#fbfcff'); set('--input-fg','var(--text)');
-  }
-  if(tg?.themeParams?.button_color){ set('--accent', tg.themeParams.button_color); }
+const scheme = tg?.colorScheme ?? 'light';
+const set = (k,v)=>document.documentElement.style.setProperty(k,v);
+if(scheme==='dark'){
+set('--bg','#0f1115'); set('--card','#161923'); set('--text','#e9eef6'); set('--muted','#9aa4b2'); set('--border','#232838'); set('--surface','#10141e'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#0e1118'); set('--input-fg','var(--text)');
+} else {
+set('--bg','#f6f8fc'); set('--card','#ffffff'); set('--text','#0b1220'); set('--muted','#5b6676'); set('--border','#e6e9f2'); set('--surface','#f1f4fa'); set('--accent','#4f8cff'); set('--btn-bg','var(--surface)'); set('--btn-fg','var(--text)'); set('--input-bg','#fbfcff'); set('--input-fg','var(--text)');
+}
+if(tg?.themeParams?.button_color){ set('--accent', tg.themeParams.button_color); }
 }
 function renderBalanceBadge(){
-  $('balance-total').textContent = `${fmtInt(balanceTotal)} 🎴`;
-  const d = $('balance-delta');
-  if (balanceToday > 0){ d.textContent = `+${fmtInt(balanceToday)}`; d.className = 'delta pos'; }
-  else if (balanceToday < 0){ d.textContent = `${fmtInt(balanceToday)}`; d.className = 'delta neg'; }
-  else { d.textContent = '0'; d.className = 'delta zero'; }
+$('balance-total').textContent = `${fmtInt(balanceTotal)} 🎴`;
+const d = $('balance-delta');
+if (balanceToday > 0){ d.textContent = `+${fmtInt(balanceToday)}`; d.className = 'delta pos'; }
+else if (balanceToday < 0){ d.textContent = `${fmtInt(balanceToday)}`; d.className = 'delta neg'; }
+else { d.textContent = '0'; d.className = 'delta zero'; }
 }
 function setMoodColor(){
-  const c = (MOOD[moodLevel] || MOOD[0]).color;
-  document.documentElement.style.setProperty('--mood', c);
+const c = (MOOD[moodLevel] || MOOD[0]).color;
+document.documentElement.style.setProperty('--mood', c);
 }
 
 /* ====== Экраны ====== */
 function showScreen(name){
-  ['home','settings','schedule','goal','task','info','stats-mood','stats-day','bonuses','deps-add'].forEach(id=>{
-    $(`screen-${id}`).classList.toggle('hidden', id!==name);
-  });
-  const card = $('card'); card.classList.add('swap'); setTimeout(()=>card.classList.remove('swap'), 180);
-  document.body.classList.toggle('mood-on', name==='stats-mood');
+['home','settings','schedule','goal','task','info','stats-mood','stats-day','bonuses','deps-add'].forEach(id=>{
+$(`screen-${id}`).classList.toggle('hidden', id!==name);
+});
+const card = $('card'); card.classList.add('swap'); setTimeout(()=>card.classList.remove('swap'), 180);
+document.body.classList.toggle('mood-on', name==='stats-mood');
 
-  if(!tg) return;
-  if(name==='schedule'){ tg.MainButton.setText('Отправить'); updateMainButtonSchedule(); }
-  else if(name==='goal'){ tg.MainButton.setText('Сохранить'); updateMainButtonGoal(); }
+if(!tg) return;
+if(name==='schedule'){ tg.MainButton.setText('Отправить'); updateMainButtonSchedule(); }
+else if(name==='goal'){ tg.MainButton.setText('Сохранить'); updateMainButtonGoal(); }
+  else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); }
+  else if(name==='deps-add'){ tg.MainButton.setText('Сохранить'); updateMainButtonDeps(); }
   else if(name==='task'){ tg.MainButton.setText('Создать'); updateMainButtonTask(); renderTaskDepsList();}
   else if(name==='deps-add'){
      tg.MainButton.setText('Сохранить');
@@ -611,43 +613,39 @@ function showScreen(name){
      updateMainButtonDeps();
      setTimeout(updateMainButtonDeps, 0);
    }
-  else { tg.MainButton.hide(); }
+else { tg.MainButton.hide(); }
 
-  if(name==='stats-mood'){
-    const m = MOOD[moodLevel] || MOOD[0];
-    $('mood-emoji').textContent = m.emoji;
-    $('mood-title').textContent = m.title;
-    $('mood-desc').textContent  = m.desc;
-    setMoodColor();
-  }
-  if(name==='stats-day'){ renderDaySummary(); }
-  if(name==='bonuses'){ renderBonusesScreen(); }
-  if(name==='deps-add'){ renderDepsCurrent(); }
+if(name==='stats-mood'){
+const m = MOOD[moodLevel] || MOOD[0];
+$('mood-emoji').textContent = m.emoji;
+$('mood-title').textContent = m.title;
+$('mood-desc').textContent  = m.desc;
+setMoodColor();
+}
+if(name==='stats-day'){ renderDaySummary(); }
+if(name==='bonuses'){ renderBonusesScreen(); }
+if(name==='task'){ renderDepsList(); }
+if(name==='deps-add'){ renderDepsCurrent(); }
 }
 
 /* ====== Итоги дня ====== */
 function renderDaySummary(){
-  const cur = balanceTotal;
-  const delta = balanceToday;
-  const nxt = cur + delta;
-  $('sum-current').textContent = `${fmtInt(cur)} 🎴`;
-  $('sum-next').textContent    = `${fmtInt(nxt)} 🎴`;
-  const db = $('sum-delta');
-  if (delta > 0) { db.textContent = `+${fmtInt(delta)}`; db.className = 'delta-badge pos'; }
-  else if (delta < 0){ db.textContent = `${fmtInt(delta)}`; db.className = 'delta-badge neg'; }
-  else { db.textContent = '0'; db.className = 'delta-badge zero'; }
+const cur = balanceTotal;
+const delta = balanceToday;
+const nxt = cur + delta;
+$('sum-current').textContent = `${fmtInt(cur)} 🎴`;
+$('sum-next').textContent    = `${fmtInt(nxt)} 🎴`;
+const db = $('sum-delta');
+if (delta > 0) { db.textContent = `+${fmtInt(delta)}`; db.className = 'delta-badge pos'; }
+else if (delta < 0){ db.textContent = `${fmtInt(delta)}`; db.className = 'delta-badge neg'; }
+else { db.textContent = '0'; db.className = 'delta-badge zero'; }
 }
 
 /* ====== Важность/режимы/слайдер ====== */
 function updateMainButtonSchedule(){ if(!tg) return; const ok = isValidTime($('sleep').value||'') && isValidTime($('wake').value||''); tg.MainButton[ok?'show':'hide'](); }
 function updateMainButtonGoal(){ if(!tg) return; const ok = ( $('goal').value||'' ).trim().length>0; tg.MainButton[ok?'show':'hide'](); }
-function updateMainButtonTask(){
-  if(!tg) return;
-  const hasAction = ( $('action').value||'' ).trim().length > 0;
-  const needDep   = (mode === 'addiction');
-  const ok = hasAction && (!needDep || !!selectedDepId);
-  tg.MainButton[ ok ? 'show' : 'hide' ]();
-}
+function updateMainButtonTask(){ if(!tg) return; const ok = ( $('action').value||'' ).trim().length>0 && (mode!=='addiction' || (DEPS && DEPS.length ? true : true)); tg.MainButton[ ok ? 'show' : 'hide' ](); }
+function updateMainButtonDeps(){ if(!tg) return; const ok = ( $('dep-title').value||'' ).trim().length>0; tg.MainButton[ ok ? 'show' : 'hide' ](); }
 function updateMainButtonDeps(){
   if(!tg) return;
   const ok = ( ($('dep-title')?.value || '').trim().length > 0 );
@@ -655,263 +653,267 @@ function updateMainButtonDeps(){
 }
 
 function setMode(newMode){
-  if (newMode === mode) {
-    mode = 'normal';
-    $('chip-will').classList.remove('active');
-    $('chip-add').classList.remove('active');
-  } else {
-    mode = newMode;
-    $('chip-will').classList.toggle('active', mode==='willpower');
-    $('chip-add').classList.toggle('active', mode==='addiction');
-  }
-  updateScaleLabels();
-  updateSliderUI();
-
-  const showDeps = (mode === 'addiction');
-  $('deps-block')?.classList.toggle('hidden', !showDeps);
-  if (showDeps) renderTaskDepsList();
-
-  updateMainButtonTask();
+if (newMode === mode) {
+mode = 'normal';
+$('chip-will').classList.remove('active');
+$('chip-add').classList.remove('active');
+} else {
+mode = newMode;
+$('chip-will').classList.toggle('active', mode==='willpower');
+$('chip-add').classList.toggle('active', mode==='addiction');
+}
+updateScaleLabels();
+updateSliderUI();
+renderDepsList();
 }
 function updateScaleLabels(){
-  const lblMin = $('lbl-min'), lblMax = $('lbl-max'), title = $('scale-title');
-  if (mode === 'willpower'){
-    lblMin.textContent = 'Простое'; lblMax.textContent = 'Мучительное';
-    title.textContent = 'Сила воли — насколько было тяжело';
-  } else if (mode === 'addiction'){
-    lblMin.textContent = 'Балуюсь'; lblMax.textContent = 'Сильная тяга';
-    title.textContent = 'Зависимость — интенсивность тяги';
-  } else {
-    lblMin.textContent = 'Косвенное'; lblMax.textContent = 'Прямое';
-    title.textContent = 'Влияние задачи на цель';
-  }
+const lblMin = $('lbl-min'), lblMax = $('lbl-max'), title = $('scale-title');
+if (mode === 'willpower'){
+lblMin.textContent = 'Простое'; lblMax.textContent = 'Мучительное';
+title.textContent = 'Сила воли — насколько было тяжело';
+} else if (mode === 'addiction'){
+lblMin.textContent = 'Балуюсь'; lblMax.textContent = 'Сильная тяга';
+title.textContent = 'Зависимость — интенсивность тяги';
+} else {
+lblMin.textContent = 'Косвенное'; lblMax.textContent = 'Прямое';
+title.textContent = 'Влияние задачи на цель';
+}
 }
 function colorForValue(val){
-  const t = Math.min(1, Math.max(0, (val - 0.1) / (3 - 0.1)));
-  if (mode === 'willpower'){
-    const start = [79,140,255], end = [192,72,255];
-    const r = Math.round(start[0] + (end[0]-start[0])*t);
-    const g = Math.round(start[1] + (end[1]-start[1])*t);
-    const b = Math.round(start[2] + (end[2]-start[2])*t);
-    return `rgb(${r} ${g} ${b})`;
-  } else if (mode === 'addiction'){
-    const start = [255,170,54], end = [255,77,79];
-    const r = Math.round(start[0] + (end[0]-start[0])*t);
-    const g = Math.round(start[1] + (end[1]-start[1])*t);
-    const b = Math.round(start[2] + (end[2]-start[2])*t);
-    return `rgb(${r} ${g} ${b})`;
-  } else {
-    const start = [64,199,129], end = [79,140,255];
-    const r = Math.round(start[0] + (end[0]-start[0])*t);
-    const g = Math.round(start[1] + (end[1]-start[1])*t);
-    const b = Math.round(start[2] + (end[2]-start[2])*t);
-    return `rgb(${r} ${g} ${b})`;
-  }
+const t = Math.min(1, Math.max(0, (val - 0.1) / (3 - 0.1)));
+if (mode === 'willpower'){
+const start = [79,140,255], end = [192,72,255];
+const r = Math.round(start[0] + (end[0]-start[0])*t);
+const g = Math.round(start[1] + (end[1]-start[1])*t);
+const b = Math.round(start[2] + (end[2]-start[2])*t);
+return `rgb(${r} ${g} ${b})`;
+} else if (mode === 'addiction'){
+const start = [255,170,54], end = [255,77,79];
+const r = Math.round(start[0] + (end[0]-start[0])*t);
+const g = Math.round(start[1] + (end[1]-start[1])*t);
+const b = Math.round(start[2] + (end[2]-start[2])*t);
+return `rgb(${r} ${g} ${b})`;
+} else {
+const start = [64,199,129], end = [79,140,255];
+const r = Math.round(start[0] + (end[0]-start[0])*t);
+const g = Math.round(start[1] + (end[1]-start[1])*t);
+const b = Math.round(start[2] + (end[2]-start[2])*t);
+return `rgb(${r} ${g} ${b})`;
+}
 }
 function updateSliderUI(){
-  const r = $('importanceRange'); if(r){
-    const v = parseFloat(r.value||'1') || 1;
-    const p = ((v - 0.1) / (3 - 0.1)) * 100;
-    document.documentElement.style.setProperty('--meter', colorForValue(v));
-    r.style.setProperty('--val', `${p}%`);
-    $('imp-pill').textContent = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(v);
-  }
-  const s = $('dep-strength'); if(s){
-    const v2 = parseFloat(s.value||'1') || 1;
-    const p2 = ((v2 - 0.1) / (3 - 0.1)) * 100;
-    document.documentElement.style.setProperty('--meter', colorForValue(v2));
-    s.style.setProperty('--val', `${p2}%`);
-    $('dep-strength-pill').textContent = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(v2);
-  }
+const r = $('importanceRange'); if(r){
+const v = parseFloat(r.value||'1') || 1;
+const p = ((v - 0.1) / (3 - 0.1)) * 100;
+document.documentElement.style.setProperty('--meter', colorForValue(v));
+r.style.setProperty('--val', `${p}%`);
+$('imp-pill').textContent = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(v);
+}
+const s = $('dep-strength'); if(s){
+const v2 = parseFloat(s.value||'1') || 1;
+const p2 = ((v2 - 0.1) / (3 - 0.1)) * 100;
+document.documentElement.style.setProperty('--meter', colorForValue(v2));
+s.style.setProperty('--val', `${p2}%`);
+$('dep-strength-pill').textContent = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(v2);
+}
 }
 
-/* ====== Dependencies UI (единственная версия) ====== */
+/* ====== Dependencies UI ====== */
+let selectedDepId = null;   // текущий выбор
+let depsCache = [];         // сюда кладёшь массив зависимостей [{id,title,strength},...]
+
 function renderTaskDepsList(){
-  const block = $('deps-block');
-  const list  = $('deps-list');
-  if (!block || !list) return;
-
-  if (mode !== 'addiction'){
-    block.classList.add('hidden');
-    return;
-  }
-  block.classList.remove('hidden');
+  const list = $('deps-list');
+  if(!list) return;
   list.innerHTML = '';
-
-  if (!DEPS || DEPS.length === 0){
-    list.innerHTML = '<div class="hint">Нет зависимостей. Добавь через «Настройки → Добавить зависимости».</div>';
+  if (!depsCache.length){
+    list.innerHTML = '<div class="hint">Нет зависимостей. Добавь в «Настройки → Добавить зависимости»</div>';
     return;
   }
 
-  DEPS.forEach(d=>{
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'dep-option' + (String(selectedDepId)===String(d.id) ? ' active' : '');
-    btn.dataset.id = String(d.id);
-    btn.innerHTML = `
+  depsCache.forEach(d=>{
+    const row = document.createElement('div');
+    row.className = 'dep-option' + (selectedDepId===d.id ? ' active' : '');
+    row.dataset.id = d.id;
+    row.innerHTML = `
       <span>🧲</span>
       <span class="dep-title">${d.title}</span>
       <span class="dep-weight">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(d.strength)}</span>
     `;
-    list.appendChild(btn);
+    row.addEventListener('click', ()=>{
+      selectedDepId = d.id;
+      // подставим «базовую» силу зависимости в слайдер — пользователь может подкрутить
+      const r = $('importanceRange');
+      if(r){ r.value = String(d.strength); updateSliderUI(); }
+      renderTaskDepsList(); // перерисуем, чтобы подсветка обновилась
+    });
+    list.appendChild(row);
   });
 }
-
-// делегирование клика — подсветка, подстановка веса, показ MainButton
-$('deps-list')?.addEventListener('click', (e)=>{
-  const row = e.target.closest('.dep-option');
-  if(!row) return;
-
-  selectedDepId = row.dataset.id;
-
-  document.querySelectorAll('#deps-list .dep-option').forEach(el=>{
-    el.classList.toggle('active', el === row);
-  });
-
-  const d = DEPS.find(x => String(x.id) === String(selectedDepId));
-  if (d){
-    const r = $('importanceRange');
-    if(r){ r.value = String(d.strength); updateSliderUI(); }
-  }
-
-  setMode('addiction');   // на всякий случай
-  updateMainButtonTask();
-});
-
+  
 function renderDepsCurrent(){
-  const box = $('deps-current');
-  if (!box) return;
-  box.innerHTML = '<div class="badge">Твои зависимости</div>';
-  if (!DEPS || DEPS.length===0){
-    const p = document.createElement('p'); p.className='hint'; p.textContent = 'Пока пусто. Добавь первую выше ↑';
-    box.appendChild(p); return;
-  }
-  DEPS.forEach(dep=>{
-    const row = document.createElement('div');
-    row.className = 'menu-btn';
-    row.innerHTML = `🧲 ${dep.title} <span style="font-weight:800; font-size:12px; opacity:.8">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(dep.strength)}</span>`;
-    box.appendChild(row);
-  });
+const box = $('deps-current');
+if (!box) return;
+box.innerHTML = '<div class="badge">Твои зависимости</div>';
+if (!DEPS || DEPS.length===0){
+const p = document.createElement('p'); p.className='hint'; p.textContent = 'Пока пусто. Добавь первую выше ↑';
+box.appendChild(p); return;
+}
+DEPS.forEach(dep=>{
+const row = document.createElement('div');
+row.className = 'menu-btn';
+row.innerHTML = `🧲 ${dep.title} <span style="font-weight:800; font-size:12px; opacity:.8">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(dep.strength)}</span>`;
+box.appendChild(row);
+});
+}
+
+function renderDepsList(){
+const block = $('deps-block');
+const list = $('deps-list');
+if (!block || !list) return;
+list.innerHTML = '';
+if (mode !== 'addiction'){
+block.classList.add('hidden');
+selectedDep = null;
+return;
+}
+block.classList.remove('hidden');
+
+if (!DEPS || DEPS.length===0){
+list.innerHTML = `<div style="font-size:13px; color:var(--muted)">Нет зависимостей? Добавь их: <span class="badge">Настройки → «Добавить зависимости»</span>.</div>`;
+return;
+}
+DEPS.forEach(dep=>{
+const row = document.createElement('div');
+row.className = 'menu-btn';
+row.innerHTML = `🧲 ${dep.title} <span style="font-weight:800; font-size:12px; opacity:.8">вес ${new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(dep.strength)}</span>`;
+row.addEventListener('click', ()=>{
+selectedDep = dep;
+const r = $('importanceRange');
+if (r){ r.value = String(dep.strength); updateSliderUI(); }
+try { tg?.HapticFeedback?.selectionChanged?.(); } catch {}
+});
+list.appendChild(row);
+});
 }
 
 /* ====== bind/init/send ====== */
 function bind(){
-  $('btn-settings')?.addEventListener('click', ()=>showScreen('settings'));
-  $('btn-task')?.addEventListener('click', ()=>showScreen('task'));
+$('btn-settings')?.addEventListener('click', ()=>showScreen('settings'));
+$('btn-task')?.addEventListener('click', ()=>showScreen('task'));
 
-  // Info hub
-  $('btn-info')?.addEventListener('click', ()=>showScreen('info'));
-  $('back-from-info')?.addEventListener('click', ()=>showScreen('home'));
-  $('btn-info-day')?.addEventListener('click', ()=>showScreen('stats-day'));
-  $('btn-info-mood')?.addEventListener('click', ()=>showScreen('stats-mood'));
-  $('btn-info-bonuses')?.addEventListener('click', ()=>showScreen('bonuses'));
-  $('back-from-bonuses')?.addEventListener('click', ()=>showScreen('info'));
+// Info hub
+$('btn-info')?.addEventListener('click', ()=>showScreen('info'));
+$('back-from-info')?.addEventListener('click', ()=>showScreen('home'));
+$('btn-info-day')?.addEventListener('click', ()=>showScreen('stats-day'));
+$('btn-info-mood')?.addEventListener('click', ()=>showScreen('stats-mood'));
+$('btn-info-bonuses')?.addEventListener('click', ()=>showScreen('bonuses'));
+$('back-from-bonuses')?.addEventListener('click', ()=>showScreen('info'));
 
-  $('btn-day-details')?.addEventListener('click', ()=>{
-    try { tg?.HapticFeedback?.impactOccurred('heavy'); } catch {}
-    try { tg?.sendData(JSON.stringify({ request: 'day_details' })); } catch(e){ console.error(e); }
-    setTimeout(()=>tg?.close?.(), 120);
-  });
+$('btn-day-details')?.addEventListener('click', ()=>{
+try { tg?.HapticFeedback?.impactOccurred('heavy'); } catch {}
+try { tg?.sendData(JSON.stringify({ request: 'day_details' })); } catch(e){ console.error(e); }
+setTimeout(()=>tg?.close?.(), 120);
+});
 
-  $('back-from-stats-mood')?.addEventListener('click', ()=>showScreen('info'));
-  $('back-from-stats-day')?.addEventListener('click',  ()=>showScreen('info'));
+$('back-from-stats-mood')?.addEventListener('click', ()=>showScreen('info'));
+$('back-from-stats-day')?.addEventListener('click',  ()=>showScreen('info'));
 
-  $('btn-edit-schedule')?.addEventListener('click', ()=>showScreen('schedule'));
-  $('btn-edit-goal')?.addEventListener('click', ()=>showScreen('goal'));
-  $('btn-deps-add')?.addEventListener('click', ()=>showScreen('deps-add'));
-  $('back-from-settings')?.addEventListener('click', ()=>showScreen('home'));
-  $('back-from-schedule')?.addEventListener('click', ()=>showScreen('settings'));
-  $('back-from-goal')?.addEventListener('click', ()=>showScreen('settings'));
-  $('back-from-deps-add')?.addEventListener('click', ()=>showScreen('settings'));
-  $('back-from-task')?.addEventListener('click', ()=>showScreen('home'));
+$('btn-edit-schedule')?.addEventListener('click', ()=>showScreen('schedule'));
+$('btn-edit-goal')?.addEventListener('click', ()=>showScreen('goal'));
+$('btn-deps-add')?.addEventListener('click', ()=>showScreen('deps-add'));
+$('back-from-settings')?.addEventListener('click', ()=>showScreen('home'));
+$('back-from-schedule')?.addEventListener('click', ()=>showScreen('settings'));
+$('back-from-goal')?.addEventListener('click', ()=>showScreen('settings'));
+$('back-from-deps-add')?.addEventListener('click', ()=>showScreen('settings'));
+$('back-from-task')?.addEventListener('click', ()=>showScreen('home'));
 
-  $('sleep')?.addEventListener('input', updateMainButtonSchedule);
-  $('wake')?.addEventListener('input', updateMainButtonSchedule);
-  $('goal')?.addEventListener('input', updateMainButtonGoal);
-  $('action')?.addEventListener('input', updateMainButtonTask);
-  $('dep-title')?.addEventListener('input', updateMainButtonDeps);   // ← показываем MainButton при вводе зависимости
+$('sleep')?.addEventListener('input', updateMainButtonSchedule);
+$('wake')?.addEventListener('input', updateMainButtonSchedule);
+$('goal')?.addEventListener('input', updateMainButtonGoal);
+$('action')?.addEventListener('input', updateMainButtonTask);
+$('dep-title')?.addEventListener('input', updateMainButtonDeps);   // ← показываем MainButton при вводе зависимости
 
-  $('chip-will')?.addEventListener('click', ()=>setMode('willpower'));
-  $('chip-add')?.addEventListener('click',  ()=>setMode('addiction'));
+$('chip-will')?.addEventListener('click', ()=>setMode('willpower'));
+$('chip-add')?.addEventListener('click',  ()=>setMode('addiction'));
 
-  $('importanceRange')?.addEventListener('input', updateSliderUI);
-  $('dep-strength')?.addEventListener('input', updateSliderUI);
+$('importanceRange')?.addEventListener('input', updateSliderUI);
+$('dep-strength')?.addEventListener('input', updateSliderUI);
 }
 
 function sendPayload(){
-  const payload = {};
-  payload.tz_offset_min = new Date().getTimezoneOffset();
+const payload = {};
+payload.tz_offset_min = new Date().getTimezoneOffset();
 
-  if(!$('screen-schedule').classList.contains('hidden')){
-    const st=$('sleep').value, wt=$('wake').value;
-    if(!isValidTime(st)||!isValidTime(wt)) return;
-    payload.sleep_time=st; payload.wake_time=wt;
-  }
-  if(!$('screen-goal').classList.contains('hidden')){
-    const g=($('goal').value||'').trim(); if(!g) return; payload.goal=g;
-  }
-  if(!$('screen-deps-add').classList.contains('hidden')){
-    const t=($('dep-title').value||'').trim(); if(!t) return;
-    const s=parseFloat($('dep-strength').value||'1')||1;
-    payload.dependency_add = { title: t, strength: s };
-  }
-  if(!$('screen-task').classList.contains('hidden')){
-    const a=($('action').value||'').trim(); if(!a) return;
-    const goalText=($('goal-view').textContent||'').trim();
-    const r = $('importanceRange');
-    const val = parseFloat(r.value||'1') || 1;
+if(!$('screen-schedule').classList.contains('hidden')){
+const st=$('sleep').value, wt=$('wake').value;
+if(!isValidTime(st)||!isValidTime(wt)) return;
+payload.sleep_time=st; payload.wake_time=wt;
+}
+if(!$('screen-goal').classList.contains('hidden')){
+const g=($('goal').value||'').trim(); if(!g) return; payload.goal=g;
+}
+if(!$('screen-deps-add').classList.contains('hidden')){
+const t=($('dep-title').value||'').trim(); if(!t) return;
+const s=parseFloat($('dep-strength').value||'1')||1;
+payload.dependency_add = { title: t, strength: s };
+}
+if(!$('screen-task').classList.contains('hidden')){
+const a=($('action').value||'').trim(); if(!a) return;
+const goalText=($('goal-view').textContent||'').trim();
+const r = $('importanceRange');
+const val = parseFloat(r.value||'1') || 1;
 
-    payload.task           = `Я ${a} ради ${goalText}`;
-    payload.importance     = val;
-    payload.importance_f   = val;
-    payload.importance_ru  = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(val);
-    payload.mode           = mode;
-    payload.willpower      = (mode==='willpower');
-    payload.addiction      = (mode==='addiction');
+payload.task           = `Я ${a} ради ${goalText}`;
+payload.importance     = val;
+payload.importance_f   = val;
+payload.importance_ru  = new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1}).format(val);
+payload.mode           = mode;
+payload.willpower      = (mode==='willpower');
+payload.addiction      = (mode==='addiction');
 
-    if (mode==='addiction' && selectedDepId){
-      const d = DEPS.find(x => String(x.id) === String(selectedDepId));
-      payload.dep_id    = selectedDepId;
-      payload.dep_title = d?.title || '';
-    }
-  }
+if (mode==='addiction' && selectedDep){
+payload.dep_id    = selectedDep.id || '';
+payload.dep_title = selectedDep.title || '';
+}
+}
 
-  try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
-  try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
-  setTimeout(()=>tg?.close(), 120);
+try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
+try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
+setTimeout(()=>tg?.close(), 120);
 }
 
 async function init(){
-  tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme);
-  await hydrateFromParamsOrCS();
-  renderBalanceBadge(); setMoodColor();
+tg?.ready(); tg?.expand(); applyTheme(); tg?.onEvent('themeChanged', applyTheme);
+await hydrateFromParamsOrCS();
+renderBalanceBadge(); setMoodColor();
 
-  if (userGoal && $('goal-view')) { $('goal-view').textContent = userGoal; }
+if (userGoal && $('goal-view')) { $('goal-view').textContent = userGoal; }
 
-  bind(); updateScaleLabels(); updateSliderUI();
+bind(); updateScaleLabels(); updateSliderUI();
 
-  // стартовый экран из query/start_param
-  const params = new URLSearchParams(location.search);
-  let screen = (params.get('screen') || 'home').toLowerCase();
-  const sp = tg?.initDataUnsafe?.start_param;
-  if (sp && typeof sp === 'string') {
-    const usp = new URLSearchParams(sp);
-    screen = (usp.get('screen') || screen || 'home').toLowerCase();
-    const g2 = usp.get('g') || usp.get('goal');
-    if (!userGoal && g2 && $('goal-view')) { $('goal-view').textContent = g2; }
-  }
+// стартовый экран из query/start_param
+const params = new URLSearchParams(location.search);
+let screen = (params.get('screen') || 'home').toLowerCase();
+const sp = tg?.initDataUnsafe?.start_param;
+if (sp && typeof sp === 'string') {
+const usp = new URLSearchParams(sp);
+screen = (usp.get('screen') || screen || 'home').toLowerCase();
+const g2 = usp.get('g') || usp.get('goal');
+if (!userGoal && g2 && $('goal-view')) { $('goal-view').textContent = g2; }
+}
 
-  if      (screen==='schedule')   showScreen('schedule');
-  else if (screen==='goal')       showScreen('goal');
-  else if (screen==='task')       showScreen('task');
-  else if (screen==='info')       showScreen('info');
-  else if (screen==='stats-day')  showScreen('stats-day');
-  else if (screen==='stats_mood' || screen==='mood') showScreen('stats-mood');
-  else if (screen==='bonuses')    showScreen('bonuses');
-  else if (screen==='deps_add' || screen==='deps-add') showScreen('deps-add');
-  else                            showScreen('home');
+if      (screen==='schedule')   showScreen('schedule');
+else if (screen==='goal')       showScreen('goal');
+else if (screen==='task')       showScreen('task');
+else if (screen==='info')       showScreen('info');
+else if (screen==='stats-day')  showScreen('stats-day');
+else if (screen==='stats_mood' || screen==='mood') showScreen('stats-mood');
+else if (screen==='bonuses')    showScreen('bonuses');
+else if (screen==='deps_add' || screen==='deps-add') showScreen('deps-add');
+else                            showScreen('home');
 
-  tg?.onEvent('mainButtonClicked', sendPayload);
+tg?.onEvent('mainButtonClicked', sendPayload);
 }
 
 document.addEventListener('DOMContentLoaded', init);
