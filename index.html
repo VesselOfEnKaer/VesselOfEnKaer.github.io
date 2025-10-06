@@ -149,7 +149,7 @@ input[type="range"]::-webkit-slider-thumb{
   border:2px solid #fff; box-shadow:0 2px 10px rgba(0,0,0,.18);
   transition:transform .08s ease, box-shadow .12s ease, background .15s ease;
 }
-input[type="range"]:active::-webkit-slider-thumb{ transform:scale(1.08); box-shadow:0 4px 16px rgba(0,0,0,.25) }
+input[type="range"]:active::-webkit-slider-thumb{ transform:scale(1.08) }
 input[type="range"]::-moz-range-track{
   height:10px; border-radius:999px; background:
   linear-gradient(to right, var(--meter) 0% , var(--meter) var(--val), var(--border) var(--val), var(--border) 100%);
@@ -258,19 +258,27 @@ input[type="range"]::-moz-range-thumb{
   cursor:pointer; user-select:none; font-size:13px; transition:.15s; white-space:nowrap;
 }
 .shop-chip.active{ background:var(--card); border-color:var(--accent); box-shadow:0 0 0 4px rgb(79 140 255 / 12%) }
-.shop-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
-@media (max-width:480px){ .shop-grid{ grid-template-columns:1fr } }
+
+/* базово 2 колонки, на телефоне — 3 компактных */
+.shop-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px }
+@media (max-width:480px){ .shop-grid{ grid-template-columns:repeat(3,1fr); gap:10px } }
+
 .shop-card{
-  display:grid; grid-template-rows:auto auto 1fr auto; gap:8px;
+  display:grid; grid-template-rows:auto auto auto; gap:6px;
   background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden;
   box-shadow:0 4px 14px rgba(0,0,0,.06);
   cursor:pointer; transition:transform .08s ease;
 }
 .shop-card:active{ transform:scale(.99) }
-.shop-img{ aspect-ratio: 16/9; width:100%; object-fit:cover; background:var(--surface) }
-.shop-title{ font-size:15px; font-weight:800; padding:0 12px; margin-top:6px }
-.shop-desc{ font-size:12px; color:var(--muted); padding:0 12px; margin-bottom:6px; min-height:2lh }
-.shop-price{ font-weight:900; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border) }
+/* в списке на телефоне — квадратные превью и более компактные тексты */
+.shop-img{ width:100%; object-fit:cover; background:var(--surface); aspect-ratio:16/9 }
+@media (max-width:480px){ .shop-grid .shop-img{ aspect-ratio:1/1 } }
+
+.shop-title{ font-size:15px; font-weight:800; padding:0 10px; margin-top:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.shop-desc{ font-size:12px; color:var(--muted); padding:0 10px; margin-bottom:4px; min-height:2lh }
+@media (max-width:480px){ .shop-desc{ display:none } }
+
+.shop-price{ font-weight:900; padding:8px 10px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); font-size:13px }
 .shop-empty{ padding:12px; text-align:center; color:var(--muted); border:1px dashed var(--border); border-radius:12px }
 
 /* экран товара */
@@ -498,6 +506,9 @@ let SHOP_CATS = [];
 let SHOP_SELECTED = new Set(); // множественный выбор
 let CUR_PRODUCT = null;
 
+// динамические цены (id -> number)
+let PRICE_OVERRIDES = {};
+
 // настроение пресеты
 const MOOD = {
   2:   { emoji:'😇', title:'Добрячок (+2)', color:'#20c997', desc:'Я мягкий и поддерживающий. Лайтовые нуджи, много похвалы.' },
@@ -507,7 +518,10 @@ const MOOD = {
   [-2]:{ emoji:'😈', title:'Злой (−2)',     color:'#ff4d4f', desc:'Максимальная строгость. Цель важнее отговорок.' },
 };
 const clampMood = (m)=>{ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
-const fmtInt = (n)=> new Intl.NumberFormat('ru-RU').format(n);
+const fmtInt = (n)=> {
+  const v = Number(String(n).replace(',', '.'));
+  return Number.isFinite(v) ? new Intl.NumberFormat('ru-RU').format(Math.round(v)) : '—';
+};
 
 function depTitleDisplay(t){
   t = String(t || '').trim();
@@ -517,6 +531,19 @@ function depTitleDisplay(t){
   if (low.startsWith('от '))     return `Зависимость ${t}`;
   return `Зависимость от ${t}`;
 }
+
+/* ===== Вспомогалка цен ===== */
+const parsePrice = (x) => {
+  if (x === null || x === undefined || x === '') return NaN;
+  const v = Number(String(x).replace(',', '.'));
+  return Number.isFinite(v) ? v : NaN;
+};
+const priceFor = (p) => {
+  const base = parsePrice(p?.price);
+  const ovr  = parsePrice(PRICE_OVERRIDES?.[p?.id]);
+  const n = Number.isNaN(ovr) ? base : ovr;
+  return Number.isNaN(n) ? 0 : Math.max(0, Math.round(n));
+};
 
 /* ===== Бонусы/штрафы таблицы (как было) ===== */
 const BONUS_RULES = [
@@ -538,6 +565,7 @@ const PENALTY_RULES = [
   { emoji:"🕳️", title:"Нет важного шага", desc:"Нет ни одной «обычной» задачи, двигающей цель: −300 🎴.", per:0, max:0 },
   { emoji:"🗓️", title:"Пустой день", desc:"Нет задач вообще: −500 🎴.", per:0, max:0 },
 ];
+
 function fmtPct(n){ return (n>0?`+${n}`:`${n}`) + "%"; }
 function renderRuleList(tableEl, rules, isBonus){
   tableEl.querySelectorAll('.rule-row').forEach(n=>n.remove());
@@ -575,7 +603,7 @@ function b64urlToUtf8Json(b64){
     const bin  = atob(norm);
     const bytes = new Uint8Array([...bin].map(c=>c.charCodeAt(0)));
     return JSON.parse(new TextDecoder("utf-8").decode(bytes));
-  }catch(e){ console.warn('b64 decode failed', e); return []; }
+  }catch(e){ return null; }
 }
 
 async function hydrateFromParamsOrCS(){
@@ -584,6 +612,10 @@ async function hydrateFromParamsOrCS(){
   const m  = p.get('m'),  g  = p.get('g') || p.get('goal');
   const n  = p.get('name');
   const depsb64 = p.get('depsb64');
+  // динамические цены (из URL)
+  const pricesb64 = p.get('pricesb64'); // base64url JSON: {id: price}
+  const pricesRaw = p.get('prices');    // JSON строка
+
   let changed = false;
 
   if (b  !== null) { balanceTotal = parseInt(b,10) || 0; changed = true; }
@@ -591,30 +623,42 @@ async function hydrateFromParamsOrCS(){
   if (m  !== null) { moodLevel    = clampMood(m);        changed = true; }
   if (g)           { userGoal     = g.trim();             changed = true; }
   if (n)           { userName     = n.trim();             changed = true; }
-  if (depsb64)     { DEPS         = b64urlToUtf8Json(depsb64); changed = true; }
+  if (depsb64)     { const j=b64urlToUtf8Json(depsb64); if(j) { DEPS=j; changed = true; } }
+
+  // цены: URL приоритетнее
+  let gotPrices = false;
+  if (pricesb64){
+    const j = b64urlToUtf8Json(pricesb64);
+    if (j && typeof j === 'object'){ PRICE_OVERRIDES = j; gotPrices = true; }
+  } else if (pricesRaw){
+    try{ const j = JSON.parse(pricesRaw); if (j && typeof j==='object'){ PRICE_OVERRIDES=j; gotPrices=true; } }catch{}
+  }
 
   if (!changed && tg?.CloudStorage){
-    const [cb, cbt, cm, cg, cn, cd] = await Promise.all([
-      cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name'), cs.get('depsb64')
+    const [cb, cbt, cm, cg, cn, cd, cp] = await Promise.all([
+      cs.get('b'), cs.get('bt'), cs.get('m'), cs.get('g'), cs.get('name'), cs.get('depsb64'), cs.get('shop_prices')
     ]);
     if (cb  != null) balanceTotal = parseInt(cb,10)  || 0;
     if (cbt != null) balanceToday = parseInt(cbt,10) || 0;
     if (cm  != null) moodLevel    = clampMood(cm);
     if (cg) userGoal = cg;
     if (cn) userName = cn;
-    if (cd) DEPS = b64urlToUtf8Json(cd);
+    if (cd){ const j = b64urlToUtf8Json(cd); if(j) DEPS = j; }
+    if (!gotPrices && cp){ try{ const j=JSON.parse(cp); if(j && typeof j==='object'){ PRICE_OVERRIDES=j; } }catch{} }
   }
+
   // сохранить (если пришло из URL)
-  if (changed && tg?.CloudStorage){
+  if (tg?.CloudStorage){
     const depsB64 = (()=>{ try{
       const enc = new TextEncoder().encode(JSON.stringify(DEPS||[], null, 0));
       const bin = Array.from(enc).map(x=>String.fromCharCode(x)).join('');
       return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_');
     }catch(e){ return ''; }})();
+    const pricesStr = JSON.stringify(PRICE_OVERRIDES || {});
     await Promise.allSettled([
       cs.set('b', balanceTotal), cs.set('bt', balanceToday),
       cs.set('m', moodLevel), cs.set('g', userGoal || ''), cs.set('name', userName || ''),
-      cs.set('depsb64', depsB64)
+      cs.set('depsb64', depsB64), cs.set('shop_prices', pricesStr)
     ]);
   }
 }
@@ -836,6 +880,8 @@ async function loadShop(){
   const arr = await r.json();
   SHOP = (Array.isArray(arr)?arr:[]).filter(p => p && p.active !== false);
   SHOP_CATS = Array.from(new Set(SHOP.map(p => p.category).filter(Boolean)));
+  // применяем динамические цены, если есть; иначе остаются базовые
+  SHOP.forEach(p => { p._price = priceFor(p); });
 }
 function renderShopUI(){
   if (!SHOP || SHOP.length === 0){
@@ -853,7 +899,7 @@ function renderShopUI(){
 function renderShopCats(){
   const catsEl = $('shop-cats'); if(!catsEl) return;
   catsEl.innerHTML = '';
-  // Кнопка "Все"
+  // "Все"
   const all = document.createElement('div');
   all.className = 'shop-chip' + (SHOP_SELECTED.size===0 ? ' active' : '');
   all.textContent = 'Все';
@@ -868,7 +914,6 @@ function renderShopCats(){
     chip.textContent = cat;
     chip.addEventListener('click', ()=>{
       if (SHOP_SELECTED.has(cat)) SHOP_SELECTED.delete(cat); else SHOP_SELECTED.add(cat);
-      // если выбран хоть один — "Все" гасим; если ни одного — активен "Все"
       renderShopCats(); renderShopGrid();
     });
     catsEl.appendChild(chip);
@@ -887,13 +932,14 @@ function renderShopGrid(){
   }
   grid.innerHTML = '';
   list.forEach(p=>{
+    const price = priceFor(p);
     const card = document.createElement('div');
     card.className = 'shop-card';
     card.innerHTML = `
       <img class="shop-img" src="${p.image}" alt="" loading="lazy" onerror="this.style.opacity=0.6" />
       <div class="shop-title">${p.title}</div>
       <div class="shop-desc">${p.short || p.description || ''}</div>
-      <div class="shop-price"><span>${fmtInt(p.price)} 🎴</span><span>Подробнее ›</span></div>
+      <div class="shop-price"><span>${fmtInt(price)} 🎴</span><span>Подробнее ›</span></div>
     `;
     card.addEventListener('click', ()=>openProduct(p));
     grid.appendChild(card);
@@ -905,7 +951,7 @@ function openProduct(p){
   $('item-title').textContent = p.title || 'Товар';
   const img = $('item-img');
   img.src = p.image; img.alt = p.title || '';
-  $('item-price').textContent = `${fmtInt(p.price||0)} 🎴`;
+  $('item-price').textContent = `${fmtInt(priceFor(p))} 🎴`;
   $('item-cat').textContent = p.category || 'Без категории';
   $('item-desc').innerHTML = (p.description||'').replace(/\n/g,'<br>');
   $('item-botdesc').textContent = p.bot_description || '';
@@ -914,12 +960,13 @@ function openProduct(p){
 function updateMainButtonShopItem(show){
   if(!tg) return;
   if (!CUR_PRODUCT){ tg.MainButton.hide(); return; }
-  tg.MainButton.setText(`Купить за ${fmtInt(CUR_PRODUCT.price||0)} 🎴`);
+  tg.MainButton.setText(`Купить за ${fmtInt(priceFor(CUR_PRODUCT))} 🎴`);
   if (show) tg.MainButton.show();
 }
 function purchaseCurrentProduct(){
   if (!CUR_PRODUCT) return;
-  const ok = confirm(`Купить «${CUR_PRODUCT.title}» за ${fmtInt(CUR_PRODUCT.price)} 🎴?`);
+  const price = fmtInt(priceFor(CUR_PRODUCT));
+  const ok = confirm(`Купить «${CUR_PRODUCT.title}» за ${price} 🎴?`);
   if (!ok) return;
   const payload = { shop_buy: { id: String(CUR_PRODUCT.id) } };
   try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
