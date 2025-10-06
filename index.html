@@ -262,7 +262,12 @@ input[type="range"]::-moz-range-thumb{
 }
 .shop-card:active{ transform:translateY(1px) scale(0.997) }
 
-.shop-img{ aspect-ratio: 16/9; width:100%; object-fit:cover; background:var(--surface) }
+.shop-img{
+  aspect-ratio: 1/1;
+  width: 100%;
+  object-fit: contain;      /* было cover */
+  background: var(--surface); /* «письмо» по бокам в цвете темы */
+}
 
 .shop-title{
   font-size:14px; font-weight:800; padding:0 10px; margin-top:6px;
@@ -538,12 +543,22 @@ function lineClamp(text, n=2){ return String(text||''); }
 function pickSubtitle(p){
   return p.subtitle || p.short || (p.description ? String(p.description).split('\n')[0] : '');
 }
+function toNumberMaybe(x){
+  if (x == null) return null;
+  if (typeof x === 'number') return Number.isFinite(x) ? x : null;
+  // срезаем пробелы, эмодзи, «грита» и др. символы, оставляем числа/знак/точку
+  const cleaned = String(x).replace(/[^\d.-]/g, '');
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : null;
+}
+
 function priceOf(p){
-  const id = String(p.id);
-  const dyn = (PRICES && PRICES[id] != null) ? Number(PRICES[id]) : null;
-  const base = (p.price != null) ? Number(p.price) : null;
-  const val = Number.isFinite(dyn) ? dyn : (Number.isFinite(base) ? base : 0);
-  return Math.max(0, Math.round(val)); // без NaN/undefined
+  const id   = String(p.id);
+  const dyn  = toNumberMaybe(PRICES?.[id]);                             // динамическая цена из бэка (если есть)
+  const base = toNumberMaybe(p.price ?? p.base_price ?? p.cost ?? '');  // базовая из shop.json
+
+  const val = (dyn ?? base ?? 0);
+  return Math.max(0, Math.round(val));
 }
 function b64json(str){
   try{
