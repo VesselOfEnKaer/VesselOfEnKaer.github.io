@@ -1,5 +1,92 @@
 [
   {
+    "id": "series_episode_ticket",
+    "category": "rewards",
+    "title": "Серия сериала",
+    "subtitle": "1 эпизод — без автоплея",
+    "description": "Разрешение на один эпизод любимого сериала. Перед стартом — вода/чай, включи таймер на длительность серии и отключи автопереход на следующую. После титров — стоп.",
+    "bot_note": "Стартую ритуал и таймер. За 5 минут до конца напомню подготовиться к стопу.",
+    "image": "images/store/episode_ticket.png",
+    "price": 35,
+    "type": "ticket",
+    "meta": {
+      "duration_min": null,
+      "ask_runtime": true,
+      "reminders": ["-5m"],
+      "tags": ["отдых", "timebox", "сериал"]
+    },
+    "active": true,
+    "constraints": {
+      "repeatable": true,
+      "ownership": "consumable"
+    }
+  },
+  {
+    "id": "gaming_hour_ticket",
+    "category": "rewards",
+    "title": "Час игры",
+    "subtitle": "60 минут честного гейминга по таймеру",
+    "description": "Разрешение на 60 минут игры. До старта выбери игру/режим. Таймер обязателен, никаких «ещё катку». В конце — краткий итог и выход.",
+    "bot_note": "Запускаю обратный отсчёт на 60 минут. Напомню за 10 мин и за 2 мин. В конце — твёрдый стоп и просьба прислать короткий итог.",
+    "image": "images/store/gaming_hour.png",
+    "price": 50,
+    "type": "ticket",
+    "meta": {
+      "duration_min": 60,
+      "reminders": ["-10m", "-2m"],
+      "tags": ["отдых", "игры", "timebox"]
+    },
+    "active": true,
+    "constraints": {
+      "repeatable": true,
+      "ownership": "consumable"
+    }
+  },
+  {
+    "id": "one_sweet_type",
+    "category": "nutrition",
+    "title": "Сладкое (1 вид)",
+    "subtitle": "Один выбранный десерт — без догонов",
+    "description": "Можно один вид сладкого, одна порция. Сервируй красиво, ешь без экрана, смакуй. Никаких добавок и «ещё кусочек».",
+    "bot_note": "Попроси фото порции. Дам напоминание есть медленно и через 15 минут уточню «остановка подтверждена?»",
+    "image": "images/store/sweet_one.png",
+    "price": 25,
+    "type": "permit",
+    "meta": {
+      "portion": 1,
+      "lock_addons": true,
+      "followup_after_min": 15,
+      "tags": ["еда", "десерт", "осознанность"]
+    },
+    "active": true,
+    "constraints": {
+      "repeatable": true,
+      "ownership": "consumable"
+    }
+  },
+  {
+    "id": "ai_power_hour",
+    "category": "sessions",
+    "title": "Час с ИИ",
+    "subtitle": "60 минут продуктивной сессии с ассистентом",
+    "description": "Фокус-сессия с ИИ: брейншторм, план, черновик текста/кода, разбор заметок. На выходе — маленький завершённый артефакт.",
+    "bot_note": "Спрошу цель и итог артефакта, запущу таймер на 60 минут. Каждые ~15 минут — короткий прогресс-чек, в конце — фиксация результата и следующий шаг.",
+    "image": "images/store/ai_power_hour.png",
+    "price": 60,
+    "type": "session",
+    "meta": {
+      "duration_min": 60,
+      "checkin_every_min": 15,
+      "deliverable_required": true,
+      "tags": ["работа", "фокус", "планирование", "ИИ"]
+    },
+    "active": true,
+    "constraints": {
+      "repeatable": true,
+      "ownership": "consumable"
+    }
+  }
+  {
     "id": "talk_machine_uprising",
     "category": "boosts",
     "title": "Разговор о восстании машин",
