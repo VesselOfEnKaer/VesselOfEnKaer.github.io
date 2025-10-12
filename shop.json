@@ -85,7 +85,7 @@
       "repeatable": true,
       "ownership": "consumable"
     }
-  }
+  },
   {
     "id": "talk_machine_uprising",
     "category": "boosts",
