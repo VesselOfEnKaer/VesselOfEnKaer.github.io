@@ -323,7 +323,7 @@ box-shadow:0 6px 18px rgba(0,0,0,.08);
 <!-- HOME -->
 <section id="screen-home" class="grid">
 <h1>🏠 Главный экран</h1>
-<p>Мини-приложение ForHer. v0.75</p>
+<p>Мини-приложение ForHer. v0.76</p>
 <button class="menu-btn" id="btn-settings">⚙️ Настройки <span>›</span></button>
 <button class="menu-btn" id="btn-task">✍️ Создать задачу <span>›</span></button>
 <button class="menu-btn" id="btn-shop">🛒 Магазин <span>›</span></button>
@@ -605,13 +605,15 @@ const val = (dyn ?? base ?? 0);
 return Math.max(0, Math.round(val));
 }
 function b64json(str){
-try{
-const norm = (str||'').replace(/-/g,'+').replace(/_/g,'/');
-const bin  = atob(norm);
-const bytes = new Uint8Array([...bin].map(c=>c.charCodeAt(0)));
-return JSON.parse(new TextDecoder("utf-8").decode(bytes));
-}catch(e){ return null; }
+  try{
+    let norm = (str||'').replace(/-/g,'+').replace(/_/g,'/');
+    while (norm.length % 4) norm += '=';            // << дополняем '='
+    const bin  = atob(norm);
+    const bytes = new Uint8Array([...bin].map(c=>c.charCodeAt(0)));
+    return JSON.parse(new TextDecoder("utf-8").decode(bytes));
+  }catch(e){ return null; }
 }
+
 
 /* ===== Bonuses tables (как были) ===== */
 const BONUS_RULES = [
@@ -749,7 +751,7 @@ document.documentElement.style.setProperty('--mood', c);
 
 /* ===== Screens ===== */
 function showScreen(name){
-['home','settings','schedule','goal','task','info','stats-mood','stats-day','bonuses','deps-add','shop','shop-item'].forEach(id=>{
+['home','settings','schedule','goal','task','info','stats-mood','stats-day','bonuses','deps-add','shop','shop-item','ach'].forEach(id=>{
 $(`screen-${id}`).classList.toggle('hidden', id!==name);
 });
 const card = $('card'); card.classList.add('swap'); setTimeout(()=>card.classList.remove('swap'), 180);
@@ -774,6 +776,7 @@ if(name==='stats-day'){ renderDaySummary(); }
 if(name==='bonuses'){ renderBonusesScreen(); }
 if(name==='deps-add'){ renderDepsCurrent(); }
 if(name==='shop'){ mountShop(); }
+if(name==='ach'){ renderAchievements(); }
 }
 
 /* ===== Day summary ===== */
@@ -1144,7 +1147,7 @@ const d = DEPS.find(x => String(x.id) === String(selectedDepId));
 payload.dep_id    = selectedDepId;
 payload.dep_title = d?.title || '';
 }
-}else if (screen==='ach' || screen==='achievements') showScreen('ach');
+}
 
 
 try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
@@ -1191,6 +1194,7 @@ else if (screen==='stats_mood' || screen==='mood') showScreen('stats-mood');
 else if (screen==='bonuses')    showScreen('bonuses');
 else if (screen==='deps_add' || screen==='deps-add') showScreen('deps-add');
 else if (screen==='shop')       showScreen('shop');
+else if (screen==='ach' || screen==='achievements') showScreen('ach');
 else                            showScreen('home');
 
 tg?.onEvent('mainButtonClicked', ()=>{
