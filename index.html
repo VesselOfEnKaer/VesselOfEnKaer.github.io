@@ -295,6 +295,17 @@ box-shadow:0 6px 18px rgba(0,0,0,.08);
 .item-price{ font-weight:900; font-size:18px }
 .item-meta{ display:flex; gap:8px; flex-wrap:wrap }
 .item-cat{ font-size:12px; padding:4px 8px; border:1px solid var(--border); border-radius:999px; background:var(--surface); color:var(--muted) }
+
+.ach-row{display:grid;grid-template-columns:1fr auto;gap:8px;border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.ach-left{display:grid;gap:4px}
+.ach-ttl{font-weight:800}
+.ach-desc{font-size:12px;color:var(--muted)}
+.ach-badge{font-weight:800}
+.progress{height:8px;border-radius:999px;background:var(--surface);border:1px solid var(--border);overflow:hidden}
+.progress > div{height:100%; background: var(--accent); width:0}
+.ach-earned{border-color: color-mix(in srgb, var(--good) 50%, var(--border)); box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.ach-earned .ach-ttl::after{content:" ✓"; color:var(--good); font-weight:900}
+      
 </style>
 </head>
 <body>
@@ -333,6 +344,7 @@ box-shadow:0 6px 18px rgba(0,0,0,.08);
 <button class="menu-btn" id="btn-info-day">📅 Итоги дня <span>›</span></button>
 <button class="menu-btn" id="btn-info-mood">🧠 Настроение бота <span>›</span></button>
 <button class="menu-btn" id="btn-info-bonuses">🎴 Бонусы и штрафы <span>›</span></button>
+<button class="menu-btn" id="btn-info-ach">🏆 Достижения <span>›</span></button>
 </section>
 
 <!-- DAY SUMMARY -->
@@ -357,6 +369,13 @@ box-shadow:0 6px 18px rgba(0,0,0,.08);
 <button class="menu-btn" id="btn-day-details">🧾 Подробнее в чате <span>›</span></button>
 <div class="hint">Слева — текущий баланс, справа — баланс после учёта суммы за день.</div>
 </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section id="screen-ach" class="grid hidden">
+  <div class="topbar"><button class="back" id="back-from-ach">← Назад</button><h1 style="margin:0">🏆 Достижения</h1></div>
+  <div id="ach-list" class="grid" style="gap:10px"></div>
+  <p class="hint">Награды автоматически зачисляются в баланс 🎴.</p>
 </section>
 
 <!-- MOOD -->
@@ -530,6 +549,30 @@ const MOOD = {
 };
 const clampMood = (m)=>{ m = parseInt(m||0,10); if(m>2)m=2; if(m<-2)m=-2; return m; }
 const fmtInt = (n)=> new Intl.NumberFormat('ru-RU').format(n);
+      
+
+let ACH_SNAP = { earned: [], progress: {} };
+
+const ACH_CATALOG = [
+  {id:"first_task",    title:"Первый шаг", desc:"Отметь любую задачу", reward:100},
+  {id:"first_hi",      title:"Значимый удар", desc:"Выполни задачу весом ≥2.0", reward:150},
+  {id:"fast_start",    title:"Быстрый старт", desc:"Первая задача в течение 1 часа после подъёма", reward:100},
+  {id:"no_fail_day",   title:"Без провалов", desc:"День без провалов (и с задачами)", reward:150},
+  {id:"regimen_ok",    title:"Железный режим", desc:"Подъём и сон подтверждены вовремя", reward:200},
+  {id:"first_dep",     title:"Взгляд в лицо", desc:"Добавь первую зависимость", reward:100},
+  {id:"first_ap_done", title:"Сдержал слово", desc:"Выполни обещание по зависимости", reward:150},
+  {id:"first_purchase",title:"Покупатель", desc:"Совершить первую покупку", reward:100},
+  {id:"mood_plus2",    title:"Добрячок", desc:"Настроение бота +2", reward:100},
+  // progression:
+  {id:"five_in_day",   title:"Пять за день", desc:"Выполнить 5 задач за день", reward:200, goalKey:"tasks_done_today", goal:5},
+  {id:"streak_3",      title:"Серия ×3", desc:"3 дня подряд со сделанными задачами", reward:150, goalKey:"streak_daily", goal:3},
+  {id:"streak_7",      title:"Серия ×7", desc:"7 дней подряд со сделанными задачами", reward:300, goalKey:"streak_daily", goal:7},
+  {id:"streak_14",     title:"Серия ×14", desc:"14 дней подряд со сделанными задачами", reward:500, goalKey:"streak_daily", goal:14},
+  {id:"detox_7",       title:"Детокс 7", desc:"Любая зависимость: серия 7 дней", reward:300, goalKey:"dep_streak_max", goal:7},
+  {id:"detox_21",      title:"Детокс 21", desc:"Любая зависимость: серия 21 день", reward:700, goalKey:"dep_streak_max", goal:21},
+  {id:"collector_5",   title:"Коллекционер", desc:"Совершить 5 покупок", reward:300, goalKey:"purchases_total", goal:5},
+  {id:"balance_1000",  title:"Первая тысяча", desc:"Общий баланс ≥ 1 000 🎴", reward:200, goalKey:"balance_total", goal:1000},
+];
 
 /* ===== Utils ===== */
 function depTitleDisplay(t){
@@ -650,6 +693,19 @@ if (cg) userGoal = cg;
 if (cn) userName = cn;
 if (cd) DEPS = b64json(cd) || [];
 if (cpr) { try{ PRICES = JSON.parse(cpr) || {}; } catch{} }
+}
+
+const achsb64 = p.get('achs');
+if (achsb64) { ACH_SNAP = b64json(achsb64) || ACH_SNAP; changed = true; }
+
+if (!changed && tg?.CloudStorage){
+  const [cach] = await Promise.all([ cs.get('achs') ]);
+  if (cach) { try{ ACH_SNAP = JSON.parse(cach) || ACH_SNAP; }catch{} }
+}
+
+// сохранить если пришло из URL
+if (changed && tg?.CloudStorage){
+  await cs.set('achs', JSON.stringify(ACH_SNAP||{}));
 }
 
 // сохранить б64/цены если пришли из URL
@@ -1015,6 +1071,8 @@ $('btn-info-day')?.addEventListener('click', ()=>showScreen('stats-day'));
 $('btn-info-mood')?.addEventListener('click', ()=>showScreen('stats-mood'));
 $('btn-info-bonuses')?.addEventListener('click', ()=>showScreen('bonuses'));
 $('back-from-bonuses')?.addEventListener('click', ()=>showScreen('info'));
+$('btn-info-ach')?.addEventListener('click', ()=>{ showScreen('ach'); renderAchievements(); });
+$('back-from-ach')?.addEventListener('click', ()=>showScreen('info'));
 
 $('btn-day-details')?.addEventListener('click', ()=>{
 try { tg?.HapticFeedback?.impactOccurred('heavy'); } catch {}
@@ -1086,7 +1144,8 @@ const d = DEPS.find(x => String(x.id) === String(selectedDepId));
 payload.dep_id    = selectedDepId;
 payload.dep_title = d?.title || '';
 }
-}
+}else if (screen==='ach' || screen==='achievements') showScreen('ach');
+
 
 try { tg?.sendData(JSON.stringify(payload)); } catch(e){ console.error(e); }
 try { tg?.HapticFeedback?.notificationOccurred('success'); } catch {}
@@ -1140,6 +1199,33 @@ if (onShopItem) purchaseCurrentProduct(); else sendPayload();
 });
 }
 document.addEventListener('DOMContentLoaded', init);
+
+function renderAchievements(){
+  const box = $('ach-list'); if(!box) return;
+  box.innerHTML = '';
+  const earnedSet = new Set(ACH_SNAP?.earned || []);
+  const prog = ACH_SNAP?.progress || {};
+
+  ACH_CATALOG.forEach(a=>{
+    const row = document.createElement('div');
+    const isEarned = earnedSet.has(a.id);
+    row.className = 'ach-row' + (isEarned ? ' ach-earned' : '');
+    const goal = a.goal ?? null;
+    const cur  = goal ? Number(prog[a.goalKey] || 0) : null;
+    row.innerHTML = `
+      <div class="ach-left">
+         <div class="ach-ttl">${a.title}</div>
+         <div class="ach-desc">${a.desc}</div>
+         ${goal ? `
+           <div class="progress"><div style="width:${Math.min(100, Math.round(cur*100/goal))}%"></div></div>
+           <div style="font-size:12px;color:var(--muted)">прогресс: ${cur ?? 0} / ${goal}</div>
+         ` : ``}
+      </div>
+      <div class="ach-badge">${isEarned ? '✓' : `+${a.reward} 🎴`}</div>
+    `;
+    box.appendChild(row);
+  });
+}
 </script>
 </body>
 </html>
