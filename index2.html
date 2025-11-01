@@ -190,16 +190,25 @@
   const candles = payload.candles;
   const data = [];
 
-  // плавная отрисовка: добавляем свечи по одной
+  // фиксируем левый край на первой свече
+  chart.timeScale().setVisibleRange({
+    from: candles[0].time,
+    to: candles[Math.min(20, candles.length - 1)].time  // показываем первые 20 баров при старте
+  });
+
+  // плавная анимация появления
   let i = 0;
-  const delay = 30; // мс между свечами (регулируй скорость)
+  const delay = 30; // мс между свечами
   const timer = setInterval(() => {
     data.push(candles[i]);
-    series.setData([...data]); // обновляем график
+    series.setData([...data]);
     i++;
     if (i >= candles.length) {
       clearInterval(timer);
-      chart.timeScale().fitContent();
+      // спустя короткую паузу — плавно показываем весь график
+      setTimeout(() => {
+        chart.timeScale().fitContent();
+      }, 300);
     }
   }, delay);
 
