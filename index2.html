@@ -189,9 +189,9 @@
   if (!Array.isArray(src) || !src.length) throw new Error('Нет данных');
 
   // ---------- параметры анимации ----------
-  const DURATION_MS = 400;  // длительность роста ОДНОГО бара
-  const STAGGER_MS  = 100;  // задержка старта следующего бара
-  const MAX_OVERLAP = 4;    // максимум одновременно «живых» баров (визуально ≈ DURATION/STAGGER)
+  const DURATION_MS = 600;  // длительность роста ОДНОГО бара
+  const STAGGER_MS  = 30;  // задержка старта следующего бара
+  const MAX_OVERLAP = 20;    // максимум одновременно «живых» баров (визуально ≈ DURATION/STAGGER)
 
   // плавность (как раньше): soft/bounce/elastic/linear
   const EASE = {
