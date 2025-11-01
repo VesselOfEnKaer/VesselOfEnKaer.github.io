@@ -1,146 +1,205 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GER40 — график</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>GER40 — Candles</title>
 
-  <!-- Минимальная стилизация, чтобы было видно статусы -->
   <style>
-    body { background: #ffffff; color: #111111; }
-    header { border-bottom-color: #ccc; background: #fafafa; }
-    .btn { background: #f0f0f0; border-color: #ccc; color:#000; }
-    .muted { color:#555; }
-    #title { font-weight:700; }
-    #subtitle { color:#666; font-size:12px; }
-    #err { color:#c00; white-space:pre-wrap; font-family:ui-monospace, Menlo, Consolas, monospace; }
-    #chart { height: calc(100vh - 68px); }
-    
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 28px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0,0,0,.03);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    #title { font-weight: 600; font-size: 16px; }
+    #subtitle { color: var(--muted); font-size: 13px; }
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    #chart { height: 70vh; }
+    h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    p { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+    .btn {
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      background: var(--card);
+      color: var(--text);
+      transition: all .15s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 14px 0 20px;
+    }
+    #err {
+      color: var(--red);
+      white-space: pre-wrap;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      margin-top: 10px;
+    }
   </style>
 
-  <!-- Библиотеки (без defer, чтобы гарантированно были до нашего кода) -->
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 </head>
 <body>
-  <header>
+<header>
+  <div>
     <div id="title">Загрузка…</div>
-    <div id="subtitle" class="muted">Ожидаем данные</div>
-    <div style="margin-left:auto">
-      <button id="copyLinkBtn" class="btn">Скопировать ссылку</button>
-    </div>
-  </header>
-  <div id="chart"></div>
-  <div id="err" style="padding:10px 14px; display:none"></div>
+    <div id="subtitle">Ожидаем данные</div>
+  </div>
+  <button id="copyLinkBtn" class="btn">Скопировать ссылку</button>
+</header>
 
-  <script>
-    // Показ ошибок на странице
-    function showError(msg) {
-      const e = document.getElementById('err');
-      e.style.display = 'block';
-      e.textContent = String(msg || 'Неизвестная ошибка');
-      document.getElementById('title').textContent = 'Ошибка';
-      document.getElementById('subtitle').textContent = 'Смотри раздел ниже';
-    }
-    window.addEventListener('error', ev => showError(ev.error?.message || ev.message));
+<main>
+  <section>
+    <div id="chart"></div>
+    <div id="err" style="display:none"></div>
+  </section>
+  <section>
+    <h2>Параметры</h2>
+    <p>Ссылка содержит зашифрованный JSON со свечами (time, open, high, low, close).<br>
+    Наведи курсор по свечам, чтобы увидеть значения.</p>
+    <h2>Сводка</h2>
+    <p id="stats" class="muted">–</p>
+  </section>
+</main>
 
-    // Утилиты
-    const qs = new URLSearchParams(location.search);
-    function b64urlToBytes(b64u) {
-      const b64 = (b64u || '').replace(/-/g,'+').replace(/_/g,'/');
-      const pad = b64.length % 4 ? 4 - (b64.length % 4) : 0;
-      const binStr = atob(b64 + '='.repeat(pad));
-      const out = new Uint8Array(binStr.length);
-      for (let i=0;i<binStr.length;i++) out[i] = binStr.charCodeAt(i);
-      return out;
-    }
+<footer>© 2025 GER40 Viewer • GitHub Pages</footer>
 
-    function parsePayload() {
-      // DEMO: ?demo=1 — генерим 30 свечей
-      if (qs.get('demo') === '1') {
-        const start = new Date('2025-01-02T00:00:00Z');
-        const candles = Array.from({length:30}, (_,i)=>{
-          const d = new Date(start.getTime() + i*86400000);
-          const base = 17000 + i*15;
-          const open = base + (i%2? -30:20);
-          const high = open + 120;
-          const low  = open - 90;
-          const close= open + (i%3===0? 60 : -40);
-          return { time: d.toISOString().slice(0,10), open, high, low, close };
-        });
-        return { symbol:'DEMO', exchange:'TEST', timeframe:'1D', candles };
-      }
+<script>
+  const qs = new URLSearchParams(location.search);
+  const $ = id => document.getElementById(id);
 
-      const d = qs.get('d');
-      const j = qs.get('j');
-      try {
-        if (d) {
-          const inflated = pako.inflate(b64urlToBytes(d));
-          const txt = new TextDecoder().decode(inflated);
-          return JSON.parse(txt);
-        }
-        if (j) {
-          return JSON.parse(decodeURIComponent(j));
-        }
-      } catch (e) {
-        showError('Ошибка разбора параметров: ' + (e && e.message));
-      }
-      return null;
-    }
+  function showError(msg) {
+    $('err').style.display = 'block';
+    $('err').textContent = msg;
+    $('title').textContent = 'Ошибка';
+    $('subtitle').textContent = msg;
+  }
 
-    function renderChart(payload) {
-      if (!window.LightweightCharts) {
-        showError('Не загрузилась библиотека lightweight-charts');
-        return;
-      }
-      if (!payload || !Array.isArray(payload.candles) || payload.candles.length===0) {
-        document.getElementById('title').textContent = 'Нет данных';
-        document.getElementById('subtitle').textContent = 'Добавь ?demo=1 или передай d=/j=';
-        return;
-      }
-      const need = ['time','open','high','low','close'];
-      for (const k of need) {
-        if (!(k in payload.candles[0])) {
-          showError('Неверный формат свечей: отсутствует ключ ' + k);
-          return;
-        }
-      }
+  function b64urlToBytes(b64u) {
+    const b64 = (b64u||'').replace(/-/g,'+').replace(/_/g,'/');
+    const pad = b64.length%4 ? 4-(b64.length%4):0;
+    const bin = atob(b64+'='.repeat(pad));
+    return Uint8Array.from(bin, c=>c.charCodeAt(0));
+  }
 
-      const container = document.getElementById('chart');
-      const chart = LightweightCharts.createChart(container, {
-        autoSize: true,
-        layout: { background:{type:'solid', color:'transparent'}, textColor:'#111' },
-        rightPriceScale: { borderVisible:false },
-        timeScale: { borderVisible:false, rightOffset:2, barSpacing:8, fixLeftEdge:true },
-        grid: { vertLines:{ color:'rgba(128,128,128,.12)' }, horzLines:{ color:'rgba(128,128,128,.12)' } },
-        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+  function parsePayload() {
+    if (qs.get('demo')==='1') {
+      const start=new Date('2025-01-01');
+      const candles=Array.from({length:30},(_,i)=>{
+        const d=new Date(start.getTime()+i*86400000);
+        const o=17000+i*10, h=o+70, l=o-50, c=o+(i%2?30:-20);
+        return {time:d.toISOString().slice(0,10),open:o,high:h,low:l,close:c};
       });
-      const series = chart.addCandlestickSeries({
-        upColor:'#22c55e', downColor:'#ef4444',
-        borderUpColor:'#16a34a', borderDownColor:'#dc2626',
-        wickUpColor:'#16a34a', wickDownColor:'#dc2626',
-      });
-      series.setData(payload.candles);
-      chart.timeScale().fitContent();
-
-      document.getElementById('title').textContent =
-        (payload.symbol || 'GER40') + ' — дневные свечи';
-      document.getElementById('subtitle').textContent =
-        (payload.exchange || 'FOREXCOM') + ' • ' + (payload.timeframe || '1D') + ' • баров: ' + payload.candles.length;
+      return {symbol:'DEMO',exchange:'TEST',timeframe:'1D',candles};
     }
+    const d=qs.get('d'), j=qs.get('j');
+    try{
+      if(d){
+        const infl=pako.inflate(b64urlToBytes(d));
+        return JSON.parse(new TextDecoder().decode(infl));
+      }
+      if(j){return JSON.parse(decodeURIComponent(j));}
+    }catch(e){showError('Ошибка разбора: '+e.message);}
+    return null;
+  }
 
-    // Кнопка "скопировать ссылку"
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('copyLinkBtn').addEventListener('click', async () => {
-        try { await navigator.clipboard.writeText(location.href); } catch {}
-        const b = document.getElementById('copyLinkBtn');
-        const t = b.textContent; b.textContent = 'Скопировано!'; setTimeout(()=>b.textContent=t, 1000);
-      });
+  function summarize(candles){
+    const f=candles[0],l=candles.at(-1);
+    const min=Math.min(...candles.map(c=>c.low));
+    const max=Math.max(...candles.map(c=>c.high));
+    const change=((l.close-f.open)/f.open*100).toFixed(2);
+    return `Период: ${f.time} → ${l.time}<br>Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)}<br>Изм.: ${change}%`;
+  }
 
-      const payload = parsePayload();
-      try { renderChart(payload); }
-      catch (e) { showError(e && e.message ? e.message : e); }
+  function renderChart(payload){
+    const container=$('chart');
+    const chart=LightweightCharts.createChart(container,{
+      autoSize:true,
+      layout:{background:{type:'solid',color: '#ffffff'}, textColor:'#111'},
+      grid:{
+        vertLines:{color:'rgba(0,0,0,.05)'},
+        horzLines:{color:'rgba(0,0,0,.05)'}
+      },
+      rightPriceScale:{borderVisible:false},
+      timeScale:{borderVisible:false,rightOffset:2,barSpacing:8,fixLeftEdge:true},
+      crosshair:{mode:LightweightCharts.CrosshairMode.Normal}
     });
-  </script>
+    const series=chart.addCandlestickSeries({
+      upColor:'#22c55e',downColor:'#ef4444',
+      borderUpColor:'#16a34a',borderDownColor:'#dc2626',
+      wickUpColor:'#16a34a',wickDownColor:'#dc2626'
+    });
+    series.setData(payload.candles);
+    chart.timeScale().fitContent();
+
+    $('title').textContent=(payload.symbol||'GER40')+' — дневные свечи';
+    $('subtitle').textContent=(payload.exchange||'FOREXCOM')+' • '+(payload.timeframe||'1D')+' • '+payload.candles.length+' баров';
+    $('stats').innerHTML=summarize(payload.candles);
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    $('copyLinkBtn').addEventListener('click',async()=>{
+      try{await navigator.clipboard.writeText(location.href);}catch{}
+      const b=$('copyLinkBtn'); const t=b.textContent;
+      b.textContent='Скопировано!'; setTimeout(()=>b.textContent=t,1000);
+    });
+    const p=parsePayload();
+    if(!p){$('subtitle').textContent='Нет данных (?demo=1 для теста)';return;}
+    try{renderChart(p);}catch(e){showError(e.message);}
+  });
+</script>
 </body>
 </html>
