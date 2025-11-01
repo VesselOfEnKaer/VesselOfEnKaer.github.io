@@ -17,16 +17,16 @@
       --green: #22c55e;
       --red: #ef4444;
 
-      /* safe-area (переопределим из WebApp API) */
+      /* safe-area / ширина */
       --sat: env(safe-area-inset-top);
       --sar: env(safe-area-inset-right);
       --sab: env(safe-area-inset-bottom);
       --sal: env(safe-area-inset-left);
-
-      /* ширина страницы (по умолчанию — резиновая на всю) */
       --page-max: 100vw;
     }
 
+    /* базовая типографика */
+    html, body { height: 100%; }
     body {
       margin: 0;
       background: var(--bg);
@@ -35,36 +35,35 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-
-      /* уважаем вырезы/жестовую панель */
       padding-left:  var(--sal);
       padding-right: var(--sar);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-    /* опциональный узкий режим: ?w=fixed добавит класс .fixed */
-    body.fixed { --page-max: 1280px; }
+    body.fixed { --page-max: 1280px; } /* опционально: ?w=fixed */
 
     header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
+      display: flex; flex-wrap: wrap;
+      align-items: center; gap: 12px 10px;
       justify-content: space-between;
-      padding: calc(16px + var(--sat)) 28px 16px;
+      padding: calc(12px + var(--sat)) 16px 12px;
       background: var(--card);
       border-bottom: 1px solid var(--border);
       box-shadow: 0 2px 6px rgba(0,0,0,.03);
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      position: sticky; top: 0; z-index: 10;
     }
-    #title { font-weight: 600; font-size: 16px; }
-    #subtitle { color: var(--muted); font-size: 13px; }
+    #brand { display:flex; gap:8px; align-items:baseline; min-width: 0; }
+    #title { font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #subtitle { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .actions { display:flex; gap:10px; flex-wrap: wrap; }
 
     main {
       flex: 1;
       display: grid;
-      grid-template-columns: minmax(0, 2.2fr) minmax(320px, 1fr);
-      gap: 20px;
-      padding: 24px;
+      grid-template-columns: minmax(0, 2.2fr) minmax(300px, 1fr);
+      gap: 16px;
+      padding: 16px;
       max-width: var(--page-max);
       margin: 0 auto;
       width: 100%;
@@ -74,27 +73,33 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 20px;
+      padding: 16px;
       box-shadow: 0 2px 8px rgba(0,0,0,.04);
     }
-    /* почти весь экран: минус шапка и внешние отступы */
-    #chart { height: calc(100vh - 160px - var(--sab)); }
+
+    /* высота графика – почти весь экран, но с учётом саба */
+    #chart { height: calc(100vh - 160px - var(--sab)); min-height: 320px; }
+
     h2 { margin: 0 0 10px; font-size: 15px; font-weight: 600; color: var(--text); }
     p { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
 
     .btn {
       border: 1px solid var(--border);
-      padding: 8px 14px;
+      padding: 10px 14px;
       border-radius: 10px;
       cursor: pointer;
       background: var(--card);
       color: var(--text);
       transition: all .15s;
+      line-height: 1;
+      min-height: 40px; /* тач-таргет */
     }
     .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color:#fff; }
+    .btn.block { width: 100%; justify-content: center; }
 
     .muted { color: var(--muted); }
-    footer { text-align: center; font-size: 12px; color: var(--muted); padding: 14px 0 calc(20px + var(--sab)); }
+    footer { text-align: center; font-size: 12px; color: var(--muted); padding: 10px 0 calc(16px + var(--sab)); }
 
     #err {
       color: var(--red);
@@ -131,25 +136,33 @@
       border:1px solid #fde68a; padding:8px 10px; border-radius:10px;
     }
 
+    /* Мобильные: одна колонка, кнопки на всю ширину, компактнее отступы */
     @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; }
+      main { grid-template-columns: 1fr; gap: 12px; padding: 12px; }
+      section { padding: 14px; }
       #chart { height: 52vh; }
+      .actions { width: 100%; }
+      .actions .btn { flex: 1 1 auto; }
+    }
+    @media (max-width: 460px) {
+      header { padding: calc(10px + var(--sat)) 12px 10px; }
+      #title { font-size: 15px; }
+      #subtitle { font-size: 12px; }
+      .btn { padding: 10px 12px; min-height: 44px; }
     }
   </style>
 
-  <!-- Charts + pako -->
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
-  <!-- Telegram WebApp API -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 <header>
-  <div>
+  <div id="brand">
     <div id="title">Загрузка…</div>
     <div id="subtitle">Ожидаем данные</div>
   </div>
-  <div style="display:flex; gap:10px;">
+  <div class="actions">
     <button id="fsBtn" class="btn" style="display:none">Полный экран</button>
     <button id="copyLinkBtn" class="btn">Скопировать ссылку</button>
   </div>
@@ -163,12 +176,10 @@
 
   <section>
     <h2>Параметры</h2>
-    <p>Ссылка содержит зашифрованный JSON со свечами (time, open, high, low, close).<br>
-      Наведи курсор по свечам, чтобы увидеть значения.</p>
+    <p>Ссылка содержит зашифрованный JSON со свечами (time, open, high, low, close).<br>Наведи курсор по свечам, чтобы увидеть значения.</p>
     <h2>Сводка</h2>
     <p id="stats" class="muted">–</p>
 
-    <!-- ====== ФОРМА ГИПОТЕЗЫ ====== -->
     <h2 style="margin-top:16px">Твоя идея по сценарию</h2>
     <form id="ideaForm" class="field">
       <label class="label" for="f_analysis">Общий анализ</label>
@@ -190,14 +201,13 @@
 
       <div class="note">После отправки данные уйдут боту и окно закроется (если открыто как Telegram WebApp).</div>
       <div class="success" id="okMsg">Отправлено боту. Можно закрыть окно.</div>
-      <div class="warn" id="warnMsg">Открой эту страницу через кнопку в боте, чтобы отправка сработала автоматически.</div>
+      <div class="warn" id="warnMsg">Открой эту страницу через кнопку в боте, чтобы автоотправка сработала автоматически.</div>
 
-      <div style="display:flex; gap:10px; margin-top:12px;">
-        <button type="submit" class="btn" id="sendBtn">Отправить боту</button>
+      <div style="display:flex; gap:10px; margin-top:12px; flex-wrap: wrap;">
+        <button type="submit" class="btn primary">Отправить боту</button>
         <button type="button" class="btn" id="clearBtn">Очистить</button>
       </div>
     </form>
-    <!-- ====== /ФОРМА ====== -->
   </section>
 </main>
 
@@ -207,285 +217,160 @@
   const qs = new URLSearchParams(location.search);
   const $ = id => document.getElementById(id);
 
-  function showError(msg) {
-    $('err').style.display = 'block';
-    $('err').textContent = msg;
-    $('title').textContent = 'Ошибка';
-    $('subtitle').textContent = msg;
-  }
+  function showError(msg){ $('err').style.display='block'; $('err').textContent=msg; $('title').textContent='Ошибка'; $('subtitle').textContent=msg; }
+  function b64urlToBytes(b64u){ const b64=(b64u||'').replace(/-/g,'+').replace(/_/g,'/'); const pad=b64.length%4?4-(b64.length%4):0; const bin=atob(b64+'='.repeat(pad)); return Uint8Array.from(bin,c=>c.charCodeAt(0)); }
 
-  function b64urlToBytes(b64u) {
-    const b64 = (b64u||'').replace(/-/g,'+').replace(/_/g,'/');
-    const pad = b64.length%4 ? 4-(b64.length%4):0;
-    const bin = atob(b64+'='.repeat(pad));
-    return Uint8Array.from(bin, c=>c.charCodeAt(0));
-  }
-
-  function parsePayload() {
-    if (qs.get('demo')==='1') {
+  function parsePayload(){
+    if(qs.get('demo')==='1'){
       const start=new Date('2025-01-01');
-      const candles=Array.from({length:30},(_,i)=>{
-        const d=new Date(start.getTime()+i*86400000);
-        const o=17000+i*10, h=o+70, l=o-50, c=o+(i%2?30:-20);
-        return {time:d.toISOString().slice(0,10),open:o,high:h,low:l,close:c};
-      });
+      const candles=Array.from({length:30},(_,i)=>{ const d=new Date(start.getTime()+i*86400000); const o=17000+i*10, h=o+70, l=o-50, c=o+(i%2?30:-20); return {time:d.toISOString().slice(0,10),open:o,high:h,low:l,close:c};});
       return {symbol:'DEMO',exchange:'TEST',timeframe:'1D',candles};
     }
     const d=qs.get('d'), j=qs.get('j');
     try{
-      if(d){
-        const infl=pako.inflate(b64urlToBytes(d));
-        return JSON.parse(new TextDecoder().decode(infl));
-      }
-      if(j){return JSON.parse(decodeURIComponent(j));}
-    }catch(e){showError('Ошибка разбора: '+e.message);}
+      if(d){ const infl=pako.inflate(b64urlToBytes(d)); return JSON.parse(new TextDecoder().decode(infl)); }
+      if(j){ return JSON.parse(decodeURIComponent(j)); }
+    }catch(e){ showError('Ошибка разбора: '+e.message); }
     return null;
   }
 
-  function summarize(candles){
-    const f=candles[0],l=candles.at(-1);
-    const min=Math.min(...candles.map(c=>c.low));
-    const max=Math.max(...candles.map(c=>c.high));
-    const change=((l.close-f.open)/f.open*100).toFixed(2);
-    return `Период: ${f.time} → ${l.time}<br>Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)}<br>Изм.: ${change}%`;
-  }
+  function summarize(c){ const f=c[0], l=c.at(-1); const min=Math.min(...c.map(x=>x.low)); const max=Math.max(...c.map(x=>x.high)); const change=((l.close-f.open)/f.open*100).toFixed(2); return `Период: ${f.time} → ${l.time}<br>Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)}<br>Изм.: ${change}%`; }
 
-  /* ---------- АНИМАЦИЯ: как у тебя, без изменений логики ---------- */
-  function renderChart(payload) {
-    const container = $('chart');
-
-    // на время анимации отключаем жесты
-    const chart = LightweightCharts.createChart(container, {
+  /* АНИМАЦИЯ (как раньше) */
+  function renderChart(payload){
+    const chart = LightweightCharts.createChart($('chart'), {
       autoSize: true,
-      layout: { background: { type: 'solid', color: '#ffffff' }, textColor: '#111' },
-      grid: { vertLines: { color: 'rgba(0,0,0,.05)' }, horzLines: { color: 'rgba(0,0,0,.05)' } },
-      rightPriceScale: { borderVisible: false },
-      timeScale: { borderVisible: false, rightOffset: 0, barSpacing: 8, fixLeftEdge: true },
-      handleScroll: { mouseWheel: false, pressedMouseMove: false, horzTouchDrag: false },
-      handleScale:  { axisPressedMouseMove: false, mouseWheel: false, pinch: false },
+      layout: { background:{type:'solid', color:'#ffffff'}, textColor:'#111' },
+      grid: { vertLines:{ color:'rgba(0,0,0,.05)' }, horzLines:{ color:'rgba(0,0,0,.05)' } },
+      rightPriceScale: { borderVisible:false },
+      timeScale: { borderVisible:false, rightOffset:0, barSpacing:8, fixLeftEdge:true },
+      handleScroll: { mouseWheel:false, pressedMouseMove:false, horzTouchDrag:false },
+      handleScale:  { axisPressedMouseMove:false, mouseWheel:false, pinch:false },
       crosshair: { mode: LightweightCharts.CrosshairMode.Normal }
     });
-
     const series = chart.addCandlestickSeries({
       upColor:'#22c55e', downColor:'#ef4444',
       borderUpColor:'#16a34a', borderDownColor:'#dc2626',
       wickUpColor:'#16a34a', wickDownColor:'#dc2626',
     });
-
     const src = payload.candles;
-    if (!Array.isArray(src) || !src.length) throw new Error('Нет данных');
+    if(!Array.isArray(src)||!src.length) throw new Error('Нет данных');
 
-    // ---------- параметры анимации ----------
-    const DURATION_MS = 600;  // длительность роста ОДНОГО бара
-    const STAGGER_MS  = 150;  // задержка старта следующего бара
-    const MAX_OVERLAP = 4;    // максимум одновременно «живых» баров
+    const DURATION_MS=600, STAGGER_MS=150, MAX_OVERLAP=4;
+    const EASE={linear:t=>t,soft:t=>1-Math.pow(1-t,3),bounce:t=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2);},elastic:t=>{const c4=(2*Math.PI)/3;return t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-0.75)*c4)+1;}};
+    const ease=EASE.soft;
 
-    const EASE = {
-      linear:  t => t,
-      soft:    t => 1 - Math.pow(1 - t, 3),
-      bounce:  t => { const c1=1.70158,c3=c1+1; return 1 + c3*Math.pow(t-1,3) + c1*Math.pow(t-1,2); },
-      elastic: t => { const c4=(2*Math.PI)/3; return t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-0.75)*c4)+1; }
-    };
-    const ease = EASE.soft;
-
-    // фиксируем левый край на первой свече, расширяем правую границу
-    const baseWin = Math.min(80, Math.max(10, src.length - 1));
-    chart.timeScale().setVisibleLogicalRange({ from: 0, to: Math.max(1, baseWin) });
+    const baseWin=Math.min(80, Math.max(10, src.length-1));
+    chart.timeScale().setVisibleLogicalRange({from:0, to:Math.max(1, baseWin)});
 
     series.setData([]);
-    const t0 = performance.now();
+    const t0=performance.now();
+    function frame(now){
+      const elapsed=now-t0;
+      const lastShouldStart=Math.min(src.length-1, Math.floor(elapsed/STAGGER_MS));
+      if(lastShouldStart<0){ requestAnimationFrame(frame); return; }
+      const firstActive=Math.max(0,lastShouldStart-(MAX_OVERLAP-1));
+      const frameData=[];
+      for(let i=0;i<firstActive;i++) frameData.push(src[i]);
 
-    function frame(now) {
-      const elapsed = now - t0;
-      const lastShouldStart = Math.min(src.length - 1, Math.floor(elapsed / STAGGER_MS));
-      if (lastShouldStart < 0) { requestAnimationFrame(frame); return; }
-
-      const firstActive = Math.max(0, lastShouldStart - (MAX_OVERLAP - 1));
-      const frameData = [];
-
-      for (let i = 0; i < firstActive; i++) frameData.push(src[i]);
-
-      let lastVisibleIndex = firstActive - 1;
-      for (let i = firstActive; i <= lastShouldStart; i++) {
-        const startTime = t0 + i * STAGGER_MS;
-        const t = Math.min(1, (now - startTime) / DURATION_MS);
-        const k = ease(Math.max(0, t));
-
-        const tgt = src[i];
-        const open = +tgt.open;
-        let close = open + (tgt.close - open) * k;
-
-        const baseHigh = Math.max(open, close);
-        const baseLow  = Math.min(open, close);
-        let high = baseHigh + (tgt.high - baseHigh) * k;
-        let low  = baseLow  + (tgt.low  - baseLow ) * k;
-
-        if (low > Math.min(open, close))  low  = Math.min(open, close);
-        if (high < Math.max(open, close)) high = Math.max(open, close);
-
-        frameData.push({ time: tgt.time, open, high, low, close });
-        lastVisibleIndex = i;
+      let lastVisibleIndex=firstActive-1;
+      for(let i=firstActive;i<=lastShouldStart;i++){
+        const startTime=t0+i*STAGGER_MS;
+        const t=Math.min(1,(now-startTime)/DURATION_MS);
+        const k=ease(Math.max(0,t));
+        const tgt=src[i]; const open=+tgt.open;
+        let close=open+(tgt.close-open)*k;
+        const baseHigh=Math.max(open,close), baseLow=Math.min(open,close);
+        let high=baseHigh+(tgt.high-baseHigh)*k;
+        let low =baseLow +(tgt.low -baseLow )*k;
+        if(low>Math.min(open,close)) low=Math.min(open,close);
+        if(high<Math.max(open,close)) high=Math.max(open,close);
+        frameData.push({time:tgt.time, open, high, low, close});
+        lastVisibleIndex=i;
       }
-
       series.setData(frameData);
-      const right = Math.max(baseWin, lastVisibleIndex + 0.999);
-      chart.timeScale().setVisibleLogicalRange({ from: 0, to: right });
+      const right=Math.max(baseWin,lastVisibleIndex+0.999);
+      chart.timeScale().setVisibleLogicalRange({from:0,to:right});
 
-      const lastDone = elapsed >= (src.length - 1) * STAGGER_MS + DURATION_MS;
-      if (!lastDone) {
-        requestAnimationFrame(frame);
-      } else {
+      const lastDone=elapsed>=(src.length-1)*STAGGER_MS+DURATION_MS;
+      if(!lastDone){ requestAnimationFrame(frame); }
+      else{
         series.setData(src);
         chart.applyOptions({
-          handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true },
-          handleScale:  { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
+          handleScroll:{ mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true },
+          handleScale:{ axisPressedMouseMove:true, mouseWheel:true, pinch:true },
         });
         chart.timeScale().fitContent();
       }
     }
     requestAnimationFrame(frame);
 
-    $('title').textContent = (payload.symbol || 'GER40') + ' — дневные свечи';
-    $('subtitle').textContent =
-      (payload.exchange || 'FOREXCOM') + ' • ' + (payload.timeframe || '1D') +
-      ' • баров: ' + src.length;
-    $('stats').innerHTML = summarize(src);
-  }
-  /* ---------- /АНИМАЦИЯ ---------- */
-
-  // ------- Telegram WebApp utils -------
-  function isWebApp(){
-    return typeof Telegram !== 'undefined' && Telegram.WebApp && typeof Telegram.WebApp.ready === 'function';
+    $('title').textContent=(payload.symbol||'GER40')+' — дневные свечи';
+    $('subtitle').textContent=(payload.exchange||'FOREXCOM')+' • '+(payload.timeframe||'1D')+' • баров: '+src.length;
+    $('stats').innerHTML=summarize(src);
   }
 
-  // передаём форму в бота
-  function buildIdeaPayload(meta) {
-    const analysis = (document.getElementById('f_analysis').value || '').trim();
-    const target   = (document.getElementById('f_target').value   || '').trim();
-    const inval    = (document.getElementById('f_inval').value    || '').trim();
-    const triggers = (document.getElementById('f_triggers').value || '').trim();
-    return { t:'idea_v1', meta, fields:{ analysis, target, triggers, invalidation: inval } };
+  /* Telegram helpers */
+  function isWebApp(){ return typeof Telegram!=='undefined' && Telegram.WebApp && typeof Telegram.WebApp.ready==='function'; }
+
+  function buildIdeaPayload(meta){
+    const analysis=($('f_analysis').value||'').trim();
+    const target  =($('f_target').value||'').trim();
+    const inval   =($('f_inval').value||'').trim();
+    const triggers=($('f_triggers').value||'').trim();
+    return { t:'idea_v1', meta, fields:{ analysis, target, triggers, invalidation:inval } };
   }
 
-  function trySendToBot(payload) {
-    const wa = isWebApp() ? Telegram.WebApp : null;
-    if (wa) {
-      try {
-        wa.ready && wa.ready();
-        wa.HapticFeedback?.impactOccurred?.('light');
-        wa.sendData(JSON.stringify(payload));
-        $('okMsg').style.display='block';
-        setTimeout(()=>wa.close(),300);
-        return true;
-      } catch (e) {
-        console.warn('sendData error:', e);
-      }
+  function trySendToBot(payload){
+    const wa=isWebApp()?Telegram.WebApp:null;
+    if(wa){
+      try{ wa.ready(); wa.HapticFeedback?.impactOccurred?.('light'); wa.sendData(JSON.stringify(payload)); $('okMsg').style.display='block'; setTimeout(()=>wa.close(),300); return true; }catch(e){ console.warn('sendData error:',e); }
     }
-    const w = $('warnMsg'); w.style.display='block';
-    w.textContent='Открой через кнопку в боте, чтобы автоотправка сработала.';
-    return false;
+    const w=$('warnMsg'); w.style.display='block'; w.textContent='Открой через кнопку в боте, чтобы автоотправка сработала.'; return false;
   }
 
-  // --- fullscreen + safe-area + ширина ---
+  /* safe-area + fullscreen + ширина */
   function applyInsetsFromWebApp(){
-    if (!isWebApp()) return;
-    const wa = Telegram.WebApp;
-    const s = wa.contentSafeAreaInset || wa.safeAreaInset;
-    if (!s) return;
-    const r = document.documentElement.style;
-    r.setProperty('--sat', (s.top||0) + 'px');
-    r.setProperty('--sar', (s.right||0) + 'px');
-    r.setProperty('--sab', (s.bottom||0) + 'px');
-    r.setProperty('--sal', (s.left||0) + 'px');
+    if(!isWebApp()) return;
+    const wa=Telegram.WebApp; const s=wa.contentSafeAreaInset||wa.safeAreaInset; if(!s) return;
+    const r=document.documentElement.style;
+    r.setProperty('--sat',(s.top||0)+'px'); r.setProperty('--sar',(s.right||0)+'px'); r.setProperty('--sab',(s.bottom||0)+'px'); r.setProperty('--sal',(s.left||0)+'px');
   }
-
-  function applyWidthMode(){
-    const mode = qs.get('w');
-    if (mode === 'fixed') document.body.classList.add('fixed');
-    else document.body.classList.remove('fixed');
-  }
-
+  function applyWidthMode(){ const mode=qs.get('w'); if(mode==='fixed') document.body.classList.add('fixed'); else document.body.classList.remove('fixed'); }
   function initFullscreen(){
-    if (!isWebApp()) return;
-    const wa = Telegram.WebApp;
-    try {
-      wa.ready();
-      wa.expand(); // максимум по высоте
-      wa.setHeaderColor?.('#ffffff');
-      wa.setBackgroundColor?.('#ffffff');
-    } catch {}
-
-    // показать кнопку
-    const btn = $('fsBtn');
-    if (wa.requestFullscreen && wa.exitFullscreen && btn){
-      btn.style.display = 'inline-flex';
-      const setLabel = () => { btn.textContent = wa.isFullscreen ? 'Выйти из полного экрана' : 'Полный экран'; };
-      btn.onclick = () => { try { wa.isFullscreen ? wa.exitFullscreen() : wa.requestFullscreen(); } catch {} };
-      wa.onEvent('fullscreenChanged', setLabel);
-      wa.onEvent('fullscreenFailed', (e) => console.warn('fullscreenFailed', e));
-      setLabel();
-
-      // автозапрос по умолчанию (стараемся войти в фуллскрин):
-      const tryFS = () => { if (!wa.isFullscreen) { try { wa.requestFullscreen(); } catch {} } };
+    if(!isWebApp()) return;
+    const wa=Telegram.WebApp;
+    try{ wa.ready(); wa.expand(); wa.setHeaderColor?.('#ffffff'); wa.setBackgroundColor?.('#ffffff'); }catch{}
+    const btn=$('fsBtn');
+    if(wa.requestFullscreen && wa.exitFullscreen && btn){
+      btn.style.display='inline-flex';
+      const setLabel=()=>{ btn.textContent=wa.isFullscreen?'Выйти из полного экрана':'Полный экран'; };
+      btn.onclick=()=>{ try{ wa.isFullscreen?wa.exitFullscreen():wa.requestFullscreen(); }catch{} };
+      wa.onEvent('fullscreenChanged', setLabel); wa.onEvent('fullscreenFailed', e=>console.warn('fullscreenFailed',e)); setLabel();
+      const tryFS=()=>{ if(!wa.isFullscreen){ try{ wa.requestFullscreen(); }catch{} } };
       wa.onEvent('activated', tryFS);
-      // первый пользовательский тап — логично тоже пробовать
-      const once = () => { document.removeEventListener('pointerdown', once, true); tryFS(); };
+      const once=()=>{ document.removeEventListener('pointerdown', once, true); tryFS(); };
       setTimeout(()=>document.addEventListener('pointerdown', once, true), 0);
-      // сразу попробуем (если платформа разрешит без жеста)
       tryFS();
     }
-
-    // safe-area
-    applyInsetsFromWebApp();
-    wa.onEvent('contentSafeAreaChanged', applyInsetsFromWebApp);
-    wa.onEvent('safeAreaChanged', applyInsetsFromWebApp);
+    applyInsetsFromWebApp(); wa.onEvent('contentSafeAreaChanged', applyInsetsFromWebApp); wa.onEvent('safeAreaChanged', applyInsetsFromWebApp);
   }
 
-  document.addEventListener('DOMContentLoaded',()=>{
-    // шапка
-    $('copyLinkBtn').addEventListener('click',async()=>{
-      try{await navigator.clipboard.writeText(location.href);}catch{}
-      const b=$('copyLinkBtn'); const t=b.textContent;
-      b.textContent='Скопировано!'; setTimeout(()=>b.textContent=t,1000);
-    });
+  document.addEventListener('DOMContentLoaded', ()=>{
+    $('copyLinkBtn').addEventListener('click', async()=>{ try{await navigator.clipboard.writeText(location.href);}catch{} const b=$('copyLinkBtn'); const t=b.textContent; b.textContent='Скопировано!'; setTimeout(()=>b.textContent=t,900); });
 
-    // режим ширины и fullscreen (по умолчанию — пробуем включить)
-    applyWidthMode();
-    initFullscreen();
+    applyWidthMode(); initFullscreen();
 
-    // грузим данные и рисуем
     const p=parsePayload();
-    if(!p){ $('subtitle').textContent='Нет данных (?demo=1 для теста)'; }
-    else {
-      try{ renderChart(p); } catch(e){ showError(e.message || e); }
-    }
+    if(!p){ $('subtitle').textContent='Нет данных (?demo=1 для теста)'; } else { try{ renderChart(p); }catch(e){ showError(e.message||e); } }
 
-    // обработка формы
-    const form = $('ideaForm');
-    form.addEventListener('submit',(ev)=>{
-      ev.preventDefault();
-      const meta = {
-        symbol: (p && p.symbol) || 'GER40',
-        exchange: (p && p.exchange) || 'FOREXCOM',
-        timeframe: (p && p.timeframe) || '1D',
-        period: (p && p.candles && p.candles.length)
-          ? { from: p.candles[0].time, to: p.candles[p.candles.length-1].time }
-          : null
-      };
-      const payload = buildIdeaPayload(meta);
-      if (!payload.fields.analysis && !payload.fields.target && !payload.fields.triggers && !payload.fields.invalidation) {
-        alert('Заполни хотя бы одно поле.');
-        return;
-      }
+    $('ideaForm').addEventListener('submit', (ev)=>{ ev.preventDefault();
+      const meta={ symbol:(p&&p.symbol)||'GER40', exchange:(p&&p.exchange)||'FOREXCOM', timeframe:(p&&p.timeframe)||'1D', period:(p&&p.candles&&p.candles.length)?{from:p.candles[0].time, to:p.candles.at(-1).time}:null };
+      const payload=buildIdeaPayload(meta);
+      if(!payload.fields.analysis && !payload.fields.target && !payload.fields.triggers && !payload.fields.invalidation){ alert('Заполни хотя бы одно поле.'); return; }
       trySendToBot(payload);
     });
-
-    // очистка
-    $('clearBtn').addEventListener('click', ()=>{
-      ['f_analysis','f_target','f_inval','f_triggers'].forEach(id => { const el=$(id); if (el) el.value=''; });
-      $('okMsg').style.display='none';
-      $('warnMsg').style.display='none';
-    });
+    $('clearBtn').addEventListener('click', ()=>{ ['f_analysis','f_target','f_inval','f_triggers'].forEach(id=>{$(id).value='';}); $('okMsg').style.display='none'; $('warnMsg').style.display='none'; });
   });
 </script>
 </body>
