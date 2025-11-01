@@ -238,9 +238,9 @@
       chart.timeScale().fitContent(); return;
     }
 
-    const DURATION_MS=1100;   // было 600 — теперь медленнее
-    const STAGGER_MS =200;    // было 150 — старт следующего реже
-    const MAX_OVERLAP=6;      // чуть длиннее «каскад»
+    const DURATION_MS=1000;   // было 600 — теперь медленнее
+    const STAGGER_MS =1000;    // было 150 — старт следующего реже
+    const MAX_OVERLAP=1;      // чуть длиннее «каскад»
     const ease=t=>1-Math.pow(1-t,3);
 
     const baseWin=Math.min(90, Math.max(12, left.length||1));
