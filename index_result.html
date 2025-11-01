@@ -8,8 +8,11 @@
     :root{
       --bg:#f8fafc; --card:#fff; --border:#e5e7eb; --text:#111827; --muted:#6b7280; --accent:#2563eb; --green:#22c55e; --red:#ef4444;
       --sat: env(safe-area-inset-top); --sar: env(safe-area-inset-right); --sab: env(safe-area-inset-bottom); --sal: env(safe-area-inset-left);
-      --page-max: 100vw;
+      --page-max: calc(100vw - var(--sal) - var(--sar));
     }
+    
+    *, *::before, *::after { box-sizing: border-box; }
+    
     html,body{height:100%}
     body{
       margin:0; background:var(--bg); color:var(--text);
@@ -18,7 +21,7 @@
       padding-left:var(--sal); padding-right:var(--sar);
       -webkit-tap-highlight-color:transparent; touch-action:manipulation;
     }
-    body.fixed{--page-max:1280px;}
+    body.fixed{--page-max: min(1280px, calc(100vw - var(--sal) - var(--sar)));}
     header{
       display:flex; flex-wrap:wrap; align-items:center; gap:12px 10px; justify-content:space-between;
       padding:calc(12px + var(--sat)) 16px 12px; background:var(--card); border-bottom:1px solid var(--border); box-shadow:0 2px 6px rgba(0,0,0,.03); position:sticky; top:0; z-index:10;
@@ -32,14 +35,31 @@
     .chip{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:#fff; font-size:12px;}
     .chip.goal{border-color:#bbf7d0; background:#ecfdf5; color:#166534;}
     .chip.inv{border-color:#fecaca; background:#fef2f2; color:#991b1b;}
-    main{flex:1; display:grid; grid-template-columns:minmax(0,2.2fr) minmax(300px,1fr); gap:16px; padding:16px; max-width:var(--page-max); margin:0 auto; width:100%; box-sizing:border-box;}
-    section{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.04);}
+    main{
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); /* было minmax(300px, 1fr) */
+      gap: 16px;             /* (или 20px, как у тебя) */
+      padding: 16px;         /* (или твои значения)   */
+      max-width: var(--page-max);
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    section{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.04); min-width: 0;}
     #chart{height:calc(100vh - 160px - var(--sab)); min-height:320px;}
     h2{margin:0 0 10px; font-size:15px; font-weight:600;}
     p{margin:0 0 8px; color:var(--muted); font-size:13px;}
     pre.ai{white-space:pre-wrap; font:13px/1.5 ui-sans-serif,system-ui; color:#111; margin:8px 0 0;}
     #err{display:none; color:var(--red); white-space:pre-wrap; font-family:ui-monospace,Menlo,Consolas,monospace; margin-top:10px;}
     footer{text-align:center; font-size:12px; color:var(--muted); padding:10px 0 calc(16px + var(--sab));}
+
+    /* заголовочная строка тоже не должна форсить ширину */
+    #brand, .actions { min-width: 0; }
+    
+    /* на всякий — контейнер графика не даёт переполниться по ширине */
+    #chart { width: 100%; overflow: hidden; border-radius: 12px; }
+    
     @media (max-width:900px){ main{grid-template-columns:1fr; gap:12px; padding:12px;} section{padding:14px;} #chart{height:52vh;} .actions{width:100%;} .actions .btn{flex:1 1 auto;} }
     @media (max-width:460px){ header{padding:calc(10px + var(--sat)) 12px 10px;} #title{font-size:15px;} #subtitle{font-size:12px;} .btn{min-height:44px;} }
   </style>
