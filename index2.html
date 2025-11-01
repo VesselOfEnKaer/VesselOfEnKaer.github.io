@@ -7,86 +7,34 @@
 
   <style>
     :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --border: #e5e7eb;
-      --text: #111827;
-      --muted: #6b7280;
-      --accent: #2563eb;
-      --green: #22c55e;
-      --red: #ef4444;
+      --bg: #f8fafc; --card: #ffffff; --border: #e5e7eb;
+      --text: #111827; --muted: #6b7280; --accent: #2563eb;
+      --green: #22c55e; --red: #ef4444;
     }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font: 14px/1.5 "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 28px;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      box-shadow: 0 2px 6px rgba(0,0,0,.03);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    #title { font-weight: 600; font-size: 16px; }
-    #subtitle { color: var(--muted); font-size: 13px; }
-    main {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-      padding: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    section {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.04);
-    }
-    #chart { height: 70vh; }
-    h2 {
-      margin: 0 0 10px;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text);
-    }
-    p { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
-    .btn {
-      border: 1px solid var(--border);
-      padding: 8px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      background: var(--card);
-      color: var(--text);
-      transition: all .15s;
-    }
-    .btn:hover { border-color: var(--accent); color: var(--accent); }
-    footer {
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      padding: 14px 0 20px;
-    }
-    #err {
-      color: var(--red);
-      white-space: pre-wrap;
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      margin-top: 10px;
-    }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 "Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif; display:flex; flex-direction:column; min-height:100vh; }
+    header { display:flex; align-items:center; justify-content:space-between; padding:16px 28px; background:var(--card); border-bottom:1px solid var(--border); box-shadow:0 2px 6px rgba(0,0,0,.03); position:sticky; top:0; z-index:10; }
+    #title { font-weight:600; font-size:16px; }
+    #subtitle { color:var(--muted); font-size:13px; }
+    main { flex:1; display:grid; grid-template-columns:2fr 1fr; gap:20px; padding:24px; max-width:1400px; margin:0 auto; width:100%; box-sizing:border-box; }
+    section { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.04); }
+    #chart { height:70vh; }
+    h2 { margin:0 0 10px; font-size:15px; font-weight:600; color:var(--text); }
+    p { margin:0 0 8px; color:var(--muted); font-size:13px; }
+    .btn { border:1px solid var(--border); padding:8px 14px; border-radius:10px; cursor:pointer; background:var(--card); color:var(--text); transition:all .15s; }
+    .btn:hover { border-color:var(--accent); color:var(--accent); }
+    footer { text-align:center; font-size:12px; color:var(--muted); padding:14px 0 20px; }
+    #err { color:var(--red); white-space:pre-wrap; font-family:ui-monospace, Menlo, Consolas, monospace; margin-top:10px; }
+
+    /* форма справа */
+    .field { margin-top:12px; }
+    .label { font-size:12px; color:var(--muted); margin-bottom:6px; display:block; }
+    textarea { width:100%; min-height:84px; resize:vertical; padding:10px 12px; border:1px solid var(--border); border-radius:10px; outline:none; font:13px/1.45 inherit; background: #fff; }
+    textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+    .actions { display:flex; gap:10px; margin-top:14px; }
+    .btn.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .btn.primary:hover { filter:brightness(0.95); }
+    .muted { color:var(--muted); }
+    .small { font-size:12px; }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -106,11 +54,35 @@
     <div id="chart"></div>
     <div id="err" style="display:none"></div>
   </section>
+
   <section>
-    <h2>Параметры</h2>
-    <p>Ссылка содержит зашифрованный JSON со свечами (time, open, high, low, close).<br>
-    Наведи курсор по свечам, чтобы увидеть значения.</p>
-    <h2>Сводка</h2>
+    <h2>Быстрый анализ</h2>
+    <form id="analysisForm">
+      <div class="field">
+        <label class="label" for="f_overview">Общий анализ</label>
+        <textarea id="f_overview" placeholder="Кратко: что было и где мы сейчас…"></textarea>
+      </div>
+      <div class="field">
+        <label class="label" for="f_target">Цель движения</label>
+        <textarea id="f_target" placeholder="Куда бы работал(а), ориентиры по ценам/зонам…"></textarea>
+      </div>
+      <div class="field">
+        <label class="label" for="f_triggers">Триггеры</label>
+        <textarea id="f_triggers" placeholder="От каких зон/паттернов искал(а) вход…"></textarea>
+      </div>
+      <div class="field">
+        <label class="label" for="f_inval">Инвалидация</label>
+        <textarea id="f_inval" placeholder="Где идея перестаёт быть рабочей…"></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">Отправить в бота</button>
+        <button type="button" class="btn" id="cancelBtn">Отмена</button>
+      </div>
+      <p class="small muted">Совет: заполни хотя бы один блок — остальное можно позже.</p>
+    </form>
+
+    <h2 style="margin-top:18px">Сводка</h2>
     <p id="stats" class="muted">–</p>
   </section>
 </main>
@@ -135,6 +107,8 @@
     return Uint8Array.from(bin, c=>c.charCodeAt(0));
   }
 
+  let PAYLOAD = null; // сохраним для отправки вместе с анализом
+
   function parsePayload() {
     if (qs.get('demo')==='1') {
       const start=new Date('2025-01-01');
@@ -147,148 +121,89 @@
     }
     const d=qs.get('d'), j=qs.get('j');
     try{
-      if(d){
-        const infl=pako.inflate(b64urlToBytes(d));
-        return JSON.parse(new TextDecoder().decode(infl));
-      }
-      if(j){return JSON.parse(decodeURIComponent(j));}
-    }catch(e){showError('Ошибка разбора: '+e.message);}
+      if(d){ const infl=pako.inflate(b64urlToBytes(d)); return JSON.parse(new TextDecoder().decode(infl)); }
+      if(j){ return JSON.parse(decodeURIComponent(j)); }
+    }catch(e){ showError('Ошибка разбора: '+e.message); }
     return null;
   }
 
   function summarize(candles){
-    const f=candles[0],l=candles.at(-1);
+    const f=candles[0], l=candles.at(-1);
     const min=Math.min(...candles.map(c=>c.low));
     const max=Math.max(...candles.map(c=>c.high));
     const change=((l.close-f.open)/f.open*100).toFixed(2);
     return `Период: ${f.time} → ${l.time}<br>Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)}<br>Изм.: ${change}%`;
   }
 
-  function renderChart(payload) {
-  const container = $('chart');
+  function renderChart(payload){
+    const container=$('chart');
+    const chart=LightweightCharts.createChart(container,{
+      autoSize:true,
+      layout:{background:{type:'solid',color:'#ffffff'}, textColor:'#111'},
+      grid:{ vertLines:{color:'rgba(0,0,0,.05)'}, horzLines:{color:'rgba(0,0,0,.05)'} },
+      rightPriceScale:{borderVisible:false},
+      timeScale:{borderVisible:false,rightOffset:2,barSpacing:8,fixLeftEdge:true},
+      crosshair:{mode:LightweightCharts.CrosshairMode.Normal}
+    });
+    const series=chart.addCandlestickSeries({
+      upColor:'#22c55e',downColor:'#ef4444',
+      borderUpColor:'#16a34a',borderDownColor:'#dc2626',
+      wickUpColor:'#16a34a',wickDownColor:'#dc2626'
+    });
+    series.setData(payload.candles);
+    chart.timeScale().fitContent();
 
-  // на время анимации отключаем жесты
-  const chart = LightweightCharts.createChart(container, {
-    autoSize: true,
-    layout: { background: { type: 'solid', color: '#ffffff' }, textColor: '#111' },
-    grid: { vertLines: { color: 'rgba(0,0,0,.05)' }, horzLines: { color: 'rgba(0,0,0,.05)' } },
-    rightPriceScale: { borderVisible: false },
-    timeScale: { borderVisible: false, rightOffset: 0, barSpacing: 8, fixLeftEdge: true },
-    handleScroll: { mouseWheel: false, pressedMouseMove: false, horzTouchDrag: false },
-    handleScale:  { axisPressedMouseMove: false, mouseWheel: false, pinch: false },
-    crosshair: { mode: LightweightCharts.CrosshairMode.Normal }
-  });
-
-  const series = chart.addCandlestickSeries({
-    upColor:'#22c55e', downColor:'#ef4444',
-    borderUpColor:'#16a34a', borderDownColor:'#dc2626',
-    wickUpColor:'#16a34a', wickDownColor:'#dc2626',
-  });
-
-  const src = payload.candles;
-  if (!Array.isArray(src) || !src.length) throw new Error('Нет данных');
-
-  // ---------- параметры анимации ----------
-  const DURATION_MS = 600;  // длительность роста ОДНОГО бара
-  const STAGGER_MS  = 150;  // задержка старта следующего бара
-  const MAX_OVERLAP = 4;    // максимум одновременно «живых» баров (визуально ≈ DURATION/STAGGER)
-
-  // плавность (как раньше): soft/bounce/elastic/linear
-  const EASE = {
-    linear:  t => t,
-    soft:    t => 1 - Math.pow(1 - t, 3),
-    bounce:  t => { const c1=1.70158,c3=c1+1; return 1 + c3*Math.pow(t-1,3) + c1*Math.pow(t-1,2); },
-    elastic: t => { const c4=(2*Math.PI)/3; return t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-0.75)*c4)+1; }
-  };
-  const ease = EASE.soft;
-
-  // фиксируем левый край на первой свече, расширяем правую границу
-  const baseWin = Math.min(80, Math.max(10, src.length - 1));
-  chart.timeScale().setVisibleLogicalRange({ from: 0, to: Math.max(1, baseWin) });
-
-  // стартовое состояние (ничего не нарисовано)
-  series.setData([]);
-
-  // «конвейер»: бар i стартует в момент t0 + i*STAGGER_MS
-  const t0 = performance.now();
-
-  function frame(now) {
-    const elapsed = now - t0;
-
-    // индекс последнего, кто УЖЕ должен начать анимацию
-    const lastShouldStart = Math.min(
-      src.length - 1,
-      Math.floor(elapsed / STAGGER_MS)
-    );
-
-    if (lastShouldStart < 0) { requestAnimationFrame(frame); return; }
-
-    // ограничим глубину, чтобы не анимировать слишком много одновременно
-    const firstActive = Math.max(0, lastShouldStart - (MAX_OVERLAP - 1));
-
-    // соберём массив на кадр: все готовые бары + активные с промежуточными значениями
-    const frameData = [];
-
-    // готовые (законченные) бары до firstActive
-    for (let i = 0; i < firstActive; i++) frameData.push(src[i]);
-
-    // активные бары (firstActive..lastShouldStart)
-    let lastVisibleIndex = firstActive - 1;
-    for (let i = firstActive; i <= lastShouldStart; i++) {
-      const startTime = t0 + i * STAGGER_MS;
-      const t = Math.min(1, (now - startTime) / DURATION_MS);
-      const k = ease(Math.max(0, t)); // 0..1
-
-      const tgt = src[i];
-      const open = +tgt.open;
-      // тело растёт от open к close, тени — к high/low
-      let close = open + (tgt.close - open) * k;
-
-      const baseHigh = Math.max(open, close);
-      const baseLow  = Math.min(open, close);
-      let high = baseHigh + (tgt.high - baseHigh) * k;
-      let low  = baseLow  + (tgt.low  - baseLow ) * k;
-
-      // инварианты (на случай оверсута у bounce/elastic)
-      if (low > Math.min(open, close))  low  = Math.min(open, close);
-      if (high < Math.max(open, close)) high = Math.max(open, close);
-
-      frameData.push({ time: tgt.time, open, high, low, close });
-      lastVisibleIndex = i;
-    }
-
-    // setData рисует сразу весь хвост до последнего активного бара
-    series.setData(frameData);
-
-    // расширяем правую границу окна, левую держим на 0
-    const right = Math.max(baseWin, lastVisibleIndex + 0.999);
-    chart.timeScale().setVisibleLogicalRange({ from: 0, to: right });
-
-    // завершение: когда отрисован последний и его k==1
-    const lastDone = elapsed >= (src.length - 1) * STAGGER_MS + DURATION_MS;
-    if (!lastDone) {
-      requestAnimationFrame(frame);
-    } else {
-      // финальная фиксация точных данных и возврат жестов
-      series.setData(src);
-      chart.applyOptions({
-        handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true },
-        handleScale:  { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
-      });
-      chart.timeScale().fitContent();
-    }
+    $('title').textContent=(payload.symbol||'GER40')+' — дневные свечи';
+    $('subtitle').textContent=(payload.exchange||'FOREXCOM')+' • '+(payload.timeframe||'1D')+' • баров: '+payload.candles.length;
+    $('stats').innerHTML=summarize(payload.candles);
   }
 
-  requestAnimationFrame(frame);
+  // ---- отправка в бота ----
+  function buildReport() {
+    const overview = $('f_overview').value.trim();
+    const target = $('f_target').value.trim();
+    const triggers = $('f_triggers').value.trim();
+    const inval = $('f_inval').value.trim();
 
-  // заголовок/сводка
-  $('title').textContent = (payload.symbol || 'GER40') + ' — дневные свечи';
-  $('subtitle').textContent =
-    (payload.exchange || 'FOREXCOM') + ' • ' + (payload.timeframe || '1D') +
-    ' • баров: ' + src.length;
-  $('stats').innerHTML = summarize(src);
-}
-  
+    if (!overview && !target && !triggers && !inval) {
+      alert('Заполни хотя бы одно поле 🙏');
+      return null;
+    }
+    const c = PAYLOAD.candles || [];
+    const meta = {
+      symbol: PAYLOAD.symbol || 'GER40',
+      exchange: PAYLOAD.exchange || 'FOREXCOM',
+      timeframe: PAYLOAD.timeframe || '1D',
+      period: c.length ? { from: c[0].time, to: c[c.length-1].time } : null,
+    };
+    return { meta, overview, target, triggers, invalidation: inval };
+  }
+
+  function sendToTelegram(report) {
+    // 1) WebApp режим (идеально): отправляем боту и закрываем
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg && typeof tg.sendData === 'function') {
+      tg.sendData(JSON.stringify({ kind:'analysis', payload: report }));
+      // небольшой таймаут — на всякий
+      setTimeout(()=> tg.close(), 50);
+      return;
+    }
+    // 2) Фолбэк: Telegram Share (пользователь выберет чат и нажмёт «Отправить»)
+    const lines = [
+      '📝 Анализ по графику',
+      `${report.meta.symbol} @ ${report.meta.exchange} • ${report.meta.timeframe}`,
+      report.meta.period ? `Период: ${report.meta.period.from} → ${report.meta.period.to}` : '',
+      '',
+      report.overview ? `Общий анализ:\n${report.overview}` : '',
+      report.target ? `Цель движения:\n${report.target}` : '',
+      report.triggers ? `Триггеры:\n${report.triggers}` : '',
+      report.invalidation ? `Инвалидация:\n${report.invalidation}` : ''
+    ].filter(Boolean).join('\n');
+    const shareUrl = 'https://t.me/share/url?text=' + encodeURIComponent(lines);
+    location.href = shareUrl;
+    // закрываем вкладку чуть позже (внутри WebView/мобилках обычно ок)
+    setTimeout(()=> { window.close(); }, 800);
+  }
 
   document.addEventListener('DOMContentLoaded',()=>{
     $('copyLinkBtn').addEventListener('click',async()=>{
@@ -296,9 +211,20 @@
       const b=$('copyLinkBtn'); const t=b.textContent;
       b.textContent='Скопировано!'; setTimeout(()=>b.textContent=t,1000);
     });
-    const p=parsePayload();
-    if(!p){$('subtitle').textContent='Нет данных (?demo=1 для теста)';return;}
-    try{renderChart(p);}catch(e){showError(e.message);}
+
+    PAYLOAD = parsePayload();
+    if(!PAYLOAD){ $('subtitle').textContent='Нет данных (?demo=1 для теста)'; }
+    else {
+      try { renderChart(PAYLOAD); }
+      catch(e){ showError(e.message); }
+    }
+
+    $('analysisForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const rep = buildReport();
+      if (rep) sendToTelegram(rep);
+    });
+    $('cancelBtn').addEventListener('click', ()=> window.close());
   });
 </script>
 </body>
