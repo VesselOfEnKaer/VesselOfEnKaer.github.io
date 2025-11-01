@@ -2,41 +2,99 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>GER40 — Result</title>
 
   <style>
-    :root {
+    :root{
       --bg:#f8fafc; --card:#fff; --border:#e5e7eb; --text:#111827; --muted:#6b7280;
       --accent:#2563eb; --green:#22c55e; --red:#ef4444; --ok:#16a34a; --warn:#d97706;
       --goal:#0ea5e9; --inv:#f97316;
+
+      /* безопасные отступы и ширина страницы без переполнения */
+      --sat: env(safe-area-inset-top);
+      --sar: env(safe-area-inset-right);
+      --sab: env(safe-area-inset-bottom);
+      --sal: env(safe-area-inset-left);
+      --page-max: calc(100vw - var(--sal) - var(--sar));
     }
-    body{ margin:0; background:var(--bg); color:var(--text);
-      font:14px/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      display:flex; flex-direction:column; min-height:100vh; }
-    header{ display:flex; align-items:center; justify-content:space-between; gap:16px;
-      padding:16px 28px; background:var(--card); border-bottom:1px solid var(--border);
-      box-shadow:0 2px 6px rgba(0,0,0,.03); position:sticky; top:0; z-index:10; }
-    #title{ font-weight:600; font-size:16px; }
-    #subtitle{ color:var(--muted); font-size:13px; }
-    .badge{ font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--border);
-      background:#fff; color:#111; }
+
+    /* чтобы ничего не выталкивало ширину */
+    *,*::before,*::after{ box-sizing:border-box; }
+    html,body{ height:100%; overflow-x:hidden; }
+
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font:14px/1.5 "Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      display:flex; flex-direction:column; min-height:100vh;
+      padding-left:var(--sal); padding-right:var(--sar);
+      -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+    }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px 10px; flex-wrap:wrap;
+      padding:calc(12px + var(--sat)) 16px 12px;
+      background:var(--card); border-bottom:1px solid var(--border); box-shadow:0 2px 6px rgba(0,0,0,.03);
+      position:sticky; top:0; z-index:10;
+    }
+    #brand{display:flex; gap:12px; align-items:center; min-width:0;}
+    #title{ font-weight:600; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #subtitle{ color:var(--muted); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .badge{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:#fff; color:#111; }
     .ok{ color:var(--ok); border-color:#bbf7d0; background:#ecfdf5; }
     .warn{ color:var(--warn); border-color:#fde68a; background:#fffbeb; }
-    main{ flex:1; display:grid; grid-template-columns:2fr 1fr; gap:20px; padding:24px;
-      max-width:1400px; margin:0 auto; width:100%; box-sizing:border-box; }
-    section{ background:var(--card); border:1px solid var(--border); border-radius:16px;
-      padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.04); }
-    #chart{ height:70vh; }
+
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; }
+    .btn{ border:1px solid var(--border); padding:10px 14px; border-radius:10px; background:var(--card); color:var(--text); cursor:pointer; min-height:40px; }
+    .btn:hover{ border-color:var(--accent); color:var(--accent); }
+
+    main{
+      flex:1;
+      display:grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); /* правая колонка может сжиматься */
+      gap:16px;
+      padding:16px;
+      max-width:var(--page-max);
+      width:100%;
+      margin:0 auto;
+      box-sizing:border-box;
+    }
+    main > section{ min-width:0; } /* важно для избежания переполнения */
+
+    section{
+      background:var(--card); border:1px solid var(--border); border-radius:16px;
+      padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.04);
+    }
+
+    #chart{ width:100%; height:calc(100vh - 160px - var(--sab)); min-height:320px; overflow:hidden; border-radius:12px; }
+
     h2{ margin:0 0 10px; font-size:15px; font-weight:600; color:var(--text); }
     p{ margin:0 0 8px; color:var(--muted); font-size:13px; }
-    pre{ margin:0; white-space:pre-wrap; word-break:break-word; font:13px/1.5 ui-monospace, Menlo, Consolas, monospace; color:#111; }
+    pre{ margin:0; white-space:pre-wrap; word-break:break-word; font:13px/1.5 ui-sans-serif,system-ui; color:#111; }
+
     .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .pill{ padding:4px 8px; border-radius:999px; border:1px solid var(--border); font-size:12px; }
     .pill.goal{ border-color:rgba(14,165,233,.35); color:#0ea5e9; background:rgba(14,165,233,.08); }
-    .pill.inv{ border-color:rgba(249,115,22,.35); color:#f97316; background:rgba(249,115,22,.08); }
-    #err{ color:var(--red); white-space:pre-wrap; font-family:ui-monospace, Menlo, Consolas, monospace; margin-top:10px; }
-    footer{ text-align:center; font-size:12px; color:var(--muted); padding:14px 0 20px; }
+    .pill.inv{  border-color:rgba(249,115,22,.35); color:#f97316; background:rgba(249,115,22,.08); }
+
+    #err{ display:none; color:var(--red); white-space:pre-wrap; font-family:ui-monospace,Menlo,Consolas,monospace; margin-top:10px; }
+    footer{ text-align:center; font-size:12px; color:var(--muted); padding:10px 0 calc(16px + var(--sab)); }
+
+    /* Мобильная адаптация */
+    @media (max-width:900px){
+      main{ grid-template-columns:1fr; gap:12px; padding:12px; }
+      section{ padding:14px; }
+      #chart{ height:52vh; }
+      .actions{ width:100%; }
+      .actions .btn{ flex:1 1 auto; }
+    }
+    @media (max-width:460px){
+      header{ padding:calc(10px + var(--sat)) 12px 10px; }
+      #title{ font-size:15px; }
+      #subtitle{ font-size:12px; }
+      .btn{ min-height:44px; padding:10px 12px; }
+    }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -45,25 +103,26 @@
 </head>
 <body>
 <header>
-  <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+  <div id="brand">
     <div>
       <div id="title">Загрузка…</div>
       <div id="subtitle">Готовим результат</div>
     </div>
     <div id="hitBadge" class="badge warn">Ожидание…</div>
   </div>
-  <div class="row">
+  <div class="actions">
     <div id="goalPill" class="pill goal" style="display:none"></div>
     <div id="invPill"  class="pill inv"  style="display:none"></div>
+    <button id="fsBtn" class="btn" style="display:none">Полный экран</button>
+    <button id="copyBtn" class="btn">Скопировать ссылку</button>
   </div>
 </header>
 
 <main>
   <section>
     <div id="chart"></div>
-    <div id="err" style="display:none"></div>
+    <div id="err"></div>
   </section>
-
   <section>
     <h2>Ответ ИИ-тренера</h2>
     <pre id="aiText">—</pre>
@@ -73,18 +132,17 @@
 <footer>© 2025 GER40 Result • GitHub Pages</footer>
 
 <script>
-  // ---- утилиты ----
+  // ---------- utils ----------
   const qs = new URLSearchParams(location.search);
   const $  = id => document.getElementById(id);
   function showError(msg){ $('err').style.display='block'; $('err').textContent=String(msg||'Ошибка'); $('title').textContent='Ошибка'; $('subtitle').textContent='Смотри ниже'; }
-  function b64urlToBytes(b64u){ const b64=(b64u||'').replace(/-/g,'+').replace(/_/g,'/'); const pad=b64.length%4?4-(b64.length%4):0; const bin=atob(b64+'='.repeat(pad)); return Uint8Array.from(bin, c=>c.charCodeAt(0)); }
+  function b64urlToBytes(b64u){ const b64=(b64u||'').replace(/-/g,'+').replace(/_/g,'/'); const pad=b64.length%4?4-(b64.length%4):0; const bin=atob(b64+'='.repeat(pad)); return Uint8Array.from(bin,c=>c.charCodeAt(0)); }
 
-  // d = zlib(deflate) base64url JSON с полями:
-  // {symbol,exchange,timeframe,candles:[...], anchor:<int>, goal:<num>, inv:<num>, hit:"GOAL"|"INV"}
+  // d = zlib(deflate) base64url JSON: {symbol,exchange,timeframe,candles:[...], anchor:int, goal:number, inv:number, hit:"GOAL"|"INV"|null}
   function parsePayload(){
     const d=qs.get('d');
+    if(!d) return null;
     try{
-      if(!d) return null;
       const infl=pako.inflate(b64urlToBytes(d));
       return JSON.parse(new TextDecoder().decode(infl));
     }catch(e){ showError('Ошибка разбора данных: '+e.message); return null; }
@@ -101,27 +159,57 @@
 
   function summarize(c){ const f=c[0], l=c.at(-1); const min=Math.min(...c.map(x=>x.low)), max=Math.max(...c.map(x=>x.high)); const ch=((l.close-f.open)/f.open*100).toFixed(2); return `Период: ${f.time} → ${l.time} • Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)} • Изм.: ${ch}%`; }
 
-  // ---- рендер результата ----
+  // ---------- fullscreen + safe-area ----------
+  function isWebApp(){ return typeof Telegram!=='undefined' && Telegram.WebApp && typeof Telegram.WebApp.ready==='function'; }
+  function applyInsets(){
+    if(!isWebApp()) return;
+    const wa=Telegram.WebApp; const s=wa.contentSafeAreaInset||wa.safeAreaInset; if(!s) return;
+    const r=document.documentElement.style;
+    r.setProperty('--sat',(s.top||0)+'px'); r.setProperty('--sar',(s.right||0)+'px'); r.setProperty('--sab',(s.bottom||0)+'px'); r.setProperty('--sal',(s.left||0)+'px');
+  }
+  function initFullscreen(){
+    if(!isWebApp()) return;
+    const wa=Telegram.WebApp;
+    try{ wa.ready(); wa.expand(); wa.setHeaderColor?.('#ffffff'); wa.setBackgroundColor?.('#ffffff'); }catch{}
+    applyInsets(); wa.onEvent('contentSafeAreaChanged', applyInsets); wa.onEvent('safeAreaChanged', applyInsets);
+
+    const btn=$('fsBtn');
+    if(wa.requestFullscreen && wa.exitFullscreen){
+      btn.style.display='inline-flex';
+      const setLabel=()=>{ btn.textContent=wa.isFullscreen?'Выйти из полного экрана':'Полный экран'; };
+      btn.onclick=()=>{ try{ wa.isFullscreen?wa.exitFullscreen():wa.requestFullscreen(); }catch{} };
+      wa.onEvent('fullscreenChanged', setLabel);
+      wa.onEvent('fullscreenFailed', e=>console.warn('fullscreenFailed', e));
+      setLabel();
+
+      // авто-запрос фуллскрина
+      const tryFS=()=>{ if(!wa.isFullscreen){ try{ wa.requestFullscreen(); }catch{} } };
+      wa.onEvent('activated', tryFS);
+      const once=()=>{ document.removeEventListener('pointerdown', once, true); tryFS(); };
+      setTimeout(()=>document.addEventListener('pointerdown', once, true), 0);
+      tryFS();
+    }
+  }
+
+  // ---------- chart render ----------
   function render(payload, aiText){
-    if(!payload || !Array.isArray(payload.candles) || payload.candles.length===0) { showError('Нет данных для графика'); return; }
+    if(!payload || !Array.isArray(payload.candles) || payload.candles.length===0){ showError('Нет данных для графика'); return; }
     const src = payload.candles;
-    const anchor = Math.max(0, Math.min(payload.anchor ?? src.length, src.length)); // с какого индекса анимируем
+    const anchor = Math.max(0, Math.min(payload.anchor ?? src.length, src.length));
 
     $('title').textContent = (payload.symbol || 'GER40') + ' — результат';
     $('subtitle').textContent = summarize(src);
     $('aiText').textContent = aiText || '—';
 
-    // бейджи GOAL/INV
+    // бейджи
     if (typeof payload.goal === 'number') { const el=$('goalPill'); el.style.display='inline-block'; el.textContent='GOAL: '+payload.goal.toFixed(2); }
-    if (typeof payload.inv === 'number')  { const el=$('invPill');  el.style.display='inline-block'; el.textContent='INV: '+payload.inv.toFixed(2); }
+    if (typeof payload.inv  === 'number') { const el=$('invPill');  el.style.display='inline-block'; el.textContent='INV: '+payload.inv.toFixed(2); }
     const hb=$('hitBadge');
     if (payload.hit === 'GOAL') { hb.textContent='Достигнута цель ✅'; hb.classList.remove('warn'); hb.classList.add('ok'); }
     else if (payload.hit === 'INV') { hb.textContent='Сработала инвалидация ❌'; hb.classList.remove('ok'); hb.classList.add('warn'); }
     else { hb.textContent='Идём к целям…'; }
 
-    // график
-    const container=$('chart');
-    const chart=LightweightCharts.createChart(container,{
+    const chart=LightweightCharts.createChart($('chart'),{
       autoSize:true,
       layout:{background:{type:'solid',color:'#fff'}, textColor:'#111'},
       grid:{vertLines:{color:'rgba(0,0,0,.05)'}, horzLines:{color:'rgba(0,0,0,.05)'}},
@@ -131,67 +219,74 @@
       handleScale:{axisPressedMouseMove:false, mouseWheel:false, pinch:false},
       crosshair:{mode:LightweightCharts.CrosshairMode.Normal}
     });
-    const series=chart.addCandlestickSeries({
+    const s=chart.addCandlestickSeries({
       upColor:'#22c55e', downColor:'#ef4444',
       borderUpColor:'#16a34a', borderDownColor:'#dc2626',
       wickUpColor:'#16a34a', wickDownColor:'#dc2626'
     });
 
-    // линии цели/инвалидации (если поддерживается API)
-    try { payload.goal!=null && series.createPriceLine({ price: payload.goal, color:'#0ea5e9', lineWidth:1, title:'GOAL' }); } catch{}
-    try { payload.inv !=null && series.createPriceLine({ price: payload.inv,  color:'#f97316', lineWidth:1, title:'INV'  }); } catch{}
+    // линии цели/инвалидации
+    try{ if(payload.goal!=null) s.createPriceLine({price:payload.goal, color:'#0ea5e9', lineStyle:LightweightCharts.LineStyle.Dotted, lineWidth:1, title:'GOAL'}); }catch{}
+    try{ if(payload.inv !=null)  s.createPriceLine({price:payload.inv,  color:'#f97316', lineStyle:LightweightCharts.LineStyle.Dotted, lineWidth:1, title:'INV' }); }catch{}
 
-    // 1) статично — до anchor
     const left = src.slice(0, anchor);
-    if (left.length) series.setData(left);
+    if (left.length) s.setData(left);
 
-    // 2) плавная анимация — с anchor до конца
     const tail = src.slice(anchor);
-    if (!tail.length) {
+    if (!tail.length){
       chart.applyOptions({ handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true}, handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true} });
       chart.timeScale().fitContent();
       return;
     }
 
-    const DURATION_MS=600, STAGGER_MS=150, MAX_OVERLAP=4;
-    const ease=t=>1-Math.pow(1-t,3);
-    const baseWin=Math.min(80, Math.max(10, src.length-1));
+    // ---- более медленная анимация ----
+    const DURATION_MS = 900;   // было 600 — теперь медленнее рост одного бара
+    const STAGGER_MS  = 220;   // было 150 — задержка старта следующего
+    const MAX_OVERLAP = 5;     // максимум одновременно «живых» баров
+    const ease = t => 1 - Math.pow(1 - t, 2.6); // мягче
+
+    const baseWin=Math.min(90, Math.max(12, left.length||1));
     chart.timeScale().setVisibleLogicalRange({ from:0, to:Math.max(1, baseWin) });
 
-    const t0 = performance.now();
+    const t0=performance.now();
     function frame(now){
       const elapsed=now-t0;
       const lastShouldStart=Math.min(tail.length-1, Math.floor(elapsed/STAGGER_MS));
-      const frameData = left.slice(); // стартуем с левой части
-      if (lastShouldStart >= 0) {
+      const frameData = left.slice();
+
+      if(lastShouldStart>=0){
         const firstActive=Math.max(0, lastShouldStart-(MAX_OVERLAP-1));
-        for (let i=0;i<firstActive;i++) frameData.push(tail[i]);
+        for(let i=0;i<firstActive;i++) frameData.push(tail[i]);
+
         let lastVisibleIndex = left.length + firstActive - 1;
-        for (let i=firstActive;i<=lastShouldStart;i++){
+        for(let i=firstActive;i<=lastShouldStart;i++){
           const startTime=t0+i*STAGGER_MS;
           const t=Math.min(1,(now-startTime)/DURATION_MS);
           const k=ease(Math.max(0,t));
           const tgt=tail[i]; const open=+tgt.open;
           let close=open+(tgt.close-open)*k;
           const baseHigh=Math.max(open,close), baseLow=Math.min(open,close);
-          let high=baseHigh+(tgt.high-baseHigh)*k, low=baseLow+(tgt.low-baseLow)*k;
+          let high=baseHigh+(tgt.high-baseHigh)*k;
+          let low =baseLow +(tgt.low -baseLow )*k;
           if(low>Math.min(open,close)) low=Math.min(open,close);
           if(high<Math.max(open,close)) high=Math.max(open,close);
           frameData.push({ time:tgt.time, open, high, low, close });
           lastVisibleIndex = left.length + i;
         }
+
         const right=Math.max(baseWin, lastVisibleIndex + 0.999);
         chart.timeScale().setVisibleLogicalRange({ from:0, to:right });
       }
 
-      series.setData(frameData);
-      const done = elapsed >= (tail.length - 1)*STAGGER_MS + DURATION_MS;
-      if (!done) requestAnimationFrame(frame);
-      else {
-        series.setData(src);
+      s.setData(frameData);
+
+      const done = elapsed >= (tail.length-1)*STAGGER_MS + DURATION_MS;
+      if(!done) requestAnimationFrame(frame);
+      else{
+        s.setData(src);
         chart.applyOptions({
           handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true},
-          handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},
+          handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true}
         });
         chart.timeScale().fitContent();
       }
@@ -199,14 +294,19 @@
     requestAnimationFrame(frame);
   }
 
+  // ---------- boot ----------
   document.addEventListener('DOMContentLoaded', ()=>{
-    try {
+    // копировать ссылку
+    $('copyBtn').addEventListener('click', async()=>{ try{await navigator.clipboard.writeText(location.href);}catch{} const b=$('copyBtn'); const t=b.textContent; b.textContent='Скопировано!'; setTimeout(()=>b.textContent=t,900); });
+
+    // fullscreen / safe-area
+    initFullscreen();
+
+    try{
       const payload = parsePayload();
       const ai = parseAIText();
       render(payload, ai);
-    } catch (e) {
-      showError(e && e.message ? e.message : e);
-    }
+    }catch(e){ showError(e?.message||e); }
   });
 </script>
 </body>
