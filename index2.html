@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1"
+  />
+  <title>GER40 — Свечной график</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+
+  <!-- Lightweight Charts -->
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+
+  <!-- pako для inflate zlib -->
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+
+  <style>
+    :root { color-scheme: light dark; }
+    html, body { height: 100%; }
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }
+    .card {
+      backdrop-filter: blur(8px);
+      border-radius: 1rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,.12);
+    }
+    .fade-in {
+      animation: fade .4s ease;
+    }
+    @keyframes fade { from {opacity: 0; transform: translateY(6px)} to {opacity: 1; transform: translateY(0)} }
+    .watermark {
+      position: absolute; right: 1rem; top: 1rem;
+      opacity: .12; font-weight: 800; letter-spacing: .08em; user-select: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="w-full border-b border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/60 sticky top-0 z-10 backdrop-blur">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500"></div>
+          <div>
+            <div class="font-extrabold tracking-wide text-lg">GER40 — Candles</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Стильный просмотрщик дневных свечей</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="copyLinkBtn" class="text-sm px-3 py-1.5 rounded-xl border border-slate-300/70 dark:border-slate-600 hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition">
+            Скопировать ссылку
+          </button>
+          <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" class="text-xs text-slate-500 hover:underline">Lightweight Charts</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1">
+      <div class="max-w-6xl mx-auto p-4 md:p-6">
+        <div class="grid lg:grid-cols-3 gap-6 items-stretch">
+          <!-- Chart card -->
+          <section class="relative lg:col-span-2 bg-white/80 dark:bg-slate-900/70 border border-slate-200/60 dark:border-slate-700/60 card fade-in">
+            <div class="p-4 md:p-5 flex items-center justify-between">
+              <div>
+                <div id="title" class="text-xl font-bold">Загрузка…</div>
+                <div id="subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Ожидаем данные</div>
+              </div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">
+                Источник: TradingView (через бота)
+              </div>
+            </div>
+            <div class="relative px-2 pb-3">
+              <div id="chart" class="h-[60vh] w-full"></div>
+              <div class="watermark hidden md:block text-4xl md:text-6xl">GER40</div>
+            </div>
+          </section>
+
+          <!-- Info card -->
+          <aside class="bg-white/80 dark:bg-slate-900/70 border border-slate-200/60 dark:border-slate-700/60 card p-4 md:p-5 fade-in">
+            <div class="text-sm text-slate-500 dark:text-slate-400">Параметры</div>
+            <div class="mt-2 text-base font-semibold" id="meta"></div>
+            <div class="mt-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300" id="hint">
+              Cсылка содержит зашифрованный JSON со свечами (time, open, high, low, close).  
+              Наведи курсор по свечам, чтобы увидеть значения.
+            </div>
+
+            <div class="mt-5">
+              <div class="text-sm text-slate-500 dark:text-slate-400">Сводка</div>
+              <div id="stats" class="mt-2 text-sm"></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer class="py-6 text-center text-xs text-slate-500">
+      © <span id="year"></span> GER40 Viewer • GitHub Pages
+    </footer>
+  </div>
+
+  <script>
+    const qs = new URLSearchParams(location.search);
+
+    // util: base64url -> Uint8Array
+    function b64urlToBytes(b64u) {
+      const b64 = (b64u || "").replace(/-/g, "+").replace(/_/g, "/");
+      const pad = b64.length % 4 ? 4 - (b64.length % 4) : 0;
+      const b64p = b64 + "=".repeat(pad);
+      const binStr = atob(b64p);
+      const bytes = new Uint8Array(binStr.length);
+      for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
+      return bytes;
+    }
+
+    function parsePayload() {
+      // приоритет: d (zlib+base64url), запасной — j (URI-encoded JSON)
+      const d = qs.get("d");
+      const j = qs.get("j");
+      if (d) {
+        try {
+          const inflated = pako.inflate(b64urlToBytes(d));
+          const txt = new TextDecoder().decode(inflated);
+          return JSON.parse(txt);
+        } catch (e) {
+          console.error("Ошибка распаковки d:", e);
+        }
+      }
+      if (j) {
+        try { return JSON.parse(decodeURIComponent(j)); } catch (e) { console.error("Ошибка JSON в j:", e); }
+      }
+      return null;
+    }
+
+    function formatDateISO(d) {
+      // ожидаем YYYY-MM-DD
+      return d;
+    }
+
+    function summarize(candles) {
+      if (!candles?.length) return "";
+      const first = candles[0], last = candles[candles.length-1];
+      const min = Math.min(...candles.map(c => c.low));
+      const max = Math.max(...candles.map(c => c.high));
+      const change = ((last.close - first.open) / first.open) * 100;
+      return `
+        Период: <b>${formatDateISO(first.time)}</b> → <b>${formatDateISO(last.time)}</b><br/>
+        Мин/Макс: <b>${min.toFixed(2)}</b> / <b>${max.toFixed(2)}</b><br/>
+        Изм. к открытию периода: <b>${change.toFixed(2)}%</b>
+      `;
+    }
+
+    function renderChart(payload) {
+      const container = document.getElementById("chart");
+      container.innerHTML = ""; // на всякий случай
+
+      const chart = LightweightCharts.createChart(container, {
+        autoSize: true,
+        layout: {
+          background: { type: 'solid', color: getComputedStyle(document.documentElement).getPropertyValue('--tw-bg-opacity') ? 'transparent' : 'transparent' },
+          textColor: getComputedStyle(document.documentElement).color,
+        },
+        rightPriceScale: { borderVisible: false },
+        timeScale: { borderVisible: false, rightOffset: 2, barSpacing: 8, fixLeftEdge: true, fixRightEdge: false },
+        grid: { vertLines: { color: 'rgba(128,128,128,.12)' }, horzLines: { color: 'rgba(128,128,128,.12)' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      });
+
+      const series = chart.addCandlestickSeries({
+        upColor: '#22c55e',
+        downColor: '#ef4444',
+        borderUpColor: '#16a34a',
+        borderDownColor: '#dc2626',
+        wickUpColor: '#16a34a',
+        wickDownColor: '#dc2626',
+      });
+
+      series.setData(payload.candles);
+
+      chart.timeScale().fitContent();
+
+      // кастомный tooltip
+      const tool = document.createElement('div');
+      tool.className = "pointer-events-none text-xs bg-white/95 dark:bg-slate-800/95 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 shadow";
+      tool.style.position = 'absolute';
+      tool.style.zIndex = 2;
+      tool.style.display = 'none';
+      container.appendChild(tool);
+
+      container.onmouseleave = () => (tool.style.display = 'none');
+      chart.subscribeCrosshairMove(param => {
+        if (!param?.time || !param.seriesPrices) { tool.style.display='none'; return; }
+        const price = param.seriesPrices.get(series);
+        if (!price) { tool.style.display='none'; return; }
+        const {open, high, low, close} = price;
+        const t = typeof param.time === 'string' ? param.time : param.time.year + "-" + String(param.time.month).padStart(2,'0') + "-" + String(param.time.day).padStart(2,'0');
+        tool.innerHTML = `<b>${t}</b><br/>O: ${open.toFixed(2)} • H: ${high.toFixed(2)} • L: ${low.toFixed(2)} • C: ${close.toFixed(2)}`;
+        const x = param.point.x, y = param.point.y;
+        tool.style.left = Math.max(8, Math.min(container.clientWidth - tool.clientWidth - 8, x + 12)) + 'px';
+        tool.style.top  = Math.max(8, Math.min(container.clientHeight - tool.clientHeight - 8, y + 12)) + 'px';
+        tool.style.display = 'block';
+      });
+
+      // заголовки/мета/сводка
+      document.getElementById('title').textContent = `${payload.symbol || 'GER40'} — дневные свечи`;
+      document.getElementById('subtitle').textContent = `${payload.exchange || 'FOREXCOM'} • таймфрейм: ${payload.timeframe || '1D'} • баров: ${payload.candles?.length || 0}`;
+      document.getElementById('meta').textContent = `${payload.symbol || 'GER40'} @ ${payload.exchange || 'FOREXCOM'}`;
+      document.getElementById('stats').innerHTML = summarize(payload.candles);
+    }
+
+    function init() {
+      document.getElementById('year').textContent = new Date().getFullYear();
+      const payload = parsePayload();
+      if (!payload || !Array.isArray(payload?.candles) || payload.candles.length === 0) {
+        document.getElementById('title').textContent = 'Нет данных';
+        document.getElementById('subtitle').textContent = 'Открой через кнопку в телеграм-боте или добавь ?d=...';
+        return;
+      }
+      renderChart(payload);
+
+      // копирование ссылки
+      document.getElementById('copyLinkBtn').addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(location.href); } catch {}
+        const btn = document.getElementById('copyLinkBtn');
+        const prev = btn.textContent;
+        btn.textContent = 'Скопировано!';
+        setTimeout(() => (btn.textContent = prev), 1200);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
