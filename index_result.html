@@ -2,41 +2,46 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>GER40 — Result</title>
-
   <style>
-    :root {
-      --bg:#f8fafc; --card:#fff; --border:#e5e7eb; --text:#111827; --muted:#6b7280;
-      --accent:#2563eb; --green:#22c55e; --red:#ef4444; --ok:#16a34a; --warn:#d97706;
-      --goal:#0ea5e9; --inv:#f97316;
+    :root{
+      --bg:#f8fafc; --card:#fff; --border:#e5e7eb; --text:#111827; --muted:#6b7280; --accent:#2563eb; --green:#22c55e; --red:#ef4444;
+      --sat: env(safe-area-inset-top); --sar: env(safe-area-inset-right); --sab: env(safe-area-inset-bottom); --sal: env(safe-area-inset-left);
+      --page-max: 100vw;
     }
-    body{ margin:0; background:var(--bg); color:var(--text);
-      font:14px/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      display:flex; flex-direction:column; min-height:100vh; }
-    header{ display:flex; align-items:center; justify-content:space-between; gap:16px;
-      padding:16px 28px; background:var(--card); border-bottom:1px solid var(--border);
-      box-shadow:0 2px 6px rgba(0,0,0,.03); position:sticky; top:0; z-index:10; }
-    #title{ font-weight:600; font-size:16px; }
-    #subtitle{ color:var(--muted); font-size:13px; }
-    .badge{ font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--border);
-      background:#fff; color:#111; }
-    .ok{ color:var(--ok); border-color:#bbf7d0; background:#ecfdf5; }
-    .warn{ color:var(--warn); border-color:#fde68a; background:#fffbeb; }
-    main{ flex:1; display:grid; grid-template-columns:2fr 1fr; gap:20px; padding:24px;
-      max-width:1400px; margin:0 auto; width:100%; box-sizing:border-box; }
-    section{ background:var(--card); border:1px solid var(--border); border-radius:16px;
-      padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.04); }
-    #chart{ height:70vh; }
-    h2{ margin:0 0 10px; font-size:15px; font-weight:600; color:var(--text); }
-    p{ margin:0 0 8px; color:var(--muted); font-size:13px; }
-    pre{ margin:0; white-space:pre-wrap; word-break:break-word; font:13px/1.5 ui-monospace, Menlo, Consolas, monospace; color:#111; }
-    .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    .pill{ padding:4px 8px; border-radius:999px; border:1px solid var(--border); font-size:12px; }
-    .pill.goal{ border-color:rgba(14,165,233,.35); color:#0ea5e9; background:rgba(14,165,233,.08); }
-    .pill.inv{ border-color:rgba(249,115,22,.35); color:#f97316; background:rgba(249,115,22,.08); }
-    #err{ color:var(--red); white-space:pre-wrap; font-family:ui-monospace, Menlo, Consolas, monospace; margin-top:10px; }
-    footer{ text-align:center; font-size:12px; color:var(--muted); padding:14px 0 20px; }
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font:14px/1.5 "Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      display:flex; flex-direction:column; min-height:100vh;
+      padding-left:var(--sal); padding-right:var(--sar);
+      -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+    }
+    body.fixed{--page-max:1280px;}
+    header{
+      display:flex; flex-wrap:wrap; align-items:center; gap:12px 10px; justify-content:space-between;
+      padding:calc(12px + var(--sat)) 16px 12px; background:var(--card); border-bottom:1px solid var(--border); box-shadow:0 2px 6px rgba(0,0,0,.03); position:sticky; top:0; z-index:10;
+    }
+    #brand{display:flex; gap:8px; align-items:baseline; min-width:0;}
+    #title{font-weight:600; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    #subtitle{color:var(--muted); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .actions{display:flex; gap:10px; flex-wrap:wrap;}
+    .btn{border:1px solid var(--border); padding:10px 14px; border-radius:10px; background:var(--card); color:var(--text); cursor:pointer; min-height:40px;}
+    .btn:hover{border-color:var(--accent); color:var(--accent);}
+    .chip{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:#fff; font-size:12px;}
+    .chip.goal{border-color:#bbf7d0; background:#ecfdf5; color:#166534;}
+    .chip.inv{border-color:#fecaca; background:#fef2f2; color:#991b1b;}
+    main{flex:1; display:grid; grid-template-columns:minmax(0,2.2fr) minmax(300px,1fr); gap:16px; padding:16px; max-width:var(--page-max); margin:0 auto; width:100%; box-sizing:border-box;}
+    section{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.04);}
+    #chart{height:calc(100vh - 160px - var(--sab)); min-height:320px;}
+    h2{margin:0 0 10px; font-size:15px; font-weight:600;}
+    p{margin:0 0 8px; color:var(--muted); font-size:13px;}
+    pre.ai{white-space:pre-wrap; font:13px/1.5 ui-sans-serif,system-ui; color:#111; margin:8px 0 0;}
+    #err{display:none; color:var(--red); white-space:pre-wrap; font-family:ui-monospace,Menlo,Consolas,monospace; margin-top:10px;}
+    footer{text-align:center; font-size:12px; color:var(--muted); padding:10px 0 calc(16px + var(--sab));}
+    @media (max-width:900px){ main{grid-template-columns:1fr; gap:12px; padding:12px;} section{padding:14px;} #chart{height:52vh;} .actions{width:100%;} .actions .btn{flex:1 1 auto;} }
+    @media (max-width:460px){ header{padding:calc(10px + var(--sat)) 12px 10px;} #title{font-size:15px;} #subtitle{font-size:12px;} .btn{min-height:44px;} }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -45,153 +50,155 @@
 </head>
 <body>
 <header>
-  <div style="display:flex;align-items:center;gap:12px;min-width:0;">
-    <div>
-      <div id="title">Загрузка…</div>
-      <div id="subtitle">Готовим результат</div>
-    </div>
-    <div id="hitBadge" class="badge warn">Ожидание…</div>
+  <div id="brand">
+    <div id="title">Готовим результат…</div>
+    <div id="subtitle">Ожидаем данные</div>
   </div>
-  <div class="row">
-    <div id="goalPill" class="pill goal" style="display:none"></div>
-    <div id="invPill"  class="pill inv"  style="display:none"></div>
+  <div class="actions">
+    <span id="goalChip" class="chip goal" style="display:none"></span>
+    <span id="invChip" class="chip inv" style="display:none"></span>
+    <button id="fsBtn" class="btn" style="display:none">Полный экран</button>
+    <button id="copyLinkBtn" class="btn">Скопировать ссылку</button>
   </div>
 </header>
 
 <main>
   <section>
     <div id="chart"></div>
-    <div id="err" style="display:none"></div>
+    <div id="err"></div>
   </section>
-
   <section>
     <h2>Ответ ИИ-тренера</h2>
-    <pre id="aiText">—</pre>
+    <p id="hitLine" class="muted">–</p>
+    <pre id="aiText" class="ai">…</pre>
   </section>
 </main>
 
-<footer>© 2025 GER40 Result • GitHub Pages</footer>
+<footer>© 2025 GER40 Viewer • GitHub Pages</footer>
 
 <script>
-  // ---- утилиты ----
-  const qs = new URLSearchParams(location.search);
-  const $  = id => document.getElementById(id);
-  function showError(msg){ $('err').style.display='block'; $('err').textContent=String(msg||'Ошибка'); $('title').textContent='Ошибка'; $('subtitle').textContent='Смотри ниже'; }
-  function b64urlToBytes(b64u){ const b64=(b64u||'').replace(/-/g,'+').replace(/_/g,'/'); const pad=b64.length%4?4-(b64.length%4):0; const bin=atob(b64+'='.repeat(pad)); return Uint8Array.from(bin, c=>c.charCodeAt(0)); }
+  const qs=new URLSearchParams(location.search);
+  const $=id=>document.getElementById(id);
 
-  // d = zlib(deflate) base64url JSON с полями:
-  // {symbol,exchange,timeframe,candles:[...], anchor:<int>, goal:<num>, inv:<num>, hit:"GOAL"|"INV"}
+  function b64urlToBytes(b64u){ const b64=(b64u||'').replace(/-/g,'+').replace(/_/g,'/'); const pad=b64.length%4?4-(b64.length%4):0; const bin=atob(b64+'='.repeat(pad)); return Uint8Array.from(bin,c=>c.charCodeAt(0)); }
+  function showError(msg){ $('err').style.display='block'; $('err').textContent=msg; $('title').textContent='Ошибка'; $('subtitle').textContent=msg; }
+
   function parsePayload(){
-    const d=qs.get('d');
+    if(qs.get('demo')==='1'){
+      // демо: 40 свечей, anchor=30, +6 пост-баров; цель/инв
+      const start=new Date('2025-09-01');
+      const candles=[];
+      for(let i=0;i<40;i++){
+        const d=new Date(start.getTime()+i*86400000);
+        const o=17000+i*11+(i%5?0:20); const h=o+80; const l=o-60; const c=o+(i%2?35:-25);
+        candles.push({time:d.toISOString().slice(0,10), open:o, high:h, low:l, close:c});
+      }
+      const anchor=30;
+      // продолжение
+      for(let i=31;i<46;i++){
+        const d=new Date(start.getTime()+i*86400000);
+        const prev=candles[i-1].close; const o=prev; const c=o+(i%2?60:-20); const h=Math.max(o,c)+90; const l=Math.min(o,c)-50;
+        candles[i]={time:d.toISOString().slice(0,10), open:o, high:h, low:l, close:c};
+      }
+      const goal=candles[35].high - 5; const inv=candles[28].low + 15;
+      const hit='GOAL';
+      const ai="GOAL: "+goal.toFixed(2)+", INV: "+inv.toFixed(2)+"\n\nДемо-анализ…";
+      return {symbol:'GER40', exchange:'FOREXCOM', timeframe:'1D', candles, anchor, goal, inv, hit, ai};
+    }
+    const r=qs.get('r'), j=qs.get('j');
     try{
-      if(!d) return null;
-      const infl=pako.inflate(b64urlToBytes(d));
-      return JSON.parse(new TextDecoder().decode(infl));
-    }catch(e){ showError('Ошибка разбора данных: '+e.message); return null; }
-  }
-  // m = zlib base64url текст ИИ
-  function parseAIText(){
-    const m=qs.get('m');
-    if(!m) return '';
-    try{
-      const infl=pako.inflate(b64urlToBytes(m));
-      return new TextDecoder().decode(infl);
-    }catch(e){ return ''; }
+      if(r){ const infl=pako.inflate(b64urlToBytes(r)); return JSON.parse(new TextDecoder().decode(infl)); }
+      if(j){ return JSON.parse(decodeURIComponent(j)); }
+    }catch(e){ showError('Ошибка разбора: '+e.message); }
+    return null;
   }
 
-  function summarize(c){ const f=c[0], l=c.at(-1); const min=Math.min(...c.map(x=>x.low)), max=Math.max(...c.map(x=>x.high)); const ch=((l.close-f.open)/f.open*100).toFixed(2); return `Период: ${f.time} → ${l.time} • Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)} • Изм.: ${ch}%`; }
+  function render(payload){
+    const {symbol, exchange, timeframe, candles, anchor=0, goal, inv, hit, ai} = payload || {};
+    if(!candles || !candles.length){ showError('Нет данных графика'); return; }
+    const pre=candles.slice(0, anchor+1);
+    const post=candles.slice(anchor+1);
 
-  // ---- рендер результата ----
-  function render(payload, aiText){
-    if(!payload || !Array.isArray(payload.candles) || payload.candles.length===0) { showError('Нет данных для графика'); return; }
-    const src = payload.candles;
-    const anchor = Math.max(0, Math.min(payload.anchor ?? src.length, src.length)); // с какого индекса анимируем
+    $('title').textContent=(symbol||'GER40')+' — результат';
+    $('subtitle').textContent=(exchange||'FOREXCOM')+' • '+(timeframe||'1D')+' • баров: '+candles.length;
 
-    $('title').textContent = (payload.symbol || 'GER40') + ' — результат';
-    $('subtitle').textContent = summarize(src);
-    $('aiText').textContent = aiText || '—';
+    if(goal!=null){ $('goalChip').style.display='inline-flex'; $('goalChip').textContent='GOAL: '+Number(goal).toFixed(2); }
+    if(inv!=null){ $('invChip').style.display='inline-flex'; $('invChip').textContent='INV: '+Number(inv).toFixed(2); }
+    const hitMsg = hit==='GOAL' ? 'Цель достигнута ✅' : (hit==='INV' ? 'Инвалидация ❌' : 'Ни цель, ни инвалидация не достигнуты.');
+    $('hitLine').textContent = hitMsg;
+    $('aiText').textContent = ai || '—';
 
-    // бейджи GOAL/INV
-    if (typeof payload.goal === 'number') { const el=$('goalPill'); el.style.display='inline-block'; el.textContent='GOAL: '+payload.goal.toFixed(2); }
-    if (typeof payload.inv === 'number')  { const el=$('invPill');  el.style.display='inline-block'; el.textContent='INV: '+payload.inv.toFixed(2); }
-    const hb=$('hitBadge');
-    if (payload.hit === 'GOAL') { hb.textContent='Достигнута цель ✅'; hb.classList.remove('warn'); hb.classList.add('ok'); }
-    else if (payload.hit === 'INV') { hb.textContent='Сработала инвалидация ❌'; hb.classList.remove('ok'); hb.classList.add('warn'); }
-    else { hb.textContent='Идём к целям…'; }
-
-    // график
-    const container=$('chart');
-    const chart=LightweightCharts.createChart(container,{
+    // чарт
+    const chart=LightweightCharts.createChart($('chart'),{
       autoSize:true,
-      layout:{background:{type:'solid',color:'#fff'}, textColor:'#111'},
-      grid:{vertLines:{color:'rgba(0,0,0,.05)'}, horzLines:{color:'rgba(0,0,0,.05)'}},
-      rightPriceScale:{borderVisible:false},
-      timeScale:{borderVisible:false, rightOffset:0, barSpacing:8, fixLeftEdge:true},
-      handleScroll:{mouseWheel:false, pressedMouseMove:false, horzTouchDrag:false},
-      handleScale:{axisPressedMouseMove:false, mouseWheel:false, pinch:false},
-      crosshair:{mode:LightweightCharts.CrosshairMode.Normal}
+      layout:{ background:{type:'solid',color:'#fff'}, textColor:'#111' },
+      grid:{ vertLines:{color:'rgba(0,0,0,.05)'}, horzLines:{color:'rgba(0,0,0,.05)'} },
+      rightPriceScale:{ borderVisible:false },
+      timeScale:{ borderVisible:false, rightOffset:0, barSpacing:8, fixLeftEdge:true },
+      handleScroll:{ mouseWheel:false, pressedMouseMove:false, horzTouchDrag:false },
+      handleScale:{ axisPressedMouseMove:false, mouseWheel:false, pinch:false },
+      crosshair:{ mode:LightweightCharts.CrosshairMode.Normal }
     });
-    const series=chart.addCandlestickSeries({
+    const s=chart.addCandlestickSeries({
       upColor:'#22c55e', downColor:'#ef4444',
       borderUpColor:'#16a34a', borderDownColor:'#dc2626',
-      wickUpColor:'#16a34a', wickDownColor:'#dc2626'
+      wickUpColor:'#16a34a', wickDownColor:'#dc2626',
     });
 
-    // линии цели/инвалидации (если поддерживается API)
-    try { payload.goal!=null && series.createPriceLine({ price: payload.goal, color:'#0ea5e9', lineWidth:1, title:'GOAL' }); } catch{}
-    try { payload.inv !=null && series.createPriceLine({ price: payload.inv,  color:'#f97316', lineWidth:1, title:'INV'  }); } catch{}
-
-    // 1) статично — до anchor
-    const left = src.slice(0, anchor);
-    if (left.length) series.setData(left);
-
-    // 2) плавная анимация — с anchor до конца
-    const tail = src.slice(anchor);
-    if (!tail.length) {
-      chart.applyOptions({ handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true}, handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true} });
-      chart.timeScale().fitContent();
-      return;
+    // линии целей/инвалидации (если переданы)
+    if(typeof goal==='number'){
+      const pl=chart.addPriceLine({ price: goal, color:'#16a34a', lineWidth:1, lineStyle:LightweightCharts.LineStyle.Dotted, title:'GOAL' });
+    }
+    if(typeof inv==='number'){
+      const pl=chart.addPriceLine({ price: inv, color:'#dc2626', lineWidth:1, lineStyle:LightweightCharts.LineStyle.Dotted, title:'INV' });
     }
 
+    // сначала — историческая часть без анимации
+    s.setData(pre);
+
+    // потом — плавная отрисовка продолжения
     const DURATION_MS=600, STAGGER_MS=150, MAX_OVERLAP=4;
     const ease=t=>1-Math.pow(1-t,3);
-    const baseWin=Math.min(80, Math.max(10, src.length-1));
-    chart.timeScale().setVisibleLogicalRange({ from:0, to:Math.max(1, baseWin) });
+    const baseWin=Math.min(90, Math.max(12, pre.length));
+    chart.timeScale().setVisibleLogicalRange({ from: 0, to: Math.max(1, baseWin) });
 
-    const t0 = performance.now();
+    const t0=performance.now();
     function frame(now){
       const elapsed=now-t0;
-      const lastShouldStart=Math.min(tail.length-1, Math.floor(elapsed/STAGGER_MS));
-      const frameData = left.slice(); // стартуем с левой части
-      if (lastShouldStart >= 0) {
-        const firstActive=Math.max(0, lastShouldStart-(MAX_OVERLAP-1));
-        for (let i=0;i<firstActive;i++) frameData.push(tail[i]);
-        let lastVisibleIndex = left.length + firstActive - 1;
-        for (let i=firstActive;i<=lastShouldStart;i++){
-          const startTime=t0+i*STAGGER_MS;
-          const t=Math.min(1,(now-startTime)/DURATION_MS);
-          const k=ease(Math.max(0,t));
-          const tgt=tail[i]; const open=+tgt.open;
-          let close=open+(tgt.close-open)*k;
-          const baseHigh=Math.max(open,close), baseLow=Math.min(open,close);
-          let high=baseHigh+(tgt.high-baseHigh)*k, low=baseLow+(tgt.low-baseLow)*k;
-          if(low>Math.min(open,close)) low=Math.min(open,close);
-          if(high<Math.max(open,close)) high=Math.max(open,close);
-          frameData.push({ time:tgt.time, open, high, low, close });
-          lastVisibleIndex = left.length + i;
-        }
-        const right=Math.max(baseWin, lastVisibleIndex + 0.999);
-        chart.timeScale().setVisibleLogicalRange({ from:0, to:right });
+      const lastShouldStart=Math.min(post.length-1, Math.floor(elapsed/STAGGER_MS));
+      if(lastShouldStart<0){ requestAnimationFrame(frame); return; }
+
+      const firstActive=Math.max(0, lastShouldStart-(MAX_OVERLAP-1));
+      const data=[...pre];
+
+      let lastVisibleIndex = pre.length + firstActive - 1;
+      for(let i=firstActive; i<=lastShouldStart; i++){
+        const idx=i; const tgt=post[idx];
+        const open=+tgt.open;
+        const startTime=t0 + idx*STAGGER_MS;
+        const t=Math.min(1, (now - startTime)/DURATION_MS);
+        const k=ease(Math.max(0,t));
+        let close=open+(tgt.close-open)*k;
+        const baseHigh=Math.max(open,close), baseLow=Math.min(open,close);
+        let high=baseHigh+(tgt.high-baseHigh)*k;
+        let low= baseLow +(tgt.low -baseLow )*k;
+        if(low>Math.min(open,close)) low=Math.min(open,close);
+        if(high<Math.max(open,close)) high=Math.max(open,close);
+        data.push({ time:tgt.time, open, high, low, close });
+        lastVisibleIndex = pre.length + i;
       }
 
-      series.setData(frameData);
-      const done = elapsed >= (tail.length - 1)*STAGGER_MS + DURATION_MS;
-      if (!done) requestAnimationFrame(frame);
-      else {
-        series.setData(src);
+      s.setData(data);
+      const right=Math.max(baseWin, lastVisibleIndex + 0.999);
+      chart.timeScale().setVisibleLogicalRange({ from: 0, to: right });
+
+      const lastDone = elapsed >= (post.length-1)*STAGGER_MS + DURATION_MS;
+      if(!lastDone){ requestAnimationFrame(frame); }
+      else{
+        s.setData(candles);
         chart.applyOptions({
-          handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true},
-          handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},
+          handleScroll:{ mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true },
+          handleScale:{ axisPressedMouseMove:true, mouseWheel:true, pinch:true },
         });
         chart.timeScale().fitContent();
       }
@@ -199,14 +206,35 @@
     requestAnimationFrame(frame);
   }
 
-  document.addEventListener('DOMContentLoaded', ()=>{
-    try {
-      const payload = parsePayload();
-      const ai = parseAIText();
-      render(payload, ai);
-    } catch (e) {
-      showError(e && e.message ? e.message : e);
+  /* Telegram fullscreen + safe-area */
+  function isWebApp(){ return typeof Telegram!=='undefined' && Telegram.WebApp && typeof Telegram.WebApp.ready==='function'; }
+  function applyInsetsFromWebApp(){ if(!isWebApp()) return; const wa=Telegram.WebApp; const s=wa.contentSafeAreaInset||wa.safeAreaInset; if(!s) return; const r=document.documentElement.style; r.setProperty('--sat',(s.top||0)+'px'); r.setProperty('--sar',(s.right||0)+'px'); r.setProperty('--sab',(s.bottom||0)+'px'); r.setProperty('--sal',(s.left||0)+'px'); }
+  function applyWidthMode(){ const mode=qs.get('w'); if(mode==='fixed') document.body.classList.add('fixed'); else document.body.classList.remove('fixed'); }
+  function initFullscreen(){
+    if(!isWebApp()) return;
+    const wa=Telegram.WebApp;
+    try{ wa.ready(); wa.expand(); wa.setHeaderColor?.('#ffffff'); wa.setBackgroundColor?.('#ffffff'); }catch{}
+    const btn=$('fsBtn');
+    if(wa.requestFullscreen && wa.exitFullscreen && btn){
+      btn.style.display='inline-flex';
+      const setLabel=()=>{ btn.textContent = wa.isFullscreen ? 'Выйти из полного экрана' : 'Полный экран'; };
+      btn.onclick=()=>{ try{ wa.isFullscreen?wa.exitFullscreen():wa.requestFullscreen(); }catch{} };
+      wa.onEvent('fullscreenChanged', setLabel); wa.onEvent('fullscreenFailed', e=>console.warn('fullscreenFailed',e)); setLabel();
+      const tryFS=()=>{ if(!wa.isFullscreen){ try{ wa.requestFullscreen(); }catch{} } };
+      wa.onEvent('activated', tryFS);
+      const once=()=>{ document.removeEventListener('pointerdown', once, true); tryFS(); };
+      setTimeout(()=>document.addEventListener('pointerdown', once, true), 0);
+      tryFS();
     }
+    applyInsetsFromWebApp(); wa.onEvent('contentSafeAreaChanged', applyInsetsFromWebApp); wa.onEvent('safeAreaChanged', applyInsetsFromWebApp);
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    $('copyLinkBtn').addEventListener('click', async()=>{ try{await navigator.clipboard.writeText(location.href);}catch{} const b=$('copyLinkBtn'); const t=b.textContent; b.textContent='Скопировано!'; setTimeout(()=>b.textContent=t,900); });
+    applyWidthMode(); initFullscreen();
+
+    const p=parsePayload();
+    if(!p){ $('subtitle').textContent='Нет данных (?demo=1 для теста)'; } else { try{ render(p); }catch(e){ showError(e.message||e); } }
   });
 </script>
 </body>
