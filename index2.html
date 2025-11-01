@@ -7,15 +7,15 @@
 
   <!-- Минимальная стилизация, чтобы было видно статусы -->
   <style>
-    :root { color-scheme: light dark; }
-    body { margin:0; font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial; }
-    header { padding:10px 14px; border-bottom:1px solid #ddd; display:flex; gap:10px; align-items:baseline; }
+    body { background: #ffffff; color: #111111; }
+    header { border-bottom-color: #ccc; background: #fafafa; }
+    .btn { background: #f0f0f0; border-color: #ccc; color:#000; }
+    .muted { color:#555; }
     #title { font-weight:700; }
     #subtitle { color:#666; font-size:12px; }
     #err { color:#c00; white-space:pre-wrap; font-family:ui-monospace, Menlo, Consolas, monospace; }
     #chart { height: calc(100vh - 68px); }
-    .muted { color:#667; }
-    .btn { border:1px solid #bbb; padding:6px 10px; border-radius:8px; cursor:pointer; background:#f6f6f6; }
+    
   </style>
 
   <!-- Библиотеки (без defer, чтобы гарантированно были до нашего кода) -->
