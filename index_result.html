@@ -246,7 +246,6 @@
       const done = elapsed >= (tail.length - 1)*STAGGER_MS + DURATION_MS;
       if(!done) requestAnimationFrame(frame);
       else{
-        series.setData(src);
         chart.applyOptions({
           handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true},
           handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},
