@@ -11,6 +11,7 @@
       --accent:#2563eb; --green:#22c55e; --red:#ef4444; --ok:#16a34a; --warn:#d97706;
       --goal:#0ea5e9; --inv:#f97316;
 
+      /* safe-area (переопределяется из WebApp JS) */
       --sat: env(safe-area-inset-top);
       --sar: env(safe-area-inset-right);
       --sab: env(safe-area-inset-bottom);
@@ -19,7 +20,7 @@
       --page-max: calc(100vw - var(--sal) - var(--sar));
     }
 
-    *,*::before,*::after{ box-sizing:border-box; }
+    *,*::before,*::after{ box-sizing: border-box; }
     html,body{ height:100%; overflow-x:hidden; }
 
     body{
@@ -52,7 +53,7 @@
     main{
       flex:1;
       display:grid;
-      grid-template-columns:minmax(0,2fr) minmax(0,1fr);
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
       gap:16px;
       padding:16px;
       max-width:var(--page-max);
@@ -68,16 +69,17 @@
     #chart{ width:100%; height:calc(100vh - 160px - var(--sab)); min-height:320px; border-radius:12px; overflow:hidden; }
 
     h2{ margin:0 0 10px; font-size:15px; font-weight:600; color:var(--text); }
+    p{ margin:0 0 8px; color:var(--muted); font-size:13px; }
     pre{ margin:0; white-space:pre-wrap; word-break:break-word; font:13px/1.5 ui-monospace,Menlo,Consolas,monospace; color:#111; }
 
     footer{ text-align:center; font-size:12px; color:var(--muted); padding:10px 0 calc(16px + var(--sab)); }
 
-    @media (max-width:900px){
-      main{ grid-template-columns:1fr; gap:12px; padding:12px; }
+    @media (max-width: 900px){
+      main{ grid-template-columns: 1fr; gap:12px; padding:12px; }
       section{ padding:14px; }
       #chart{ height:52vh; }
     }
-    @media (max-width:460px){
+    @media (max-width: 460px){
       header{ padding:calc(10px + var(--sat)) 12px 10px; }
       #title{ font-size:15px; }
       #subtitle{ font-size:12px; }
@@ -106,7 +108,7 @@
 <main>
   <section>
     <div id="chart"></div>
-    <div id="err" style="display:none; color:var(--red)"></div>
+    <div id="err" style="display:none; color:var(--red);"></div>
   </section>
 
   <section>
@@ -118,45 +120,18 @@
 <footer>© 2025 GER40 Result • GitHub Pages</footer>
 
 <script>
+  // -------- utils
   const qs=new URLSearchParams(location.search);
   const $=id=>document.getElementById(id);
+  function showError(msg){ const e=$('err'); e.style.display='block'; e.textContent=String(msg||'Ошибка'); $('title').textContent='Ошибка'; $('subtitle').textContent='Смотри ниже'; }
+  function b64urlToBytes(b64u){ const b64=(b64u||'').replace(/-/g,'+').replace(/_/g,'/'); const pad=b64.length%4?4-(b64.length%4):0; const bin=atob(b64+'='.repeat(pad)); return Uint8Array.from(bin,c=>c.charCodeAt(0)); }
+  function parsePayload(){ const d=qs.get('d'); if(!d) return null; try{ const infl=pako.inflate(b64urlToBytes(d)); return JSON.parse(new TextDecoder().decode(infl)); }catch(e){ showError('Ошибка разбора данных: '+e.message); return null; } }
+  function parseAIText(){ const m=qs.get('m'); if(!m) return ''; try{ const infl=pako.inflate(b64urlToBytes(m)); return new TextDecoder().decode(infl); }catch{ return ''; } }
+  function summarize(c){ const f=c[0], l=c.at(-1); const min=Math.min(...c.map(x=>x.low)), max=Math.max(...c.map(x=>x.high)); const ch=((l.close-f.open)/f.open*100).toFixed(2); return `Период: ${f.time} → ${l.time} • Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)} • Изм.: ${ch}%`; }
 
-  function showError(msg){
-    const e=$('err'); e.style.display='block'; e.textContent=String(msg||'Ошибка');
-    $('title').textContent='Ошибка'; $('subtitle').textContent='Смотри ниже';
-  }
-  function b64urlToBytes(b64u){
-    const b64=(b64u||'').replace(/-/g,'+').replace(/_/g,'/'); const pad=b64.length%4?4-(b64.length%4):0;
-    const bin=atob(b64+'='.repeat(pad)); return Uint8Array.from(bin,c=>c.charCodeAt(0));
-  }
-  function parsePayload(){
-    const d=qs.get('d'); if(!d) return null;
-    try{ const infl=pako.inflate(b64urlToBytes(d)); return JSON.parse(new TextDecoder().decode(infl)); }
-    catch(e){ showError('Ошибка разбора данных: '+e.message); return null; }
-  }
-  function parseAIText(){
-    const m=qs.get('m'); if(!m) return '';
-    try{ const infl=pako.inflate(b64urlToBytes(m)); return new TextDecoder().decode(infl); }
-    catch{ return ''; }
-  }
-  function summarize(c){
-    const f=c[0], l=c.at(-1);
-    const min=Math.min(...c.map(x=>x.low)), max=Math.max(...c.map(x=>x.high));
-    const ch=((l.close-f.open)/f.open*100).toFixed(2);
-    return `Период: ${f.time} → ${l.time} • Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)} • Изм.: ${ch}%`;
-  }
-
+  // -------- fullscreen + insets
   function isWebApp(){ return typeof Telegram!=='undefined' && Telegram.WebApp && typeof Telegram.WebApp.ready==='function'; }
-  function applyInsetsFromWebApp(){
-    if(!isWebApp()) return;
-    const wa=Telegram.WebApp;
-    const s=wa.contentSafeAreaInset||wa.safeAreaInset; if(!s) return;
-    const r=document.documentElement.style;
-    r.setProperty('--sat',(s.top||0)+'px');
-    r.setProperty('--sar',(s.right||0)+'px');
-    r.setProperty('--sab',(s.bottom||0)+'px');
-    r.setProperty('--sal',(s.left||0)+'px');
-  }
+  function applyInsetsFromWebApp(){ if(!isWebApp()) return; const wa=Telegram.WebApp; const s=wa.contentSafeAreaInset||wa.safeAreaInset; if(!s) return; const r=document.documentElement.style; r.setProperty('--sat',(s.top||0)+'px'); r.setProperty('--sar',(s.right||0)+'px'); r.setProperty('--sab',(s.bottom||0)+'px'); r.setProperty('--sal',(s.left||0)+'px'); }
   function initFullscreen(){
     if(!isWebApp()) return;
     const wa=Telegram.WebApp;
@@ -174,10 +149,9 @@
     applyInsetsFromWebApp();
   }
 
+  // -------- render
   function render(payload, aiText){
-    if(!payload || !Array.isArray(payload.candles) || payload.candles.length===0){
-      showError('Нет данных для графика'); return;
-    }
+    if(!payload || !Array.isArray(payload.candles) || payload.candles.length===0){ showError('Нет данных для графика'); return; }
     const src=payload.candles;
     const anchor=Math.max(0, Math.min(payload.anchor ?? src.length, src.length));
 
@@ -197,7 +171,7 @@
       layout:{background:{type:'solid',color:'#fff'}, textColor:'#111'},
       grid:{vertLines:{color:'rgba(0,0,0,.05)'}, horzLines:{color:'rgba(0,0,0,.05)'}},
       rightPriceScale:{borderVisible:false},
-      timeScale:{borderVisible:false, rightOffset:0, barSpacing:8, fixLeftEdge:true},
+      timeScale:{borderVisible:false, rightOffset:12, barSpacing:8, fixLeftEdge:true}, // <— небольшой запас справа
       handleScroll:{mouseWheel:false, pressedMouseMove:false, horzTouchDrag:false},
       handleScale:{axisPressedMouseMove:false, mouseWheel:false, pinch:false},
       crosshair:{mode:LightweightCharts.CrosshairMode.Normal}
@@ -211,32 +185,29 @@
     try{ if(payload.goal!=null) series.createPriceLine({price:payload.goal,color:'#0ea5e9',lineWidth:1,title:'GOAL'}); }catch{}
     try{ if(payload.inv !=null) series.createPriceLine({price:payload.inv, color:'#f97316',lineWidth:1,title:'INV'}); }catch{}
 
-    // 1) статично: сетаем "левую" часть
+    // статично: до anchor
     const left=src.slice(0, anchor);
     if(left.length) series.setData(left);
 
-    // Центруем последнюю левую свечу: измеряем текущую видимую ширину и даём rightOffset = ~половина окна
-    chart.timeScale().fitContent();
-    const vr = chart.timeScale().getVisibleLogicalRange();
-    const visibleWidth = vr ? (vr.to - vr.from) : Math.max(30, left.length + 10);
-    const initialRO = Math.max(12, Math.round(visibleWidth / 2)); // пустое пространство справа ~= половина экрана
-    chart.timeScale().setRightOffset(initialRO);
+    // ——— ключ: центрируем anchor-1 и держим ЛЕВУЮ границу фиксированной
+    const PAD = 30;                       // «полу-ширина» окна в барах
+    const baseFrom   = Math.max(0, left.length - PAD);
+    const baseToMin  = Math.max(1, left.length - 1 + PAD);
+    chart.timeScale().setVisibleLogicalRange({ from: baseFrom, to: baseToMin });
 
-    // 2) анимация хвоста — вьюпорт НЕ двигаем (rightOffset «съедается» новыми барами)
+    // анимация хвоста
     const tail=src.slice(anchor);
     if(!tail.length){
       chart.applyOptions({
-        handleScroll:{mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true},
-        handleScale:{axisPressedMouseMove:true, mouseWheel:true, pinch:true}
+        handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true},
+        handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},
       });
-      // оставим небольшой gap
-      chart.timeScale().setRightOffset(10);
       return;
     }
 
     const DURATION_MS=1000;
-    const STAGGER_MS =250;   // быстрее, но всё ещё плавно
-    const MAX_OVERLAP=3;
+    const STAGGER_MS =1000;
+    const MAX_OVERLAP=1;
     const ease=t=>1-Math.pow(1-t,3);
 
     const t0=performance.now();
@@ -249,6 +220,7 @@
         const firstActive=Math.max(0, lastShouldStart-(MAX_OVERLAP-1));
         for(let i=0;i<firstActive;i++) frameData.push(tail[i]);
 
+        let lastVisibleIndex = left.length + firstActive - 1;
         for(let i=firstActive;i<=lastShouldStart;i++){
           const startTime=t0+i*STAGGER_MS;
           const t=Math.min(1,(now-startTime)/DURATION_MS);
@@ -258,26 +230,28 @@
           let close=open+(tgt.close-open)*k;
           const baseHigh=Math.max(open,close), baseLow=Math.min(open,close);
           let high=baseHigh+(tgt.high-baseHigh)*k, low=baseLow+(tgt.low-baseLow)*k;
-          if(low>Math.min(open,close))  low=Math.min(open,close);
+          if(low>Math.min(open,close)) low=Math.min(open,close);
           if(high<Math.max(open,close)) high=Math.max(open,close);
           frameData.push({time:tgt.time, open, high, low, close});
+          lastVisibleIndex = left.length + i;
         }
+
+        // двигаем только ПРАВУЮ границу, левая фиксирована на baseFrom
+        const to = Math.max(baseToMin, lastVisibleIndex + 0.999);
+        chart.timeScale().setVisibleLogicalRange({ from: baseFrom, to });
       }
 
       series.setData(frameData);
 
       const done = elapsed >= (tail.length - 1)*STAGGER_MS + DURATION_MS;
-      if(!done){
-        requestAnimationFrame(frame);
-      }else{
+      if(!done) requestAnimationFrame(frame);
+      else{
         series.setData(src);
         chart.applyOptions({
-          handleScroll:{mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true},
-          handleScale:{axisPressedMouseMove:true, mouseWheel:true, pinch:true},
+          handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true},
+          handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},
+          timeScale:{ rightOffset:12 } // оставляем воздух справа и после анимации
         });
-        // оставляем немного свободного пространства справа после завершения
-        const roAfter = Math.max(10, initialRO - tail.length);
-        chart.timeScale().setRightOffset(roAfter);
       }
     }
     requestAnimationFrame(frame);
