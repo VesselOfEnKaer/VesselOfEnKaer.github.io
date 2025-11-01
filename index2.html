@@ -2,262 +2,145 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1"
-  />
-  <title>GER40 — Свечной график</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GER40 — график</title>
 
-  <!-- Tailwind (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
-
-  <!-- Lightweight Charts -->
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-
-  <!-- pako для inflate zlib -->
-  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
-
+  <!-- Минимальная стилизация, чтобы было видно статусы -->
   <style>
     :root { color-scheme: light dark; }
-    html, body { height: 100%; }
-    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }
-    .card {
-      backdrop-filter: blur(8px);
-      border-radius: 1rem;
-      box-shadow: 0 20px 40px rgba(0,0,0,.12);
-    }
-    .fade-in {
-      animation: fade .4s ease;
-    }
-    @keyframes fade { from {opacity: 0; transform: translateY(6px)} to {opacity: 1; transform: translateY(0)} }
-    .watermark {
-      position: absolute; right: 1rem; top: 1rem;
-      opacity: .12; font-weight: 800; letter-spacing: .08em; user-select: none;
-      pointer-events: none;
-    }
+    body { margin:0; font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial; }
+    header { padding:10px 14px; border-bottom:1px solid #ddd; display:flex; gap:10px; align-items:baseline; }
+    #title { font-weight:700; }
+    #subtitle { color:#666; font-size:12px; }
+    #err { color:#c00; white-space:pre-wrap; font-family:ui-monospace, Menlo, Consolas, monospace; }
+    #chart { height: calc(100vh - 68px); }
+    .muted { color:#667; }
+    .btn { border:1px solid #bbb; padding:6px 10px; border-radius:8px; cursor:pointer; background:#f6f6f6; }
   </style>
+
+  <!-- Библиотеки (без defer, чтобы гарантированно были до нашего кода) -->
+  <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-  <div class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="w-full border-b border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/60 sticky top-0 z-10 backdrop-blur">
-      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500"></div>
-          <div>
-            <div class="font-extrabold tracking-wide text-lg">GER40 — Candles</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">Стильный просмотрщик дневных свечей</div>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="copyLinkBtn" class="text-sm px-3 py-1.5 rounded-xl border border-slate-300/70 dark:border-slate-600 hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition">
-            Скопировать ссылку
-          </button>
-          <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" class="text-xs text-slate-500 hover:underline">Lightweight Charts</a>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main -->
-    <main class="flex-1">
-      <div class="max-w-6xl mx-auto p-4 md:p-6">
-        <div class="grid lg:grid-cols-3 gap-6 items-stretch">
-          <!-- Chart card -->
-          <section class="relative lg:col-span-2 bg-white/80 dark:bg-slate-900/70 border border-slate-200/60 dark:border-slate-700/60 card fade-in">
-            <div class="p-4 md:p-5 flex items-center justify-between">
-              <div>
-                <div id="title" class="text-xl font-bold">Загрузка…</div>
-                <div id="subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Ожидаем данные</div>
-              </div>
-              <div class="text-xs text-slate-500 dark:text-slate-400">
-                Источник: TradingView (через бота)
-              </div>
-            </div>
-            <div class="relative px-2 pb-3">
-              <div id="chart" class="h-[60vh] w-full"></div>
-              <div class="watermark hidden md:block text-4xl md:text-6xl">GER40</div>
-            </div>
-          </section>
-
-          <!-- Info card -->
-          <aside class="bg-white/80 dark:bg-slate-900/70 border border-slate-200/60 dark:border-slate-700/60 card p-4 md:p-5 fade-in">
-            <div class="text-sm text-slate-500 dark:text-slate-400">Параметры</div>
-            <div class="mt-2 text-base font-semibold" id="meta"></div>
-            <div class="mt-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300" id="hint">
-              Cсылка содержит зашифрованный JSON со свечами (time, open, high, low, close).  
-              Наведи курсор по свечам, чтобы увидеть значения.
-            </div>
-
-            <div class="mt-5">
-              <div class="text-sm text-slate-500 dark:text-slate-400">Сводка</div>
-              <div id="stats" class="mt-2 text-sm"></div>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </main>
-
-    <footer class="py-6 text-center text-xs text-slate-500">
-      © <span id="year"></span> GER40 Viewer • GitHub Pages
-    </footer>
-  </div>
+<body>
+  <header>
+    <div id="title">Загрузка…</div>
+    <div id="subtitle" class="muted">Ожидаем данные</div>
+    <div style="margin-left:auto">
+      <button id="copyLinkBtn" class="btn">Скопировать ссылку</button>
+    </div>
+  </header>
+  <div id="chart"></div>
+  <div id="err" style="padding:10px 14px; display:none"></div>
 
   <script>
-  // --- Fallback загрузчик библиотек (если CDN 1 не отдал скрипт) ---
-  (function ensureLibs(cb) {
-    const add = (src, onload) => {
-      const s = document.createElement('script');
-      s.src = src; s.defer = true; s.onload = onload;
-      s.onerror = () => console.warn('CDN failed:', src);
-      document.head.appendChild(s);
-    };
+    // Показ ошибок на странице
+    function showError(msg) {
+      const e = document.getElementById('err');
+      e.style.display = 'block';
+      e.textContent = String(msg || 'Неизвестная ошибка');
+      document.getElementById('title').textContent = 'Ошибка';
+      document.getElementById('subtitle').textContent = 'Смотри раздел ниже';
+    }
+    window.addEventListener('error', ev => showError(ev.error?.message || ev.message));
 
-    // 1) Lightweight Charts: сначала jsDelivr, потом unpkg
-    if (!window.LightweightCharts) {
-      add("https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js", next);
-    } else next();
-    function next() {
-      if (!window.LightweightCharts) {
-        add("https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js", ready1);
-      } else ready1();
+    // Утилиты
+    const qs = new URLSearchParams(location.search);
+    function b64urlToBytes(b64u) {
+      const b64 = (b64u || '').replace(/-/g,'+').replace(/_/g,'/');
+      const pad = b64.length % 4 ? 4 - (b64.length % 4) : 0;
+      const binStr = atob(b64 + '='.repeat(pad));
+      const out = new Uint8Array(binStr.length);
+      for (let i=0;i<binStr.length;i++) out[i] = binStr.charCodeAt(i);
+      return out;
     }
 
-    // 2) pako: inflate zlib (для ?d)
-    function ready1() {
-      if (!window.pako) {
-        add("https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js", ready2);
-      } else ready2();
-    }
-    function ready2() { cb(); }
-  })(init);
+    function parsePayload() {
+      // DEMO: ?demo=1 — генерим 30 свечей
+      if (qs.get('demo') === '1') {
+        const start = new Date('2025-01-02T00:00:00Z');
+        const candles = Array.from({length:30}, (_,i)=>{
+          const d = new Date(start.getTime() + i*86400000);
+          const base = 17000 + i*15;
+          const open = base + (i%2? -30:20);
+          const high = open + 120;
+          const low  = open - 90;
+          const close= open + (i%3===0? 60 : -40);
+          return { time: d.toISOString().slice(0,10), open, high, low, close };
+        });
+        return { symbol:'DEMO', exchange:'TEST', timeframe:'1D', candles };
+      }
 
-  // --- Утилиты и диагностика ---
-  const qs = new URLSearchParams(location.search);
-  const $ = (id) => document.getElementById(id);
-  window.onerror = (m, s, l, c, e) => {
-    const t = $('title'), st = $('subtitle');
-    if (t) t.textContent = 'Ошибка на странице';
-    if (st) st.textContent = (e && e.message) || m;
-  };
-
-  function b64urlToBytes(b64u) {
-    const b64 = (b64u || "").replace(/-/g, "+").replace(/_/g, "/");
-    const pad = b64.length % 4 ? 4 - (b64.length % 4) : 0;
-    const b64p = b64 + "=".repeat(pad);
-    const binStr = atob(b64p);
-    const bytes = new Uint8Array(binStr.length);
-    for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
-    return bytes;
-  }
-
-  function parsePayload() {
-    // режим демо: ?demo=1 — рисует фейковые 30 свечей (для проверки библиотеки)
-    if (qs.get('demo') === '1') {
-      const start = new Date('2025-01-01');
-      const candles = Array.from({length: 30}, (_, i) => {
-        const d = new Date(start.getTime() + i*86400000);
-        const o = 17000 + i*10, h = o + 70, l = o - 50, c = o + (i%2?30:-20);
-        return { time: d.toISOString().slice(0,10), open:o, high:h, low:l, close:c };
-      });
-      return { symbol:'DEMO', exchange:'TEST', timeframe:'1D', candles };
-    }
-
-    const d = qs.get("d");
-    const j = qs.get("j");
-
-    if (d) {
+      const d = qs.get('d');
+      const j = qs.get('j');
       try {
-        const inflated = pako.inflate(b64urlToBytes(d));
-        const txt = new TextDecoder().decode(inflated);
-        return JSON.parse(txt);
+        if (d) {
+          const inflated = pako.inflate(b64urlToBytes(d));
+          const txt = new TextDecoder().decode(inflated);
+          return JSON.parse(txt);
+        }
+        if (j) {
+          return JSON.parse(decodeURIComponent(j));
+        }
       } catch (e) {
-        console.error("Ошибка распаковки d:", e);
-        $('subtitle').textContent = 'Не удалось распаковать параметр d';
+        showError('Ошибка разбора параметров: ' + (e && e.message));
       }
-    } else if (j) {
-      try { return JSON.parse(decodeURIComponent(j)); }
-      catch (e) {
-        console.error("Ошибка JSON в j:", e);
-        $('subtitle').textContent = 'Некорректный JSON в параметре j';
+      return null;
+    }
+
+    function renderChart(payload) {
+      if (!window.LightweightCharts) {
+        showError('Не загрузилась библиотека lightweight-charts');
+        return;
       }
+      if (!payload || !Array.isArray(payload.candles) || payload.candles.length===0) {
+        document.getElementById('title').textContent = 'Нет данных';
+        document.getElementById('subtitle').textContent = 'Добавь ?demo=1 или передай d=/j=';
+        return;
+      }
+      const need = ['time','open','high','low','close'];
+      for (const k of need) {
+        if (!(k in payload.candles[0])) {
+          showError('Неверный формат свечей: отсутствует ключ ' + k);
+          return;
+        }
+      }
+
+      const container = document.getElementById('chart');
+      const chart = LightweightCharts.createChart(container, {
+        autoSize: true,
+        layout: { background:{type:'solid', color:'transparent'}, textColor:'#111' },
+        rightPriceScale: { borderVisible:false },
+        timeScale: { borderVisible:false, rightOffset:2, barSpacing:8, fixLeftEdge:true },
+        grid: { vertLines:{ color:'rgba(128,128,128,.12)' }, horzLines:{ color:'rgba(128,128,128,.12)' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      });
+      const series = chart.addCandlestickSeries({
+        upColor:'#22c55e', downColor:'#ef4444',
+        borderUpColor:'#16a34a', borderDownColor:'#dc2626',
+        wickUpColor:'#16a34a', wickDownColor:'#dc2626',
+      });
+      series.setData(payload.candles);
+      chart.timeScale().fitContent();
+
+      document.getElementById('title').textContent =
+        (payload.symbol || 'GER40') + ' — дневные свечи';
+      document.getElementById('subtitle').textContent =
+        (payload.exchange || 'FOREXCOM') + ' • ' + (payload.timeframe || '1D') + ' • баров: ' + payload.candles.length;
     }
-    return null;
-  }
 
-  function summarize(candles) {
-    const first = candles[0], last = candles[candles.length-1];
-    const min = Math.min(...candles.map(c => c.low));
-    const max = Math.max(...candles.map(c => c.high));
-    const change = ((last.close - first.open) / first.open) * 100;
-    return `Период: <b>${first.time}</b> → <b>${last.time}</b><br/>
-            Мин/Макс: <b>${min.toFixed(2)}</b> / <b>${max.toFixed(2)}</b><br/>
-            Изм.: <b>${change.toFixed(2)}%</b>`;
-  }
+    // Кнопка "скопировать ссылку"
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('copyLinkBtn').addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(location.href); } catch {}
+        const b = document.getElementById('copyLinkBtn');
+        const t = b.textContent; b.textContent = 'Скопировано!'; setTimeout(()=>b.textContent=t, 1000);
+      });
 
-  function renderChart(payload) {
-    const container = $("chart");
-    const chart = LightweightCharts.createChart(container, {
-      autoSize: true,
-      layout: { background: { type: 'solid', color: 'transparent' }, textColor: getComputedStyle(document.documentElement).color },
-      rightPriceScale: { borderVisible: false },
-      timeScale: { borderVisible: false, rightOffset: 2, barSpacing: 8, fixLeftEdge: true },
-      grid: { vertLines: { color: 'rgba(128,128,128,.12)' }, horzLines: { color: 'rgba(128,128,128,.12)' } },
-      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      const payload = parsePayload();
+      try { renderChart(payload); }
+      catch (e) { showError(e && e.message ? e.message : e); }
     });
-    const series = chart.addCandlestickSeries({
-      upColor: '#22c55e', downColor: '#ef4444',
-      borderUpColor: '#16a34a', borderDownColor: '#dc2626',
-      wickUpColor: '#16a34a', wickDownColor: '#dc2626',
-    });
-
-    // Проверим формат до setData
-    if (!Array.isArray(payload.candles) || payload.candles.length === 0) {
-      throw new Error('payload.candles пустой или не массив');
-    }
-    const ok = ['time','open','high','low','close'].every(k => k in payload.candles[0]);
-    if (!ok) throw new Error('Неверный формат свечей');
-
-    series.setData(payload.candles);
-    chart.timeScale().fitContent();
-
-    $('title').textContent = `${payload.symbol || 'GER40'} — дневные свечи`;
-    $('subtitle').textContent = `${payload.exchange || 'FOREXCOM'} • ${payload.timeframe || '1D'} • баров: ${payload.candles.length}`;
-    $('meta').textContent = `${payload.symbol || 'GER40'} @ ${payload.exchange || 'FOREXCOM'}`;
-    $('stats').innerHTML = summarize(payload.candles);
-  }
-
-  function init() {
-    const p = parsePayload();
-    $('year') && ($('year').textContent = new Date().getFullYear());
-
-    if (!window.LightweightCharts) {
-      $('title').textContent = 'Не загрузилась библиотека графика';
-      $('subtitle').textContent = 'Проверьте CDN или интернет';
-      return;
-    }
-
-    if (!p) {
-      $('title').textContent = 'Нет данных';
-      $('subtitle').textContent = 'Открой через кнопку в боте или добавь ?demo=1 для проверки';
-      return;
-    }
-
-    try {
-      renderChart(p);
-    } catch (e) {
-      console.error(e);
-      $('title').textContent = 'Ошибка данных';
-      $('subtitle').textContent = e.message || 'Смотри консоль';
-    }
-
-    // Копирование ссылки
-    const btn = document.getElementById('copyLinkBtn');
-    if (btn) btn.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(location.href); } catch {}
-      const prev = btn.textContent; btn.textContent = 'Скопировано!'; setTimeout(()=>btn.textContent=prev, 1000);
-    });
-  }
-</script>
+  </script>
 </body>
 </html>
