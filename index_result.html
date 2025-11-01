@@ -246,10 +246,12 @@
       const done = elapsed >= (tail.length - 1)*STAGGER_MS + DURATION_MS;
       if(!done) requestAnimationFrame(frame);
       else{
+        const finalTo    = Math.max(baseToMin, left.length + tail.length - 1 + 0.999);
+        const finalRange = { from: baseFrom, to: finalTo };
         chart.applyOptions({
-          handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true},
-          handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},
-          timeScale:{ rightOffset:12 } // оставляем воздух справа и после анимации
+          handleScroll:{ mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true },
+          handleScale:{ axisPressedMouseMove:true, mouseWheel:true, pinch:true }
+          // ВАЖНО: без timeScale здесь, иначе будет прыжок
         });
       }
     }
