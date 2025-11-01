@@ -15,31 +15,116 @@
       --accent: #2563eb;
       --green: #22c55e;
       --red: #ef4444;
+      --ok: #16a34a;
+      --warn: #d97706;
     }
-    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 "Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif; display:flex; flex-direction:column; min-height:100vh; }
-    header { display:flex; align-items:center; justify-content:space-between; padding:16px 28px; background:var(--card); border-bottom:1px solid var(--border); box-shadow:0 2px 6px rgba(0,0,0,.03); position:sticky; top:0; z-index:10; }
-    #title { font-weight:600; font-size:16px; }
-    #subtitle { color:var(--muted); font-size:13px; }
-    .badge { font-size:12px; padding:4px 8px; border:1px solid var(--border); border-radius:999px; background:#fff; color:#111; margin-left:10px; }
-    .badge.ok { border-color:#86efac; background:#f0fdf4; color:#166534; }
-    .badge.err{ border-color:#fcd34d; background:#fffbeb; color:#92400e; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 28px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0,0,0,.03);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      gap: 16px;
+    }
+    #title { font-weight: 600; font-size: 16px; }
+    #subtitle { color: var(--muted); font-size: 13px; }
+    .badge {
+      font-size: 12px; padding: 4px 8px; border-radius: 999px; border:1px solid var(--border);
+      background:#fff; color:#111; white-space:nowrap;
+    }
+    .badge.ok { color: var(--ok); border-color:#bbf7d0; background:#ecfdf5; }
+    .badge.warn { color: var(--warn); border-color:#fde68a; background:#fffbeb; }
 
-    main { flex:1; display:grid; grid-template-columns:2fr 1fr; gap:20px; padding:24px; max-width:1400px; margin:0 auto; width:100%; box-sizing:border-box; }
-    section { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.04); }
-    #chart { height:70vh; }
-    h2 { margin:0 0 10px; font-size:15px; font-weight:600; color:var(--text); }
-    p { margin:0 0 8px; color:var(--muted); font-size:13px; }
-    .btn { border:1px solid var(--border); padding:8px 14px; border-radius:10px; cursor:pointer; background:var(--card); color:var(--text); transition:all .15s; }
-    .btn:hover { border-color:var(--accent); color:var(--accent); }
-    footer { text-align:center; font-size:12px; color:var(--muted); padding:14px 0 20px; }
-    #err { color:var(--red); white-space:pre-wrap; font-family:ui-monospace,Menlo,Consolas,monospace; margin-top:10px; }
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    #chart { height: 70vh; }
+    h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    p { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+    .btn {
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      background: var(--card);
+      color: var(--text);
+      transition: all .15s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 14px 0 20px;
+    }
+    #err {
+      color: var(--red);
+      white-space: pre-wrap;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      margin-top: 10px;
+    }
 
-    .field{ margin-top:12px; } .label{ font-size:12px; color:var(--muted); margin-bottom:6px; display:block; }
-    textarea,input[type="text"]{ width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:#fff; color:var(--text); font:inherit; box-sizing:border-box; resize:vertical; min-height:78px; }
-    textarea:focus,input[type="text"]:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
-    .row{ display:flex; gap:10px; } .muted{ color:var(--muted); } .note{ font-size:12px; color:var(--muted); margin-top:6px; }
-    .success{ display:none; margin-top:10px; font-size:13px; color:#166534; background:#ecfdf5; border:1px solid #bbf7d0; padding:8px 10px; border-radius:10px; }
-    .warn{ display:none; margin-top:10px; font-size:13px; color:#92400e; background:#fffbeb; border:1px solid #fde68a; padding:8px 10px; border-radius:10px; }
+    /* --- форма справа --- */
+    .field { margin-top: 12px; }
+    .label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display:block; }
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      box-sizing: border-box;
+      resize: vertical;
+      min-height: 78px;
+    }
+    textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+    .row { display:flex; gap:10px; }
+    .muted { color: var(--muted); }
+    .note { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .success {
+      display:none; margin-top:10px; font-size:13px; color:#166534; background:#ecfdf5;
+      border:1px solid #bbf7d0; padding:8px 10px; border-radius:10px;
+    }
+    .warn {
+      display:none; margin-top:10px; font-size:13px; color:#92400e; background:#fffbeb;
+      border:1px solid #fde68a; padding:8px 10px; border-radius:10px;
+    }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -48,12 +133,12 @@
 </head>
 <body>
 <header>
-  <div style="display:flex;align-items:center;gap:8px;">
+  <div style="display:flex;align-items:center;gap:12px;min-width:0;">
     <div>
       <div id="title">Загрузка…</div>
       <div id="subtitle">Ожидаем данные</div>
     </div>
-    <span id="waBadge" class="badge">WebApp: —</span>
+    <div id="envBadge" class="badge warn" title="Открой через кнопку в боте">Standalone</div>
   </div>
   <button id="copyLinkBtn" class="btn">Скопировать ссылку</button>
 </header>
@@ -66,7 +151,8 @@
 
   <section>
     <h2>Параметры</h2>
-    <p>Ссылка содержит зашифрованный JSON со свечами (time, open, high, low, close).<br>Наведи курсор по свечам, чтобы увидеть значения.</p>
+    <p>Ссылка содержит зашифрованный JSON со свечами (time, open, high, low, close).<br>
+    Наведи курсор по свечам, чтобы увидеть значения.</p>
     <h2>Сводка</h2>
     <p id="stats" class="muted">–</p>
 
@@ -91,7 +177,7 @@
 
       <div class="note">После отправки данные уйдут боту и окно закроется (если открыто как Telegram WebApp).</div>
       <div class="success" id="okMsg">Отправлено боту. Можно закрыть окно.</div>
-      <div class="warn" id="warnMsg">Открой эту страницу через кнопку в боте, чтобы отправка сработала автоматически.</div>
+      <div class="warn" id="warnMsg">Открой эту страницу через кнопку в боте, чтобы автоотправка сработала.</div>
 
       <div style="display:flex; gap:10px; margin-top:12px;">
         <button type="submit" class="btn" id="sendBtn">Отправить боту</button>
@@ -107,117 +193,245 @@
   const qs = new URLSearchParams(location.search);
   const $ = id => document.getElementById(id);
 
-  function showError(msg){ $('err').style.display='block'; $('err').textContent=msg; $('title').textContent='Ошибка'; $('subtitle').textContent=msg; }
-  function b64urlToBytes(b64u){ const b64=(b64u||'').replace(/-/g,'+').replace(/_/g,'/'); const pad=b64.length%4?4-(b64.length%4):0; const bin=atob(b64+'='.repeat(pad)); return Uint8Array.from(bin,c=>c.charCodeAt(0)); }
+  function showError(msg) {
+    $('err').style.display = 'block';
+    $('err').textContent = msg;
+    $('title').textContent = 'Ошибка';
+    $('subtitle').textContent = msg;
+  }
 
-  function parsePayload(){
-    if(qs.get('demo')==='1'){
+  function b64urlToBytes(b64u) {
+    const b64 = (b64u||'').replace(/-/g,'+').replace(/_/g,'/');
+    const pad = b64.length%4 ? 4-(b64.length%4):0;
+    const bin = atob(b64+'='.repeat(pad));
+    return Uint8Array.from(bin, c=>c.charCodeAt(0));
+  }
+
+  function parsePayload() {
+    if (qs.get('demo')==='1') {
       const start=new Date('2025-01-01');
-      const candles=Array.from({length:30},(_,i)=>{ const d=new Date(start.getTime()+i*86400000); const o=17000+i*10, h=o+70, l=o-50, c=o+(i%2?30:-20); return {time:d.toISOString().slice(0,10),open:o,high:h,low:l,close:c};});
+      const candles=Array.from({length:30},(_,i)=>{
+        const d=new Date(start.getTime()+i*86400000);
+        const o=17000+i*10, h=o+70, l=o-50, c=o+(i%2?30:-20);
+        return {time:d.toISOString().slice(0,10),open:o,high:h,low:l,close:c};
+      });
       return {symbol:'DEMO',exchange:'TEST',timeframe:'1D',candles};
     }
     const d=qs.get('d'), j=qs.get('j');
     try{
-      if(d){ const infl=pako.inflate(b64urlToBytes(d)); return JSON.parse(new TextDecoder().decode(infl)); }
-      if(j){ return JSON.parse(decodeURIComponent(j)); }
-    }catch(e){ showError('Ошибка разбора: '+e.message); }
+      if(d){
+        const infl=pako.inflate(b64urlToBytes(d));
+        return JSON.parse(new TextDecoder().decode(infl));
+      }
+      if(j){return JSON.parse(decodeURIComponent(j));}
+    }catch(e){showError('Ошибка разбора: '+e.message);}
     return null;
   }
 
-  function summarize(c){ const f=c[0], l=c.at(-1); const min=Math.min(...c.map(x=>x.low)); const max=Math.max(...c.map(x=>x.high)); const change=((l.close-f.open)/f.open*100).toFixed(2); return `Период: ${f.time} → ${l.time}<br>Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)}<br>Изм.: ${change}%`; }
+  function summarize(candles){
+    const f=candles[0],l=candles.at(-1);
+    const min=Math.min(...candles.map(c=>c.low));
+    const max=Math.max(...candles.map(c=>c.high));
+    const change=((l.close-f.open)/f.open*100).toFixed(2);
+    return `Период: ${f.time} → ${l.time}<br>Мин/Макс: ${min.toFixed(2)} / ${max.toFixed(2)}<br>Изм.: ${change}%`;
+  }
 
-  /* ---------- ТВОЯ АНИМАЦИЯ: как была ---------- */
-  function renderChart(payload){
-    const container=$('chart');
-    const chart=LightweightCharts.createChart(container,{autoSize:true,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#111'},grid:{vertLines:{color:'rgba(0,0,0,.05)'},horzLines:{color:'rgba(0,0,0,.05)'}},rightPriceScale:{borderVisible:false},timeScale:{borderVisible:false,rightOffset:0,barSpacing:8,fixLeftEdge:true},handleScroll:{mouseWheel:false,pressedMouseMove:false,horzTouchDrag:false},handleScale:{axisPressedMouseMove:false,mouseWheel:false,pinch:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal}});
-    const series=chart.addCandlestickSeries({upColor:'#22c55e',downColor:'#ef4444',borderUpColor:'#16a34a',borderDownColor:'#dc2626',wickUpColor:'#16a34a',wickDownColor:'#dc2626'});
-    const src=payload.candles; if(!Array.isArray(src)||!src.length) throw new Error('Нет данных');
-    const DURATION_MS=600, STAGGER_MS=150, MAX_OVERLAP=4;
-    const EASE={linear:t=>t,soft:t=>1-Math.pow(1-t,3),bounce:t=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2);},elastic:t=>{const c4=(2*Math.PI)/3;return t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-0.75)*c4)+1;}};
-    const ease=EASE.soft;
-    const baseWin=Math.min(80,Math.max(10,src.length-1)); chart.timeScale().setVisibleLogicalRange({from:0,to:Math.max(1,baseWin)});
-    series.setData([]); const t0=performance.now();
-    function frame(now){
-      const elapsed=now-t0; const lastShouldStart=Math.min(src.length-1,Math.floor(elapsed/STAGGER_MS)); if(lastShouldStart<0){ requestAnimationFrame(frame); return; }
-      const firstActive=Math.max(0,lastShouldStart-(MAX_OVERLAP-1)); const frameData=[];
-      for(let i=0;i<firstActive;i++) frameData.push(src[i]);
-      let lastVisibleIndex=firstActive-1;
-      for(let i=firstActive;i<=lastShouldStart;i++){
-        const startTime=t0+i*STAGGER_MS; const t=Math.min(1,(now-startTime)/DURATION_MS); const k=ease(Math.max(0,t));
-        const tgt=src[i]; const open=+tgt.open; let close=open+(tgt.close-open)*k;
-        const baseHigh=Math.max(open,close), baseLow=Math.min(open,close);
-        let high=baseHigh+(tgt.high-baseHigh)*k, low=baseLow+(tgt.low-baseLow)*k;
-        if(low>Math.min(open,close)) low=Math.min(open,close); if(high<Math.max(open,close)) high=Math.max(open,close);
-        frameData.push({time:tgt.time,open,high,low,close}); lastVisibleIndex=i;
+  /* ---------- рендер с твоей анимацией (без изменений) ---------- */
+  function renderChart(payload) {
+    const container = $('chart');
+
+    const chart = LightweightCharts.createChart(container, {
+      autoSize: true,
+      layout: { background: { type: 'solid', color: '#ffffff' }, textColor: '#111' },
+      grid: { vertLines: { color: 'rgba(0,0,0,.05)' }, horzLines: { color: 'rgba(0,0,0,.05)' } },
+      rightPriceScale: { borderVisible: false },
+      timeScale: { borderVisible: false, rightOffset: 0, barSpacing: 8, fixLeftEdge: true },
+      handleScroll: { mouseWheel: false, pressedMouseMove: false, horzTouchDrag: false },
+      handleScale:  { axisPressedMouseMove: false, mouseWheel: false, pinch: false },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Normal }
+    });
+
+    const series = chart.addCandlestickSeries({
+      upColor:'#22c55e', downColor:'#ef4444',
+      borderUpColor:'#16a34a', borderDownColor:'#dc2626',
+      wickUpColor:'#16a34a', wickDownColor:'#dc2626',
+    });
+
+    const src = payload.candles;
+    if (!Array.isArray(src) || !src.length) throw new Error('Нет данных');
+
+    const DURATION_MS = 600;
+    const STAGGER_MS  = 150;
+    const MAX_OVERLAP = 4;
+
+    const EASE = {
+      linear:  t => t,
+      soft:    t => 1 - Math.pow(1 - t, 3),
+      bounce:  t => { const c1=1.70158,c3=c1+1; return 1 + c3*Math.pow(t-1,3) + c1*Math.pow(t-1,2); },
+      elastic: t => { const c4=(2*Math.PI)/3; return t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-0.75)*c4)+1; }
+    };
+    const ease = EASE.soft;
+
+    const baseWin = Math.min(80, Math.max(10, src.length - 1));
+    chart.timeScale().setVisibleLogicalRange({ from: 0, to: Math.max(1, baseWin) });
+
+    series.setData([]);
+
+    const t0 = performance.now();
+
+    function frame(now) {
+      const elapsed = now - t0;
+      const lastShouldStart = Math.min(src.length - 1, Math.floor(elapsed / STAGGER_MS));
+      if (lastShouldStart < 0) { requestAnimationFrame(frame); return; }
+
+      const firstActive = Math.max(0, lastShouldStart - (MAX_OVERLAP - 1));
+      const frameData = [];
+
+      for (let i = 0; i < firstActive; i++) frameData.push(src[i]);
+
+      let lastVisibleIndex = firstActive - 1;
+      for (let i = firstActive; i <= lastShouldStart; i++) {
+        const startTime = t0 + i * STAGGER_MS;
+        const t = Math.min(1, (now - startTime) / DURATION_MS);
+        const k = ease(Math.max(0, t));
+
+        const tgt = src[i];
+        const open = +tgt.open;
+        let close = open + (tgt.close - open) * k;
+
+        const baseHigh = Math.max(open, close);
+        const baseLow  = Math.min(open, close);
+        let high = baseHigh + (tgt.high - baseHigh) * k;
+        let low  = baseLow  + (tgt.low  - baseLow ) * k;
+
+        if (low > Math.min(open, close))  low  = Math.min(open, close);
+        if (high < Math.max(open, close)) high = Math.max(open, close);
+
+        frameData.push({ time: tgt.time, open, high, low, close });
+        lastVisibleIndex = i;
       }
-      series.setData(frameData); const right=Math.max(baseWin,lastVisibleIndex+0.999); chart.timeScale().setVisibleLogicalRange({from:0,to:right});
-      const lastDone=elapsed>=(src.length-1)*STAGGER_MS+DURATION_MS;
-      if(!lastDone){ requestAnimationFrame(frame); } else { series.setData(src); chart.applyOptions({handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true},handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true}}); chart.timeScale().fitContent(); }
+
+      series.setData(frameData);
+      const right = Math.max(baseWin, lastVisibleIndex + 0.999);
+      chart.timeScale().setVisibleLogicalRange({ from: 0, to: right });
+
+      const lastDone = elapsed >= (src.length - 1) * STAGGER_MS + DURATION_MS;
+      if (!lastDone) {
+        requestAnimationFrame(frame);
+      } else {
+        series.setData(src);
+        chart.applyOptions({
+          handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true },
+          handleScale:  { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
+        });
+        chart.timeScale().fitContent();
+      }
     }
     requestAnimationFrame(frame);
-    $('title').textContent=(payload.symbol||'GER40')+' — дневные свечи';
-    $('subtitle').textContent=(payload.exchange||'FOREXCOM')+' • '+(payload.timeframe||'1D')+' • баров: '+src.length;
-    $('stats').innerHTML=summarize(src);
+
+    $('title').textContent = (payload.symbol || 'GER40') + ' — дневные свечи';
+    $('subtitle').textContent =
+      (payload.exchange || 'FOREXCOM') + ' • ' + (payload.timeframe || '1D') +
+      ' • баров: ' + src.length;
+    $('stats').innerHTML = summarize(src);
+  }
+  /* ---------- /рендер ---------- */
+
+  function isWebApp() {
+    return typeof window.Telegram !== 'undefined'
+      && Telegram.WebApp
+      && typeof Telegram.WebApp.sendData === 'function';
   }
 
-  // ------- отправка формы -------
-  function isWebApp(){ return typeof window.Telegram!=='undefined' && Telegram.WebApp && typeof Telegram.WebApp.sendData==='function'; }
-  function buildIdeaPayload(meta){
-    const analysis=($('f_analysis').value||'').trim();
-    const target=($('f_target').value||'').trim();
-    const inval=($('f_inval').value||'').trim();
-    const triggers=($('f_triggers').value||'').trim();
-    return { t:'idea_v1', meta, fields:{ analysis, target, triggers, invalidation:inval } };
+  function buildIdeaPayload(meta) {
+    const analysis = (document.getElementById('f_analysis').value || '').trim();
+    const target   = (document.getElementById('f_target').value   || '').trim();
+    const inval    = (document.getElementById('f_inval').value    || '').trim();
+    const triggers = (document.getElementById('f_triggers').value || '').trim();
+
+    return {
+      t: 'idea_v1',
+      meta, // {symbol, exchange, timeframe, period:{from,to}}
+      fields: { analysis, target, triggers, invalidation: inval }
+    };
   }
-  function trySendToBot(payload){
-    const wa=isWebApp()?Telegram.WebApp:null;
-    if(wa){
-      try{
+
+  function trySendToBot(payload) {
+    const wa = isWebApp() ? Telegram.WebApp : null;
+
+    if (wa) {
+      try {
         wa.ready && wa.ready();
-        wa.HapticFeedback?.impactOccurred?.('light');
+        wa.HapticFeedback && wa.HapticFeedback.impactOccurred && wa.HapticFeedback.impactOccurred('light');
         wa.sendData(JSON.stringify(payload));
-        $('okMsg').style.display='block';
-        setTimeout(()=>wa.close(),300);
+        const ok = $('okMsg'); if (ok) { ok.style.display = 'block'; }
+        setTimeout(() => wa.close(), 300);
         return true;
-      }catch(e){ console.warn('sendData error:',e); }
+      } catch (e) {
+        console.warn('sendData error:', e);
+      }
     }
-    const bot=qs.get('bot')||''; // ?bot=YourBotName
-    if(bot){
-      const url=`https://t.me/${bot}?start=send_idea`;
-      window.location.href=url;
-      setTimeout(()=>{ try{ window.close(); }catch{} },400);
-      const w=$('warnMsg'); if(w){ w.style.display='block'; w.textContent='Открыл бота. Сообщение отправь вручную (ограничение Telegram).'; }
-      return false;
+
+    // fallback
+    const w = $('warnMsg'); if (w) {
+      w.style.display='block';
+      w.textContent='Открой через кнопку в боте (WebApp), чтобы автоотправка сработала.';
     }
-    const w=$('warnMsg'); if(w){ w.style.display='block'; w.textContent='Открой через кнопку в боте, чтобы автоотправка сработала.'; }
     return false;
   }
 
-  document.addEventListener('DOMContentLoaded',()=>{
-    $('copyLinkBtn').addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText(location.href);}catch{} const b=$('copyLinkBtn'); const t=b.textContent; b.textContent='Скопировано!'; setTimeout(()=>b.textContent=t,1000); });
+  document.addEventListener('DOMContentLoaded', ()=>{
+    $('copyLinkBtn').addEventListener('click',async()=>{
+      try{await navigator.clipboard.writeText(location.href);}catch{}
+      const b=$('copyLinkBtn'); const t=b.textContent;
+      b.textContent='Скопировано!'; setTimeout(()=>b.textContent=t,1000);
+    });
 
-    // Бейдж статуса WebApp
-    const badge=$('waBadge');
-    if(isWebApp()){ badge.textContent='WebApp ✓'; badge.classList.add('ok'); }
-    else{ badge.textContent='WebApp ✗'; badge.classList.add('err'); }
-
-    if(isWebApp()){
-      try{ Telegram.WebApp.ready(); Telegram.WebApp.expand?.(); Telegram.WebApp.setHeaderColor?.('#ffffff'); Telegram.WebApp.setBackgroundColor?.('#ffffff'); }catch{}
+    // Плашка состояния WebApp
+    const badge = $('envBadge');
+    if (isWebApp()) {
+      badge.textContent = 'WebApp ✓';
+      badge.classList.remove('warn');
+      badge.classList.add('ok');
+      try {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand && Telegram.WebApp.expand();
+        Telegram.WebApp.setHeaderColor && Telegram.WebApp.setHeaderColor('#ffffff');
+        Telegram.WebApp.setBackgroundColor && Telegram.WebApp.setBackgroundColor('#ffffff');
+      } catch {}
+    } else {
+      badge.textContent = 'Standalone';
+      badge.classList.remove('ok');
+      badge.classList.add('warn');
     }
 
-    const p=parsePayload();
-    if(!p){ $('subtitle').textContent='Нет данных (?demo=1 для теста)'; }
-    else { try{ renderChart(p); } catch(e){ showError(e.message||e); } }
+    const p = parsePayload();
+    if(!p){$('subtitle').textContent='Нет данных (?demo=1 для теста)';}
+    else { try{renderChart(p);}catch(e){showError(e.message);} }
 
-    $('ideaForm').addEventListener('submit',(ev)=>{
+    const form = document.getElementById('ideaForm');
+    form.addEventListener('submit', (ev)=>{
       ev.preventDefault();
-      const meta={ symbol:(p&&p.symbol)||'GER40', exchange:(p&&p.exchange)||'FOREXCOM', timeframe:(p&&p.timeframe)||'1D', period:(p&&p.candles&&p.candles.length)?{from:p.candles[0].time,to:p.candles.at(-1).time}:null };
-      const payload=buildIdeaPayload(meta);
-      if(!payload.fields.analysis && !payload.fields.target && !payload.fields.triggers && !payload.fields.invalidation){ alert('Заполни хотя бы одно поле.'); return; }
+      const meta = {
+        symbol: (p && p.symbol) || 'GER40',
+        exchange: (p && p.exchange) || 'FOREXCOM',
+        timeframe: (p && p.timeframe) || '1D',
+        period: (p && p.candles && p.candles.length)
+          ? { from: p.candles[0].time, to: p.candles[p.candles.length-1].time }
+          : null
+      };
+      const payload = buildIdeaPayload(meta);
+      if (!payload.fields.analysis && !payload.fields.target && !payload.fields.triggers && !payload.fields.invalidation) {
+        alert('Заполни хотя бы одно поле.'); return;
+      }
       trySendToBot(payload);
     });
 
-    $('clearBtn').addEventListener('click',()=>{ ['f_analysis','f_target','f_inval','f_triggers'].forEach(id=>{ const el=$(id); if(el) el.value=''; }); $('okMsg').style.display='none'; $('warnMsg').style.display='none'; });
+    document.getElementById('clearBtn').addEventListener('click', ()=>{
+      ['f_analysis','f_target','f_inval','f_triggers'].forEach(id => { const el=$(id); if (el) el.value=''; });
+      $('okMsg').style.display='none';
+      $('warnMsg').style.display='none';
+    });
   });
 </script>
 </body>
