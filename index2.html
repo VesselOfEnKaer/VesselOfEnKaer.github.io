@@ -190,8 +190,8 @@
 
   // --- настройки анимации ---
   const effect   = 'bounce';   // 'linear' | 'soft' | 'bounce' | 'elastic'
-  const durMs    = 200;        // длительность анимации одной свечи
-  const delayMs  = 14;         // пауза между свечами (визуальная плавность)
+  const durMs    = 100;        // длительность анимации одной свечи
+  const delayMs  = 5;         // пауза между свечами (визуальная плавность)
   const baseWin  = Math.min(80, Math.max(10, candles.length - 1)); // начальная ширина окна
   chart.timeScale().setVisibleLogicalRange({ from: 0, to: Math.max(1, baseWin) });
 
